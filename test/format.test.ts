@@ -53,3 +53,15 @@ describe('shortHash', () => {
     expect(shortHash('0x12')).toBe('0x12')
   })
 })
+
+import { formatUsdcTight } from '../src/lib/format'
+
+describe('formatUsdcTight', () => {
+  it('keeps small amounts visible and large ones tidy', () => {
+    expect(formatUsdcTight('0.002')).toBe('0.002')
+    expect(formatUsdcTight('1.5')).toBe('1.50')
+    expect(formatUsdcTight('1.200001')).toBe('1.200001')
+    expect(formatUsdcTight('3')).toBe('3.00')
+    expect(formatUsdcTight('0.0000004')).toBe('0.00')
+  })
+})

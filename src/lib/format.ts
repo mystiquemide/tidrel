@@ -14,6 +14,14 @@ export function formatFixed(value: string, places: number): string {
   return places === 0 ? whole.toString() : `${whole}.${frac}`
 }
 
+/** Up to six places with trailing zeros dropped, never fewer than two: "0.002", "1.50". For small amounts that 2 places would show as zero. */
+export function formatUsdcTight(value: string): string {
+  const full = formatFixed(value, 6)
+  const [whole, frac] = full.split('.')
+  const trimmed = frac.replace(/0+$/, '').padEnd(2, '0')
+  return `${whole}.${trimmed}`
+}
+
 export const formatUsdc = (value: string, places = 2) => formatFixed(value, places)
 
 /** "199s", "12m", "2h 5m". Short form for table cells, in seconds up to ten minutes. */

@@ -1,6 +1,6 @@
 "use client";
 
-import { formatUsdc } from "@/lib/format";
+import { formatUsdcTight } from "@/lib/format";
 
 /** Tells you when USDC lands in the wallet while a loan is open, with the repay one tap away. */
 export function ArrivalToast({
@@ -20,8 +20,8 @@ export function ArrivalToast({
       className="fixed inset-x-4 bottom-4 z-40 rounded-card border border-line bg-panel p-5 text-text shadow-lg sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-[380px]"
     >
       <p className="text-body">
-        <span className="num">{formatUsdc(arrivedUsdc, 2)} USDC</span> arrived. Repay{" "}
-        <span className="num">{formatUsdc(repayUsdc, 2)} USDC</span> now?
+        <span className="num">{formatUsdcTight(arrivedUsdc)} USDC</span> arrived. Repay{" "}
+        <span className="num">{formatUsdcTight(repayUsdc)} USDC</span> now?
       </p>
       <div className="mt-4 flex gap-3">
         <button
