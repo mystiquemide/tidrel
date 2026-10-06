@@ -21,6 +21,7 @@ import { shortHash } from "@/lib/format";
 import { AppBar } from "./AppBar";
 import { DeskView } from "./DeskView";
 import { PillLink } from "./PillLink";
+import { SettleSheet } from "./SettleSheet";
 import { WalletPicker } from "./WalletPicker";
 
 type Session = { wallet: WalletOption; address: Address; chainId: number };
@@ -71,6 +72,7 @@ export function DeskApp() {
   // False while rendering on the server and during hydration, so both agree.
   const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
   const restored = useRef(false);
+  const [settleOpen, setSettleOpen] = useState(false);
 
   // Wallets announce themselves. Collect them as they arrive.
   useEffect(
@@ -255,7 +257,46 @@ export function DeskApp() {
       </Gate>
     );
   } else {
-    content = <DeskView desk={view.desk} mode="desk" notices={deskNotices(view.desk)} />;
+    const okDesk = view.desk.ok ? view.desk : null;
+    const drawsDown = !okDesk?.position;
+    content = (
+      <>
+        <DeskView
+          desk={view.desk}
+          mode="desk"
+          notices={deskNotices(view.desk)}
+          primary={
+            okDesk && (
+            <div>
+              <button
+                type="button"
+                onClick={() => setSettleOpen(true)}
+                disabled={drawsDown}
+                className={`${btn} w-full bg-tide text-ink hover:brightness-95 sm:w-auto`}
+              >
+                Settle a trade
+              </button>
+              {drawsDown && (
+                <p className="mt-3 text-small text-muted">
+                  Settling needs the Borrow service, which is unreachable. Chain data is still shown.
+                </p>
+              )}
+            </div>
+            )
+          }
+        />
+        {session && okDesk && (
+          <SettleSheet
+            open={settleOpen}
+            address={session.address}
+            provider={session.wallet.provider}
+            settlements={okDesk.settlements}
+            onClose={() => setSettleOpen(false)}
+            onChanged={() => setSession((s) => (s ? { ...s } : s))}
+          />
+        )}
+      </>
+    );
   }
 
   return (

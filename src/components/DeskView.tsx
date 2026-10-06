@@ -35,11 +35,14 @@ export function DeskView({
   desk,
   mode = "view",
   notices = [],
+  primary,
 }: {
   desk: Desk;
   /** "view" is the read-only page for any address. "desk" is a connected wallet's own. */
   mode?: "view" | "desk";
   notices?: Notice[];
+  /** The one main action of the screen. Absent in the read-only view. */
+  primary?: React.ReactNode;
 }) {
   const demo = mode === "view" && isDemoDesk(desk.address);
 
@@ -132,6 +135,8 @@ export function DeskView({
             Borrow service unreachable. Showing chain data only.
           </p>
         )}
+
+        {primary && <div className="mt-8">{primary}</div>}
 
         <dl className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Cell label="Collateral posted" value={formatFixed(desk.collateralCirBtc, 8)} unit="cirBTC" />
