@@ -35,13 +35,11 @@ export function DeskView({
   desk,
   mode = "view",
   notices = [],
-  actions,
 }: {
   desk: Desk;
   /** "view" is the read-only page for any address. "desk" is a connected wallet's own. */
   mode?: "view" | "desk";
   notices?: Notice[];
-  actions?: React.ReactNode;
 }) {
   const demo = mode === "view" && isDemoDesk(desk.address);
 
@@ -88,7 +86,6 @@ export function DeskView({
             </h1>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-          {actions}
           {p?.band && p.healthFactor !== null ? (
             <span className={`inline-flex w-fit items-center gap-2 rounded-badge px-3 py-2 text-[14px] font-medium ${BAND_TONE[p.band]}`}>
               Health <span className="num">{p.healthFactor.toFixed(2)}</span>

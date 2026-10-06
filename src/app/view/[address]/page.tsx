@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { DeskView } from "@/components/DeskView";
-import { NavBar } from "@/components/NavBar";
+import { AppBar } from "@/components/AppBar";
 import { PillLink } from "@/components/PillLink";
 import { SkipLink } from "@/components/SkipLink";
 import { DEMO_DESK_ADDRESS } from "@/lib/chain";
@@ -28,7 +28,12 @@ export default async function ViewPage({ params }: Props) {
   return (
     <>
       <SkipLink />
-      <NavBar tone="dark" />
+      <AppBar>
+        <span className="hidden text-small text-muted sm:inline">Read-only</span>
+        <PillLink href="/desk" variant="light" size="sm">
+          Open your desk
+        </PillLink>
+      </AppBar>
       <main id="main" className="flex-1">
         {address ? (
           <DeskView desk={await getDesk(address)} />

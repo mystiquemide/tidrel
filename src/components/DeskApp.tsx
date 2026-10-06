@@ -17,6 +17,8 @@ import {
   rememberWallet,
   type WalletOption,
 } from "@/lib/wallets";
+import { shortHash } from "@/lib/format";
+import { AppBar } from "./AppBar";
 import { DeskView } from "./DeskView";
 import { PillLink } from "./PillLink";
 import { WalletPicker } from "./WalletPicker";
@@ -29,15 +31,28 @@ type Result =
 const btn =
   "inline-flex items-center justify-center rounded-pill px-6 py-3.5 text-[15px] font-medium whitespace-nowrap transition-colors duration-150 disabled:opacity-60";
 
-function Gate({ title, body, children }: { title: string; body: string; children?: React.ReactNode }) {
+function Gate({
+  title,
+  body,
+  note,
+  children,
+}: {
+  title: string;
+  body: string;
+  note?: React.ReactNode;
+  children?: React.ReactNode;
+}) {
   return (
-    <section className="bg-ink text-text">
-      <div className="mx-auto w-full max-w-[1200px] px-6 py-24 md:py-32">
+    <section className="flex min-h-[calc(100svh-4rem)] items-center justify-center bg-ink text-text">
+      <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center px-6 py-16 text-center">
         <h1 className="max-w-[18ch] text-[40px] leading-[1.05] font-[550] tracking-[-0.03em] md:text-display">
           {title}
         </h1>
         <p className="mt-5 max-w-xl text-lead text-ebb">{body}</p>
-        <div className="mt-10 flex flex-col gap-3 sm:flex-row">{children}</div>
+        <div className="mt-10 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row">
+          {children}
+        </div>
+        {note}
       </div>
     </section>
   );
@@ -172,19 +187,25 @@ export function DeskApp() {
     />
   );
   const errorLine = error && (
-    <p role="alert" className="mt-4 text-small text-warn">
+    <p role="alert" className="mt-6 text-small text-warn">
       {error}
     </p>
   );
 
+  const view =
+    session && result && result.key === `${session.address}:${session.chainId}` ? result.value : null;
+
+  let content: React.ReactNode;
   if (!session) {
     // Give a remembered wallet a moment to announce itself before showing the gate.
-    if (!mounted || (!waited && lastWallet())) return <div className="min-h-[60vh] bg-ink" aria-busy="true" />;
-    return (
-      <>
+    content =
+      !mounted || (!waited && lastWallet()) ? (
+        <div className="min-h-[60vh]" aria-busy="true" />
+      ) : (
         <Gate
           title="Connect a wallet to open your desk."
           body="Tidrel runs on Arc. Your wallet signs every step, and Tidrel never holds your funds or your keys."
+          note={errorLine}
         >
           <button type="button" onClick={() => setPickerOpen(true)} className={`${btn} bg-tide text-ink hover:brightness-95`}>
             Connect wallet
@@ -193,52 +214,37 @@ export function DeskApp() {
             View the demo desk
           </PillLink>
         </Gate>
-        <div className="mx-auto -mt-16 w-full max-w-[1200px] px-6 pb-24">{errorLine}</div>
-        {picker}
-      </>
-    );
-  }
-
-  const view = result && result.key === `${session.address}:${session.chainId}` ? result.value : null;
-  if (!view) {
-    return (
-      <section className="bg-ink text-text" aria-busy="true">
-        <div className="mx-auto w-full max-w-[1200px] px-6 py-24">
-          <p className="text-lead text-ebb">Reading your desk from Arc.</p>
-        </div>
+      );
+  } else if (!view) {
+    content = (
+      <section className="flex min-h-[calc(100svh-4rem)] items-center justify-center" aria-busy="true">
+        <p className="text-lead text-ebb">Reading your desk from Arc.</p>
       </section>
     );
-  }
-
-  if (view.kind === "blocked") {
+  } else if (view.kind === "blocked") {
     const wrongChain = view.check.reason === "WRONG_CHAIN";
-    return (
-      <>
-        <Gate
-          title={wrongChain ? "Switch to Arc to continue." : "Tidrel needs a regular wallet."}
-          body={
-            wrongChain
-              ? `Your wallet is on chain ${view.check.reason === "WRONG_CHAIN" ? view.check.chainId : ""}. Tidrel runs on Arc, chain ${ARC_CHAIN_ID}.`
-              : "The payout contracts reject smart-contract accounts, so this wallet cannot settle trades. Connect a regular wallet instead."
-          }
-        >
-          {wrongChain && (
-            <button type="button" disabled={busy} onClick={onSwitch} className={`${btn} bg-tide text-ink hover:brightness-95`}>
-              Switch to Arc
-            </button>
-          )}
-          <button type="button" onClick={disconnect} className={`${btn} bg-panel text-text hover:bg-line`}>
-            Use another wallet
+    content = (
+      <Gate
+        title={wrongChain ? "Switch to Arc to continue." : "Tidrel needs a regular wallet."}
+        body={
+          wrongChain
+            ? `Your wallet is on chain ${view.check.reason === "WRONG_CHAIN" ? view.check.chainId : ""}. Tidrel runs on Arc, chain ${ARC_CHAIN_ID}.`
+            : "The payout contracts reject smart-contract accounts, so this wallet cannot settle trades. Connect a regular wallet instead."
+        }
+        note={errorLine}
+      >
+        {wrongChain && (
+          <button type="button" disabled={busy} onClick={onSwitch} className={`${btn} bg-tide text-ink hover:brightness-95`}>
+            Switch to Arc
           </button>
-        </Gate>
-        <div className="mx-auto -mt-16 w-full max-w-[1200px] px-6 pb-24">{errorLine}</div>
-      </>
+        )}
+        <button type="button" onClick={disconnect} className={`${btn} bg-panel text-text hover:bg-line`}>
+          Use another wallet
+        </button>
+      </Gate>
     );
-  }
-
-  const desk = view.desk;
-  if (!desk) {
-    return (
+  } else if (!view.desk) {
+    content = (
       <Gate title="Chain data is unavailable right now." body="Every figure on this page is read from Arc, so nothing is shown until the read works. Try again in a moment.">
         <button type="button" onClick={() => setSession({ ...session })} className={`${btn} bg-paper text-ink hover:bg-paper/90`}>
           Try again
@@ -248,23 +254,33 @@ export function DeskApp() {
         </button>
       </Gate>
     );
+  } else {
+    content = <DeskView desk={view.desk} mode="desk" notices={deskNotices(view.desk)} />;
   }
 
   return (
-    <DeskView
-      desk={desk}
-      mode="desk"
-      notices={deskNotices(desk)}
-      actions={
-        <button
-          type="button"
-          onClick={disconnect}
-          className="rounded-pill bg-panel px-4 py-2 text-small font-medium text-ebb hover:bg-line hover:text-text"
-        >
-          Disconnect
-        </button>
-      }
-    />
+    <>
+      <AppBar>
+        {session && (
+          <>
+            <span className="hidden items-center gap-2 rounded-badge bg-panel px-3 py-2 text-small whitespace-nowrap text-ebb sm:inline-flex">
+              <span className="h-2 w-2 rounded-pill bg-tide" aria-hidden="true" />
+              <span className="num">{shortHash(session.address)}</span>
+            </span>
+            <button
+              type="button"
+              onClick={disconnect}
+              className="rounded-pill bg-panel px-4 py-2 text-small font-medium text-ebb hover:bg-line hover:text-text"
+            >
+              Disconnect
+            </button>
+          </>
+        )}
+      </AppBar>
+      <main id="main" className="flex-1">
+        {content}
+      </main>
+      {picker}
+    </>
   );
 }
-
