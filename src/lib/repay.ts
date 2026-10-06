@@ -163,7 +163,7 @@ export function kitRepayDeps(adapter: Adapter, wallet: Address): ExecuteRepayDep
   return {
     repay: async ({ loanId, repayUsdc, idempotencyKey }) => {
       const result = await getKit().borrow.repay({
-        from: { adapter, chain: BORROW_CHAIN, address: wallet },
+        from: { adapter, chain: BORROW_CHAIN },
         loanId,
         repayAmount: repayUsdc,
         idempotencyKey,
