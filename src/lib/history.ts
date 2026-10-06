@@ -73,6 +73,14 @@ const usdc = (v: bigint) => formatUnits(v, USDC_DECIMALS)
 
 type Row = Settlement & { _drawn: bigint; _drawTs: number | null; _pos: Pos }
 
+function publicRow(row: Row): Settlement {
+  const out: Partial<Row> = { ...row }
+  delete out._drawn
+  delete out._drawTs
+  delete out._pos
+  return out as Settlement
+}
+
 /**
  * Pure matcher. A draw is the Borrow immediately before a payout from the same
  * wallet. A repay that brings borrow shares back to zero closes every draw of
@@ -181,7 +189,7 @@ export function buildSettlements(
 
   rows.sort((a, b) => order(a._pos, b._pos))
   return {
-    settlements: rows.map(({ _drawn, _drawTs, _pos, ...s }) => s),
+    settlements: rows.map(publicRow),
     truncated,
   }
 }
