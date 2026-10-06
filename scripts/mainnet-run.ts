@@ -6,20 +6,41 @@
  *   tsx scripts/mainnet-run.ts quote-draw <usdc>
  *   tsx scripts/mainnet-run.ts draw <usdc>
  *   tsx scripts/mainnet-run.ts repay [usdc]
+ *   tsx scripts/mainnet-run.ts counterparties
+ *   tsx scripts/mainnet-run.ts payout <reference> <usdc> <usdc> <usdc>
+ *   tsx scripts/mainnet-run.ts return
  * Reads the key from DESK_PRIVATE_KEY. Never prints it.
  */
-import { formatUnits, type Address } from 'viem'
+import {
+  createWalletClient,
+  encodePacked,
+  formatUnits,
+  http,
+  keccak256,
+  parseUnits,
+  type Address,
+} from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { ADDRESSES, CIRBTC_DECIMALS, CIRBTC_USDC_MARKET_ID, USDC_DECIMALS } from '../src/lib/chain'
+import { ADDRESSES, ARC_RPC_URL, CIRBTC_DECIMALS, CIRBTC_USDC_MARKET_ID, USDC_DECIMALS, arcChain, explorerTx } from '../src/lib/chain'
 import { BORROW_CHAIN, getKit, publicClient, serverAdapter } from '../src/lib/kit'
 import { erc20Abi } from '../src/lib/abis'
-import { readPosition } from '../src/lib/position'
+import { hasCollateral, readPosition } from '../src/lib/position'
 import { kitDrawDeps, quoteDraw } from '../src/lib/draw'
+import { findReference, readHistory } from '../src/lib/history'
+import { executePayouts, planSettlement } from '../src/lib/settle'
 import { executeRepay, kitRepayDeps, planRepay, quoteRepay } from '../src/lib/repay'
 
 const key = process.env.DESK_PRIVATE_KEY as `0x${string}` | undefined
 if (!key) throw new Error('DESK_PRIVATE_KEY is not set')
 const wallet: Address = privateKeyToAccount(key).address
+
+/** Builder-controlled counterparties, derived from the desk key so they are recoverable. */
+const counterparty = (i: number) =>
+  privateKeyToAccount(keccak256(encodePacked(['bytes32', 'string'], [key!, `tidrel-counterparty-${i}`])))
+const counterparties = [0, 1, 2].map(counterparty)
+
+const walletFor = (account: ReturnType<typeof counterparty>) =>
+  createWalletClient({ account, chain: arcChain, transport: http(ARC_RPC_URL) })
 
 const json = (v: unknown) =>
   JSON.stringify(v, (_, x) => (typeof x === 'bigint' ? x.toString() : x), 2)
@@ -91,6 +112,44 @@ async function main() {
       console.log('outcome', json(out))
       console.log('balances', await balances())
       console.log('position', json(await readPosition(wallet)))
+      break
+    }
+    case 'counterparties':
+      for (const [i, a] of counterparties.entries()) {
+        const bal = await publicClient.readContract({ address: ADDRESSES.usdc, abi: erc20Abi, functionName: 'balanceOf', args: [a.address] })
+        console.log(i, a.address, formatUnits(bal, USDC_DECIMALS))
+      }
+      break
+    case 'payout': {
+      const [reference, ...amounts] = process.argv.slice(3)
+      const p = await readPosition(wallet)
+      const history = await readHistory(wallet)
+      const plan = await planSettlement(
+        { reference, legs: amounts.map((amountUsdc, i) => ({ to: counterparties[i].address, amountUsdc })) },
+        { wallet, loanId: p.loanId, hasCollateral: hasCollateral(p), walletUsdc: p.walletUsdc, marketLiquidityUsdc: p.marketLiquidityUsdc },
+        { quoteDraw, findReference: async (r) => findReference(history.settlements, r), newKey: () => crypto.randomUUID() },
+      )
+      console.log('plan', json(plan))
+      if (plan.refusal) break
+      const hash = await executePayouts({
+        plan,
+        walletClient: createWalletClient({ account: privateKeyToAccount(key!), chain: arcChain, transport: http(ARC_RPC_URL) }),
+        publicClient,
+      })
+      console.log('payout tx', hash, explorerTx(hash))
+      console.log('history', json((await readHistory(wallet)).settlements))
+      break
+    }
+    case 'return': {
+      const reserve = parseUnits('0.004', USDC_DECIMALS)
+      for (const a of counterparties) {
+        const bal = await publicClient.readContract({ address: ADDRESSES.usdc, abi: erc20Abi, functionName: 'balanceOf', args: [a.address] })
+        if (bal <= reserve) { console.log(a.address, 'nothing to return'); continue }
+        const hash = await walletFor(a).writeContract({ address: ADDRESSES.usdc, abi: erc20Abi, functionName: 'transfer', args: [wallet, bal - reserve] })
+        await publicClient.waitForTransactionReceipt({ hash })
+        console.log(a.address, 'returned', formatUnits(bal - reserve, USDC_DECIMALS), hash)
+      }
+      console.log('balances', await balances())
       break
     }
     default:
