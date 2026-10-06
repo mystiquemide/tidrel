@@ -15,6 +15,7 @@ export const ADDRESSES = {
   cirBtc: '0x171A4217b86A807A64eB94757Db6849fb4bDbAA0',
   multicall3From: '0x522fAf9A91c41c443c66765030741e4AaCe147D0',
   memo: '0x5294E9927c3306DcBaDb03fe70b92e01cCede505',
+  morpho: '0x34cd04070dd72b14e241112f6d83812df5af7fcd',
 } as const satisfies Record<string, Address>
 
 export const USDC_DECIMALS = 6

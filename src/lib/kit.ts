@@ -17,7 +17,7 @@ export function getKit(): AppKit {
 
 export const publicClient = createPublicClient({
   chain: arcChain,
-  transport: http(ARC_RPC_URL),
+  transport: http(ARC_RPC_URL, { retryCount: 6, retryDelay: 500 }),
 })
 
 export function browserAdapter(provider: EIP1193Provider) {
