@@ -1,5 +1,6 @@
 import { DEMO_DESK_ADDRESS, DEMO_DESK_FROM_BLOCK } from './chain'
 import { publicClient } from './client'
+import { formatUsdc } from './format'
 import { readHistory, type Settlement } from './history'
 
 export type DemoCycles =
@@ -30,4 +31,22 @@ export function headlineCycle(settlements: Settlement[]): Settlement | null {
   const clean = repaid.filter((s) => !s.sharedCycle)
   const pool = clean.length ? clean : repaid
   return pool.length ? pool[pool.length - 1] : null
+}
+
+export type ProofFigures = {
+  drawn: string
+  seconds: string
+  interest: string
+  legs: string
+}
+
+/** The four headline figures of a repaid cycle, formatted exactly. Null if any is not measured yet. */
+export function proofFigures(s: Settlement | null): ProofFigures | null {
+  if (!s || s.openSeconds === null || s.interestUsdc === null || !s.drawTxHash) return null
+  return {
+    drawn: formatUsdc(s.drawnUsdc, 2),
+    seconds: String(s.openSeconds),
+    interest: formatUsdc(s.interestUsdc, 6),
+    legs: String(s.legs),
+  }
 }
