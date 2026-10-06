@@ -6,7 +6,10 @@ import { useEffect, useState } from "react";
 import { PillLink } from "./PillLink";
 import { TidrelLockup } from "./TidrelMark";
 
-const LINKS = [{ href: "/proof", label: "Proof" }] as const;
+const LINKS = [
+  { href: "/#how-it-works", label: "How it works", hideOnMobile: true },
+  { href: "/proof", label: "Proof", hideOnMobile: false },
+] as const;
 
 /**
  * Site nav. It sits flat on the page surface, then gains a hairline once the page
@@ -51,7 +54,7 @@ export function NavBar({ tone = "light" }: { tone?: "light" | "dark" }) {
                 key={l.href}
                 href={l.href}
                 aria-current={current ? "page" : undefined}
-                className={`rounded-badge px-2 py-1 text-[14px] font-medium underline-offset-[6px] ${
+                className={`${l.hideOnMobile ? "hidden sm:inline-flex" : ""} rounded-badge px-2 py-1 text-[14px] font-medium underline-offset-[6px] ${
                   dark ? "text-text hover:text-tide" : "text-ink hover:text-tide-deep"
                 } ${current ? "underline decoration-2" : ""}`}
               >
