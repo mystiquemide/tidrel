@@ -16,6 +16,7 @@ const LINKS: NavLink[] = [
   { label: "How it works", section: "how-it-works" },
   { label: "Proof", href: "/proof" },
   { label: "Safety", href: "/safety" },
+  { label: "Contracts", href: "/contracts" },
 ];
 
 /**

@@ -89,11 +89,11 @@ export async function SafetyRules() {
         </ul>
 
         <div className="mt-12 flex flex-col gap-3 sm:flex-row">
-          <PillLink href="/how-it-works" variant="light">
-            See how it works
-          </PillLink>
-          <PillLink href="/proof" variant="dark">
+          <PillLink href="/proof" variant="light">
             See the mainnet proof
+          </PillLink>
+          <PillLink href="/contracts" variant="dark">
+            See the contracts
           </PillLink>
         </div>
       </div>
