@@ -4,7 +4,7 @@
 
 Draw USDC against your cirBTC the moment a trade settles, and repay it the second USDC comes back.
 
-**Live on Arc mainnet:** [tidrel.vercel.app](https://tidrel.vercel.app) · **Repo:** [mystiquemide/tidrel](https://github.com/mystiquemide/tidrel)
+**Live on Arc mainnet:** [tidrel.vercel.app](https://tidrel.vercel.app) · **Repo:** [mystiquemide/tidrel](https://github.com/mystiquemide/tidrel) · **Builder:** [MystiqueMide](https://github.com/mystiquemide)
 
 <br clear="left">
 
@@ -57,6 +57,10 @@ sequenceDiagram
 | USDC as gas | Every transaction here pays its gas in USDC | any row above |
 | TidrelSettler (this repo) | Pays all counterparties in one call and rejects a reused reference | [deploy](https://explorer.arc.io/tx/0xbd7c495127b311d2a756402c13e9483974875ae892e2ce04b5a806fd152e0894), [settle](https://explorer.arc.io/tx/0xf839e087bd40643d9583c050a8bfda686c1488300c2a6454909dbee284f9521c) |
 
+### Why it belongs on Arc
+
+The value that moves is USDC and the thing that moves it is settlement, so Arc is the product, not a deployment target. Borrow Kit supplies the credit, cirBTC is the collateral, USDC is both the payout and the gas, and the payout runs through Arc's Multicall3From. TidrelSettler is permissionless: any wallet or app on Arc can call it to pay a batch of counterparties and record a trade reference, so other builders can reuse it.
+
 ## Safety rules
 
 - Draws stop before they get risky: Tidrel refuses any draw that would take health below 1.20, and checks again right before you sign.
@@ -65,6 +69,17 @@ sequenceDiagram
 - A trade reference can be used once per wallet. The contract rejects a repeat, from any browser or device. References are public on Arc, so keep them free of anything private.
 - Regular wallets only. Smart-contract accounts are refused up front with an explanation.
 - Your wallet signs every step. Tidrel holds no funds and no keys, and there is no database or server that can move money.
+
+## How it is tested
+
+256 Vitest tests and 8 Foundry tests, covering the parts that can lose money:
+
+- The planner: draws only the shortfall, refuses health below 1.20 and any draw above market liquidity, and refuses a reused reference.
+- The contract: all-or-nothing payout, one-time references, a token that returns false, and no USDC left behind.
+- Failure handling: a draw that lands without its payout, a cancelled wallet prompt, and Circle's service lagging after a repay.
+- The page: every figure in the UI source must come from the chain, and the build fails if one is hardcoded.
+
+The contract was also simulated against live mainnet state with `scripts/sim-settler.mts`, because Arc's USDC cannot run inside a local Foundry fork.
 
 ## Run it locally
 
@@ -100,6 +115,10 @@ Arc mainnet, chain ID 5042. The market is cirBTC/USDC on Morpho Blue. TidrelSett
 - Quotes, draws and repays go through Circle's Borrow service. When it is unreachable, Tidrel shows chain data only and disables draws.
 - A settlement takes two transactions: the draw, then one batch that pays everyone. A failure between them is handled and shown, but it can happen.
 - TidrelSettler is unaudited and its source is not yet verified on the explorer. The browser flow was tested with a scripted wallet in place of a wallet extension.
+
+## Next
+
+Tidrel stops at a working settlement flow. The next step is a pilot with three to five OTC desks, to learn real settlement sizes and timing before changing anything. Revenue, if it comes, would use Borrow Kit's integrator fee, which Tidrel does not switch on today.
 
 ## License
 
