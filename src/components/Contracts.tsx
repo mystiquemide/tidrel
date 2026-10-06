@@ -1,5 +1,6 @@
 import {
   ADDRESSES,
+  ARC_CHAIN_ID,
   CIRBTC_USDC_MARKET_ID,
   DEMO_DESK_ADDRESS,
   explorerAddress,
@@ -11,6 +12,7 @@ const ROWS = [
     name: "TidrelSettler",
     role: "Tidrel's own contract. Pays every counterparty in one transaction and accepts each trade reference once per wallet. It holds no funds, has no owner and takes no fee.",
     address: ADDRESSES.settler,
+    source: `https://repo.sourcify.dev/${ARC_CHAIN_ID}/${ADDRESSES.settler}`,
   },
   {
     name: "USDC",
@@ -63,14 +65,26 @@ export function Contracts() {
             >
               <h2 className="text-h3 font-medium tracking-[-0.02em] text-text">{r.name}</h2>
               <p className="text-body text-ebb">{r.role}</p>
-              <a
-                href={explorerAddress(r.address)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="self-start rounded-badge font-mono text-[13px] break-all text-tide sm:text-small underline decoration-tide/40 underline-offset-4 hover:decoration-tide"
-              >
-                {r.address}
-              </a>
+              <div className="flex flex-col items-start gap-3">
+                <a
+                  href={explorerAddress(r.address)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-badge font-mono text-[13px] break-all text-tide sm:text-small underline decoration-tide/40 underline-offset-4 hover:decoration-tide"
+                >
+                  {r.address}
+                </a>
+                {"source" in r && (
+                  <a
+                    href={r.source}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-badge text-small font-medium text-ebb underline decoration-muted/50 underline-offset-4 hover:text-text"
+                  >
+                    Verified source on Sourcify
+                  </a>
+                )}
+              </div>
             </li>
           ))}
         </ul>

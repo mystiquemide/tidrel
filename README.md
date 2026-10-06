@@ -126,7 +126,7 @@ Contract tests: `cd contracts && forge install foundry-rs/forge-std --no-git && 
 | Memo | [`0x5294E9927c3306DcBaDb03fe70b92e01cCede505`](https://explorer.arc.io/address/0x5294E9927c3306DcBaDb03fe70b92e01cCede505) |
 | Demo desk wallet | [`0x100E8AF5Ba507641Bb87c7D3229B8d458b78ca04`](https://explorer.arc.io/address/0x100E8AF5Ba507641Bb87c7D3229B8d458b78ca04) |
 
-Arc mainnet, chain ID 5042. The market is cirBTC/USDC on Morpho Blue. TidrelSettler has no owner, no fee and no upgrade path, and its source is in [`contracts/src/TidrelSettler.sol`](contracts/src/TidrelSettler.sol).
+Arc mainnet, chain ID 5042. The market is cirBTC/USDC on Morpho Blue. TidrelSettler has no owner, no fee and no upgrade path, and its source is in [`contracts/src/TidrelSettler.sol`](contracts/src/TidrelSettler.sol) and is [verified on Sourcify](https://repo.sourcify.dev/5042/0xf041C51cA3E5F37D9F75C574AAe5aeBf42754957) as an exact match for both the creation and the runtime bytecode.
 
 ## Limitations
 
@@ -134,7 +134,7 @@ Arc mainnet, chain ID 5042. The market is cirBTC/USDC on Morpho Blue. TidrelSett
 - The counterparties in the run are wallets controlled by the builder, and they returned the USDC after each payout. The cycles prove the mechanism, not demand.
 - Quotes, draws and repays go through Circle's Borrow service. When it is unreachable, Tidrel shows chain data only and disables draws.
 - A settlement takes two transactions: the draw, then one batch that pays everyone. A failure between them is handled and shown, but it can happen.
-- TidrelSettler is unaudited and its source is not yet verified on the explorer. The browser flow was tested with a scripted wallet in place of a wallet extension.
+- TidrelSettler is unaudited. Its source is verified on Sourcify, but the explorer's own contract tab sits behind a bot challenge I could not check from a script. The browser flow was tested with a scripted wallet in place of a wallet extension.
 
 ## Next
 
