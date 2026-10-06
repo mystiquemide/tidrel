@@ -1,14 +1,19 @@
+const WAVE_UPPER = "M2.5 9.5C5.5 5.5 8.5 5.5 12 9.5S18.5 13.5 21.5 9.5";
+const WAVE_LOWER = "M2.5 17C5.5 13 8.5 13 12 17S18.5 21 21.5 17";
+
 /**
- * The Tidrel mark: two horizontal bars on a 24 unit grid. The upper bar is 20
- * wide, the lower is 13 wide and sits flush right, so the pair reads as a tide
- * line falling away. Bars are 4 tall with 3 between them.
+ * The Tidrel mark: two tide lines, one wave over another, drawn as round-capped
+ * strokes on a 24 unit grid. It takes its color from the parent (currentColor).
+ * Pass a heavier strokeWidth at 16px or below so the waves stay open.
  */
 export function TidrelMark({
   size = 24,
+  strokeWidth = 2.6,
   className,
   title,
 }: {
   size?: number;
+  strokeWidth?: number;
   className?: string;
   title?: string;
 }) {
@@ -18,44 +23,27 @@ export function TidrelMark({
       height={size}
       viewBox="0 0 24 24"
       fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
       className={className}
       role={title ? "img" : undefined}
       aria-label={title}
       aria-hidden={title ? undefined : true}
     >
-      <rect x="2" y="6.5" width="20" height="4" rx="2" fill="currentColor" />
-      <rect x="9" y="13.5" width="13" height="4" rx="2" fill="currentColor" />
+      <path d={WAVE_UPPER} />
+      <path d={WAVE_LOWER} />
     </svg>
   );
 }
 
-/**
- * Lowercase "tidrel" in Inter Tight 600 with the dot of the i replaced by a
- * short bar, the same shape as the bars in the mark. Sized in em, so set the
- * font size on the parent.
- */
-export function TidrelWordmark({
-  className,
-  barClassName = "bg-tide",
-}: {
-  className?: string;
-  barClassName?: string;
-}) {
+/** Lowercase "tidrel" in Inter Tight 600. Sized in em, so set the font size on the parent. */
+export function TidrelWordmark({ className }: { className?: string }) {
   return (
     <span
-      className={`inline-block font-semibold leading-none tracking-[-0.02em] ${className ?? ""}`}
+      className={`inline-block font-semibold leading-none tracking-[-0.025em] ${className ?? ""}`}
     >
-      <span className="sr-only">tidrel</span>
-      <span aria-hidden="true">
-        t
-        <span className="relative inline-block">
-          {"\u0131"}
-          <span
-            className={`absolute left-1/2 top-[0.015em] h-[0.12em] w-[0.35em] -translate-x-1/2 rounded-full ${barClassName}`}
-          />
-        </span>
-        drel
-      </span>
+      tidrel
     </span>
   );
 }
@@ -73,11 +61,15 @@ export function TidrelLockup({
   const light = tone === "light";
   return (
     <span
-      className={`inline-flex items-center gap-2 ${light ? "text-ink" : "text-text"} ${className ?? ""}`}
+      className={`inline-flex items-center gap-2.5 ${light ? "text-ink" : "text-text"} ${className ?? ""}`}
       style={{ fontSize: size * 0.95 }}
     >
-      <TidrelMark size={size} className={light ? "text-tide-deep" : "text-tide"} />
-      <TidrelWordmark barClassName={light ? "bg-tide-deep" : "bg-tide"} />
+      <TidrelMark
+        size={size}
+        strokeWidth={size <= 18 ? 3 : 2.6}
+        className={light ? "text-tide-deep" : "text-tide"}
+      />
+      <TidrelWordmark />
     </span>
   );
 }
