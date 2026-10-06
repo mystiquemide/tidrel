@@ -45,7 +45,7 @@ export function Hero() {
               href={l.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-badge text-tide-deep underline decoration-tide-deep/40 underline-offset-4 hover:decoration-tide-deep"
+              className="inline-block rounded-badge py-1 text-tide-deep underline decoration-tide-deep/40 underline-offset-4 hover:decoration-tide-deep"
             >
               {l.label}
             </a>

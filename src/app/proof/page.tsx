@@ -4,7 +4,7 @@ import { ProofBand } from "@/components/ProofBand";
 import { SkipLink } from "@/components/SkipLink";
 
 export const metadata: Metadata = {
-  title: "Mainnet proof | Tidrel",
+  title: "Mainnet proof",
   description:
     "A full draw, settle and repay cycle on Arc mainnet, read from chain with a link to every transaction.",
 };

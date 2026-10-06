@@ -4,7 +4,7 @@ import { NavBar } from "@/components/NavBar";
 import { SkipLink } from "@/components/SkipLink";
 
 export const metadata: Metadata = {
-  title: "Contracts and addresses | Tidrel",
+  title: "Contracts and addresses",
   description:
     "Every token, contract and wallet Tidrel uses on Arc mainnet, each linked to the explorer.",
 };

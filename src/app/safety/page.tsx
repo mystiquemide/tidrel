@@ -4,7 +4,7 @@ import { SafetyRules } from "@/components/SafetyRules";
 import { SkipLink } from "@/components/SkipLink";
 
 export const metadata: Metadata = {
-  title: "Safety rules | Tidrel",
+  title: "Safety rules",
   description:
     "What Tidrel enforces before anything is signed, what it cannot do, and where the mainnet run is limited.",
 };

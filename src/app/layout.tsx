@@ -14,10 +14,24 @@ const jetBrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+const DESCRIPTION =
+  "Draw USDC against your cirBTC the moment a trade settles, and repay it the second USDC comes back. On Arc.";
+
 export const metadata: Metadata = {
-  title: "Tidrel",
-  description:
-    "Draw USDC against your cirBTC the moment a trade settles, and repay it the second USDC comes back. On Arc.",
+  metadataBase: new URL("https://tidrel.vercel.app"),
+  title: { default: "Tidrel: settle in USDC, keep your bitcoin", template: "%s | Tidrel" },
+  description: DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: "Tidrel",
+    title: "Tidrel: settle in USDC, keep your bitcoin",
+    description: DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tidrel: settle in USDC, keep your bitcoin",
+    description: DESCRIPTION,
+  },
 };
 
 export const viewport: Viewport = {

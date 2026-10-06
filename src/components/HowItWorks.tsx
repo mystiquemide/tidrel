@@ -77,7 +77,7 @@ export async function HowItWorks() {
                       href={explorerTx(hash)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-badge text-small font-medium text-tide underline decoration-tide/40 underline-offset-4 hover:decoration-tide"
+                      className="inline-block rounded-badge py-1 text-small font-medium text-tide underline decoration-tide/40 underline-offset-4 hover:decoration-tide"
                     >
                       {step.linkLabel}
                     </a>

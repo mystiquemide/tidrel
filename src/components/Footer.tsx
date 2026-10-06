@@ -28,7 +28,7 @@ const GROUPS = [
 ] as const;
 
 const linkClass =
-  "rounded-badge text-small text-ebb underline-offset-4 hover:text-text hover:underline";
+  "inline-block rounded-badge py-1 text-small text-ebb underline-offset-4 hover:text-text hover:underline";
 
 /** Home page only. The proof, safety and contracts pages carry no footer. */
 export function Footer() {
@@ -47,7 +47,7 @@ export function Footer() {
           {GROUPS.map((g) => (
             <nav key={g.title} aria-label={g.title}>
               <h2 className="text-small font-medium text-text">{g.title}</h2>
-              <ul className="mt-4 flex flex-col gap-3">
+              <ul className="mt-3 flex flex-col gap-1">
                 {g.links.map((l) => (
                   <li key={l.label}>
                     {l.href.startsWith("/") ? (
