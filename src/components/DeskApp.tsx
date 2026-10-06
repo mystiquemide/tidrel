@@ -29,6 +29,8 @@ type Result =
   | { kind: "blocked"; check: Extract<WalletCheck, { ok: false }> }
   | { kind: "desk"; desk: Desk | null };
 
+const READ_TIMEOUT_MS = 45_000;
+
 const btn =
   "inline-flex items-center justify-center rounded-pill px-6 py-3.5 text-[15px] font-medium whitespace-nowrap transition-colors duration-150 disabled:opacity-60";
 
@@ -73,6 +75,8 @@ export function DeskApp() {
   const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
   const restored = useRef(false);
   const [settleOpen, setSettleOpen] = useState(false);
+  // Bumped to read the desk again without changing wallet or network.
+  const [refreshTick, setRefreshTick] = useState(0);
 
   // Wallets announce themselves. Collect them as they arrive.
   useEffect(
@@ -122,43 +126,51 @@ export function DeskApp() {
   }, []);
 
   // Follow the wallet when the user changes account or network.
+  const activeProvider = session?.wallet.provider ?? null;
   useEffect(() => {
-    if (!session) return;
-    const p: EIP1193Provider = session.wallet.provider;
+    if (!activeProvider) return;
+    const p: EIP1193Provider = activeProvider;
     const onAccounts = (accs: unknown) => {
       const next = (accs as string[])[0];
       if (!next) disconnect();
-      else setSession((s) => (s ? { ...s, address: getAddress(next) } : s));
+      else setSession((s) => (!s || s.address === getAddress(next) ? s : { ...s, address: getAddress(next) }));
     };
-    const onChain = (id: unknown) => setSession((s) => (s ? { ...s, chainId: Number(id) } : s));
+    const onChain = (id: unknown) => setSession((s) => (!s || s.chainId === Number(id) ? s : { ...s, chainId: Number(id) }));
     p.on("accountsChanged", onAccounts);
     p.on("chainChanged", onChain);
     return () => {
       p.removeListener("accountsChanged", onAccounts);
       p.removeListener("chainChanged", onChain);
     };
-  }, [session]);
+  }, [activeProvider]);
 
   // Check the wallet, then read its desk.
+  const address = session?.address;
+  const chainId = session?.chainId;
   useEffect(() => {
-    if (!session) return;
+    if (!address || chainId === undefined) return;
     let live = true;
-    const key = `${session.address}:${session.chainId}`;
+    const key = `${address}:${chainId}`;
     (async () => {
-      const check = await checkWallet({
-        address: session.address,
-        chainId: session.chainId,
-        publicClient,
-      }).catch(() => ({ ok: true }) as WalletCheck);
+      const check = await checkWallet({ address, chainId, publicClient }).catch(
+        () => ({ ok: true }) as WalletCheck,
+      );
       if (!live) return;
       if (!check.ok) return setResult({ key, value: { kind: "blocked", check } });
-      const desk = await loadDesk(session.address).catch(() => null);
+      // A read that hangs must end in a message and a retry, never an endless spinner.
+      const desk = await Promise.race([
+        loadDesk(address).catch((e) => {
+          console.error("Tidrel: reading the desk failed", e);
+          return null;
+        }),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), READ_TIMEOUT_MS)),
+      ]);
       if (live) setResult({ key, value: { kind: "desk", desk } });
     })();
     return () => {
       live = false;
     };
-  }, [session]);
+  }, [address, chainId, refreshTick]);
 
   function disconnect() {
     rememberWallet(null);
@@ -248,7 +260,7 @@ export function DeskApp() {
   } else if (!view.desk) {
     content = (
       <Gate title="Chain data is unavailable right now." body="Every figure on this page is read from Arc mainnet, so nothing is shown until the read works. Try again in a moment.">
-        <button type="button" onClick={() => setSession({ ...session })} className={`${btn} bg-paper text-ink hover:bg-paper/90`}>
+        <button type="button" onClick={() => { setResult(null); setRefreshTick((n) => n + 1); }} className={`${btn} bg-paper text-ink hover:bg-paper/90`}>
           Try again
         </button>
         <button type="button" onClick={disconnect} className={`${btn} bg-panel text-text hover:bg-line`}>
@@ -292,7 +304,7 @@ export function DeskApp() {
             provider={session.wallet.provider}
             settlements={okDesk.settlements}
             onClose={() => setSettleOpen(false)}
-            onChanged={() => setSession((s) => (s ? { ...s } : s))}
+            onChanged={() => setRefreshTick((n) => n + 1)}
           />
         )}
       </>
