@@ -1,4 +1,6 @@
-import { ADDRESSES, explorerAddress } from "@/lib/chain";
+import Image from "next/image";
+import { ADDRESSES, DEMO_DESK_ADDRESS, explorerAddress } from "@/lib/chain";
+import { shortHash } from "@/lib/format";
 import { PillLink } from "./PillLink";
 import { TidrelMark } from "./TidrelMark";
 
@@ -12,7 +14,7 @@ const PROOF_LINKS = [
 export function Hero() {
   return (
     <section className="on-light bg-tide-wash text-ink">
-      <div className="mx-auto flex min-h-[calc(100svh-4rem)] w-full max-w-[1200px] flex-col items-center justify-center px-6 py-20 text-center md:py-28">
+      <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center px-6 pt-20 text-center md:pt-28">
         <span className="inline-flex items-center gap-2 rounded-badge bg-bone px-3 py-2 text-[14px] font-medium">
           <TidrelMark size={18} strokeWidth={2.8} className="text-tide-deep" />
           Settlement credit on Arc mainnet
@@ -51,6 +53,32 @@ export function Hero() {
             </a>
           ))}
         </p>
+      </div>
+
+      {/* A real capture of the demo desk, read from Arc mainnet by the built app. It is
+          cut off at the bottom and sits flush on the dark section that follows. */}
+      <div className="mx-auto mt-14 w-full max-w-[1100px] px-6">
+        <div className="overflow-hidden rounded-t-card border border-b-0 border-ink/15 bg-ink shadow-[0_-8px_40px_rgba(11,14,17,0.12)]">
+          <div className="flex items-center gap-2 border-b border-line bg-panel px-4 py-3" aria-hidden="true">
+            <span className="h-2.5 w-2.5 rounded-pill bg-line" />
+            <span className="h-2.5 w-2.5 rounded-pill bg-line" />
+            <span className="h-2.5 w-2.5 rounded-pill bg-line" />
+            <span className="num ml-3 truncate rounded-badge bg-ink px-3 py-1 text-caption text-muted">
+              tidrel.vercel.app/view/{shortHash(DEMO_DESK_ADDRESS)}
+            </span>
+          </div>
+          <div className="max-h-[300px] overflow-hidden sm:max-h-[460px] md:max-h-[560px]">
+            <Image
+              src="/captures/desk.png"
+              alt="The Tidrel desk for the demo wallet: collateral posted, available to draw, borrowed now, cost so far, and the tide line of its mainnet draws and repays."
+              width={2560}
+              height={1622}
+              priority
+              sizes="(min-width: 1148px) 1100px, 100vw"
+              className="block h-auto w-full"
+            />
+          </div>
+        </div>
       </div>
     </section>
   );
