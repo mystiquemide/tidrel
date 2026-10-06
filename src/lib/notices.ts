@@ -8,7 +8,8 @@ export type Notice = {
 }
 
 /** What a connected wallet should be told about its own desk, in plain language. */
-export function deskNotices(desk: Desk): Notice[] {
+/** `historyReady` is false while the settlement log is still loading, so nothing is claimed from it yet. */
+export function deskNotices(desk: Desk, historyReady = true): Notice[] {
   if (!desk.ok || !desk.position) return []
   const p = desk.position
   const out: Notice[] = []
@@ -22,7 +23,7 @@ export function deskNotices(desk: Desk): Notice[] {
       text: 'This wallet holds no cirBTC. Tidrel borrows against cirBTC.',
       link: { href: 'https://www.circle.com/cirbtc', label: 'About cirBTC' },
     })
-  } else if (!open && desk.settlements.length === 0) {
+  } else if (historyReady && !open && desk.settlements.length === 0) {
     out.push({
       tone: 'info',
       text: 'No loan yet. Your first draw posts the cirBTC it needs automatically.',
@@ -38,7 +39,7 @@ export function deskNotices(desk: Desk): Notice[] {
     }
   }
 
-  const stranded = desk.settlements.find((s) => s.state === 'drawn-not-settled')
+  const stranded = !historyReady ? undefined : desk.settlements.find((s) => s.state === 'drawn-not-settled')
   if (open && stranded) {
     out.push({
       tone: 'warn',

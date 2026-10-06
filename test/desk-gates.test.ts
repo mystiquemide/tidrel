@@ -68,3 +68,14 @@ describe('addWallet', () => {
     expect(list.find((w) => w.rdns === 'io.rabby')?.uuid).toBe('second')
   })
 })
+
+describe('deskNotices while the history is still loading', () => {
+  it('does not claim "no loan yet" before the settlement log has been read', () => {
+    const d = desk({ position: position({ walletCirBtc: '0.001' }) })
+    expect(deskNotices(d, false)).toEqual([])
+    expect(deskNotices(d, true)[0].text).toContain('No loan yet')
+  })
+  it('still says a wallet has no cirBTC, which needs no history', () => {
+    expect(deskNotices(desk(), false)[0].text).toContain('holds no cirBTC')
+  })
+})

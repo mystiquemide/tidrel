@@ -30,12 +30,26 @@ function Cell({ label, value, unit, note }: { label: string; value: string; unit
   );
 }
 
+function HistoryNote({ state }: { state: "loading" | "failed" }) {
+  return (
+    <p
+      role={state === "loading" ? "status" : undefined}
+      className="rounded-card bg-panel px-6 py-10 text-center text-small text-muted"
+    >
+      {state === "loading"
+        ? "Reading settlements from Arc mainnet."
+        : "Settlements could not be read right now. Reload to try again."}
+    </p>
+  );
+}
+
 /** The console layout. Read-only: it holds no write action, so a viewer needs no wallet. */
 export function DeskView({
   desk,
   mode = "view",
   notices = [],
   primary,
+  history = "ready",
 }: {
   desk: Desk;
   /** "view" is the read-only page for any address. "desk" is a connected wallet's own. */
@@ -43,6 +57,8 @@ export function DeskView({
   notices?: Notice[];
   /** The one main action of the screen. Absent in the read-only view. */
   primary?: React.ReactNode;
+  /** The settlement log reads slower than the loan. "loading" shows a placeholder, never an empty claim. */
+  history?: "loading" | "ready" | "failed";
 }) {
   const demo = mode === "view" && isDemoDesk(desk.address);
 
@@ -166,11 +182,19 @@ export function DeskView({
 
         <h2 className="mt-16 text-h3 font-medium tracking-[-0.02em]">Tide line</h2>
         <div className="mt-4">
-          <TideLine settlements={desk.settlements} />
+          {history === "ready" ? (
+            <TideLine settlements={desk.settlements} />
+          ) : (
+            <HistoryNote state={history} />
+          )}
         </div>
 
         <h2 className="mt-16 text-h3 font-medium tracking-[-0.02em]">Settlements</h2>
-        {rows.length > 0 ? (
+        {history !== "ready" ? (
+          <div className="mt-4">
+            <HistoryNote state={history} />
+          </div>
+        ) : rows.length > 0 ? (
           <div className="mt-4">
             <SettlementsTable rows={rows} />
           </div>
@@ -179,7 +203,7 @@ export function DeskView({
             No settlements found for this address.
           </p>
         )}
-        {desk.truncated && (
+        {history === "ready" && desk.truncated && (
           <p className="mt-4 text-small text-muted">
             Older settlements are not loaded. This view reads the most recent stretch of Arc mainnet.
           </p>

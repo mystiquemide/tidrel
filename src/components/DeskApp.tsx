@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { EIP1193Provider } from "viem";
 import { getAddress, type Address } from "viem";
-import { loadDesk } from "@/app/desk/actions";
+import { loadDeskHeader, loadDeskHistory } from "@/app/desk/actions";
 import { ARC_CHAIN_ID, DEMO_DESK_ADDRESS } from "@/lib/chain";
 import { publicClient } from "@/lib/client";
 import { switchToArc } from "@/lib/connect";
@@ -27,7 +27,7 @@ import { WalletPicker } from "./WalletPicker";
 type Session = { wallet: WalletOption; address: Address; chainId: number };
 type Result =
   | { kind: "blocked"; check: Extract<WalletCheck, { ok: false }> }
-  | { kind: "desk"; desk: Desk | null };
+  | { kind: "desk"; desk: Desk | null; history: "loading" | "ready" | "failed" };
 
 const READ_TIMEOUT_MS = 45_000;
 
@@ -151,21 +151,50 @@ export function DeskApp() {
     if (!address || chainId === undefined) return;
     let live = true;
     const key = `${address}:${chainId}`;
+    // Start both reads at once. The loan shows as soon as it lands and the slower
+    // history fills in after, so the page is useful in a second or two.
+    const guard = <T,>(p: Promise<T | null>) =>
+      Promise.race([
+        p.catch((e) => {
+          console.error("Tidrel: reading the desk failed", e);
+          return null;
+        }),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), READ_TIMEOUT_MS)),
+      ]);
+    const header = guard(loadDeskHeader(address));
+    const history = guard(loadDeskHistory(address));
     (async () => {
       const check = await checkWallet({ address, chainId, publicClient }).catch(
         () => ({ ok: true }) as WalletCheck,
       );
       if (!live) return;
       if (!check.ok) return setResult({ key, value: { kind: "blocked", check } });
-      // A read that hangs must end in a message and a retry, never an endless spinner.
-      const desk = await Promise.race([
-        loadDesk(address).catch((e) => {
-          console.error("Tidrel: reading the desk failed", e);
-          return null;
-        }),
-        new Promise<null>((resolve) => setTimeout(() => resolve(null), READ_TIMEOUT_MS)),
-      ]);
-      if (live) setResult({ key, value: { kind: "desk", desk } });
+
+      const h = await header;
+      if (!live) return;
+      if (!h) return setResult({ key, value: { kind: "desk", desk: null, history: "ready" } });
+      const base = {
+        ok: true as const,
+        address,
+        position: h.position,
+        collateralCirBtc: h.collateralCirBtc,
+        truncated: false,
+        blockNumber: h.blockNumber,
+      };
+      setResult({ key, value: { kind: "desk", desk: { ...base, settlements: [] }, history: "loading" } });
+
+      const hist = await history;
+      if (!live) return;
+      setResult({
+        key,
+        value: {
+          kind: "desk",
+          desk: hist
+            ? { ...base, settlements: hist.settlements, truncated: hist.truncated, blockNumber: hist.blockNumber }
+            : { ...base, settlements: [] },
+          history: hist ? "ready" : "failed",
+        },
+      });
     })();
     return () => {
       live = false;
@@ -276,7 +305,8 @@ export function DeskApp() {
         <DeskView
           desk={view.desk}
           mode="desk"
-          notices={deskNotices(view.desk)}
+          history={view.history}
+          notices={deskNotices(view.desk, view.history === "ready")}
           primary={
             okDesk && (
             <div>

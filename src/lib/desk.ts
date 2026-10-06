@@ -23,24 +23,17 @@ export type Desk =
     }
   | { ok: false; address: Address; reason: 'chain' }
 
-/**
- * Everything the console shows for one address. The loan comes from Circle's Borrow
- * service and the history from Arc. If the service is down the page still renders
- * the chain data, and says so.
- */
-export const getDesk = cache(async (address: Address): Promise<Desk> => {
-  const history = isDemoDesk(address)
-    ? getDemoCycles().then((d) =>
-        d.ok
-          ? { settlements: d.settlements, truncated: false, blockNumber: d.blockNumber }
-          : null,
-      )
-    : readHistory(address)
-        .then((h) => ({ settlements: h.settlements, truncated: h.truncated, blockNumber: h.toBlock }))
-        .catch(() => null)
+export type DeskHeader = {
+  position: Position | null
+  collateralCirBtc: string
+  blockNumber: bigint
+}
 
-  const [hist, position, collateral] = await Promise.all([
-    history,
+export type DeskHistory = { settlements: Settlement[]; truncated: boolean; blockNumber: bigint }
+
+/** The quick half: the loan and the collateral. Reads in about a second or two. */
+export const getDeskHeader = cache(async (address: Address): Promise<DeskHeader | null> => {
+  const [position, collateral, head] = await Promise.all([
     readPosition(address).catch(() => null),
     publicClient
       .readContract({
@@ -51,14 +44,32 @@ export const getDesk = cache(async (address: Address): Promise<Desk> => {
       })
       .then((p) => formatUnits(p[2], CIRBTC_DECIMALS))
       .catch(() => null),
+    publicClient.getBlockNumber().catch(() => null),
   ])
+  if (collateral === null || head === null) return null
+  return { position, collateralCirBtc: collateral, blockNumber: position?.blockNumber ?? head }
+})
 
-  if (!hist || collateral === null) return { ok: false, address, reason: 'chain' }
+/** The slow half: the log scan. Memo is skipped for everyone but the demo desk, and pages read in parallel. */
+export const getDeskHistory = cache(async (address: Address): Promise<DeskHistory | null> => {
+  if (isDemoDesk(address)) {
+    const d = await getDemoCycles()
+    return d.ok ? { settlements: d.settlements, truncated: false, blockNumber: d.blockNumber } : null
+  }
+  return readHistory(address, { concurrency: 6, includeMemo: false })
+    .then((h) => ({ settlements: h.settlements, truncated: h.truncated, blockNumber: h.toBlock }))
+    .catch(() => null)
+})
+
+/** Everything the console shows for one address, for pages that render on the server. */
+export const getDesk = cache(async (address: Address): Promise<Desk> => {
+  const [header, hist] = await Promise.all([getDeskHeader(address), getDeskHistory(address)])
+  if (!header || !hist) return { ok: false, address, reason: 'chain' }
   return {
     ok: true,
     address,
-    position,
-    collateralCirBtc: collateral,
+    position: header.position,
+    collateralCirBtc: header.collateralCirBtc,
     settlements: hist.settlements,
     truncated: hist.truncated,
     blockNumber: hist.blockNumber,

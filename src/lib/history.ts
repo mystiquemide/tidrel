@@ -218,9 +218,24 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (t: T) => Promise<R
   return out
 }
 
+function readMemoPage(wallet: Address, range: { fromBlock: bigint; toBlock: bigint }) {
+  return publicClient.getLogs({
+    address: ADDRESSES.memo,
+    event: memoEvent,
+    args: { sender: wallet },
+    ...range,
+  })
+}
+
 export async function readHistory(
   wallet: Address,
-  opts: { fromBlock?: bigint; lookbackBlocks?: bigint; concurrency?: number } = {},
+  opts: {
+    fromBlock?: bigint
+    lookbackBlocks?: bigint
+    concurrency?: number
+    /** Legacy Memo payouts only exist for the demo desk. Skipping them saves a log read per page. */
+    includeMemo?: boolean
+  } = {},
 ) {
   const head = await publicClient.getBlockNumber()
   const lookback = opts.lookbackBlocks ?? DEFAULT_LOOKBACK_BLOCKS
@@ -235,12 +250,9 @@ export async function readHistory(
   const perPage = await mapLimit(pages, opts.concurrency ?? 2, async (p) => {
     const range = { fromBlock: p.from, toBlock: p.to }
     const [memos, borrows, repays, settleds] = await Promise.all([
-      publicClient.getLogs({
-        address: ADDRESSES.memo,
-        event: memoEvent,
-        args: { sender: wallet },
-        ...range,
-      }),
+      opts.includeMemo === false
+        ? Promise.resolve([] as Awaited<ReturnType<typeof readMemoPage>>)
+        : readMemoPage(wallet, range),
       publicClient.getLogs({
         address: ADDRESSES.morpho,
         event: borrowEvent,
