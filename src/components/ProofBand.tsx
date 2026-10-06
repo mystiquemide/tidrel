@@ -52,8 +52,8 @@ export async function ProofBand() {
   const rows = data.ok ? [...data.settlements].reverse() : [];
 
   return (
-    <section id="proof" className="bg-ink text-text">
-      <div className="mx-auto w-full max-w-[1200px] px-6 py-24 md:py-32">
+    <section className="bg-ink text-text">
+      <div className="mx-auto w-full max-w-[1200px] px-6 pt-16 pb-24 md:pt-24 md:pb-32">
         <span className="inline-flex items-center gap-2 rounded-badge bg-panel px-3 py-2 text-[14px] font-medium">
           <TidrelMark size={18} strokeWidth={2.8} className="text-tide" />
           Mainnet proof
@@ -61,13 +61,13 @@ export async function ProofBand() {
 
         {head && head.openSeconds !== null && head.interestUsdc !== null ? (
           <>
-            <h2 className="mt-8 max-w-[18ch] text-[40px] leading-[1.04] font-[550] tracking-[-0.03em] md:text-display">
+            <h1 className="mt-8 max-w-[18ch] text-[40px] leading-[1.04] font-[550] tracking-[-0.03em] md:text-display">
               A loan against bitcoin that existed for{" "}
               <span className="text-tide">
                 {formatDurationWords(head.openSeconds)}
               </span>
               .
-            </h2>
+            </h1>
             <p className="mt-6 max-w-2xl text-lead text-ebb">
               It drew{" "}
               <span className="num text-text">{formatUsdc(head.drawnUsdc, 2)} USDC</span>, paid{" "}
@@ -90,9 +90,9 @@ export async function ProofBand() {
           </>
         ) : (
           <>
-            <h2 className="mt-8 max-w-[20ch] text-[40px] leading-[1.04] font-[550] tracking-[-0.03em] md:text-display">
+            <h1 className="mt-8 max-w-[20ch] text-[40px] leading-[1.04] font-[550] tracking-[-0.03em] md:text-display">
               {data.ok ? "First settlements land with the mainnet run." : "Chain data is unavailable right now."}
-            </h2>
+            </h1>
             <p className="mt-6 max-w-2xl text-lead text-ebb">
               {data.ok
                 ? "Every figure on this page is read from Arc. There is nothing to show until a draw has been repaid."

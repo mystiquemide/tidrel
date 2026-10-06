@@ -1,4 +1,4 @@
-import { ADDRESSES, DEMO_DESK_ADDRESS, explorerAddress } from "@/lib/chain";
+import { ADDRESSES, explorerAddress } from "@/lib/chain";
 import { PillLink } from "./PillLink";
 import { TidrelMark } from "./TidrelMark";
 
@@ -32,7 +32,7 @@ export function Hero() {
           <PillLink href="/desk" variant="primary">
             Open the desk
           </PillLink>
-          <PillLink href={explorerAddress(DEMO_DESK_ADDRESS)} variant="soft">
+          <PillLink href="/proof" variant="soft">
             See the mainnet run
           </PillLink>
         </div>
