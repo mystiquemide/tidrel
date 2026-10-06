@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildPosition, lineAtGuard, type RawLoan } from '../src/lib/position'
+import { buildPosition, interestOf, lineAtGuard, type RawLoan } from '../src/lib/position'
 
 const WALLET = '0x2222222222222222222222222222222222222222' as const
 
@@ -91,5 +91,30 @@ describe('buildPosition', () => {
     })
     expect(p.dataStatus).toBe('PENDING')
     expect(p.healthFactor).toBeNull()
+  })
+})
+
+describe('interestOf', () => {
+  it('uses borrowed minus principal, not the service interest field', () => {
+    // Seen live right after a borrow: accruedInterest echoed the whole debt.
+    expect(
+      interestOf({
+        ...loan,
+        borrowed: { amount: '1.200001' },
+        principalBorrowed: { amount: '1.2' },
+        accruedInterest: { amount: '1.200001' },
+      }),
+    ).toBe('0.000001')
+  })
+
+  it('is zero when nothing has accrued', () => {
+    expect(
+      interestOf({ ...loan, borrowed: { amount: '1.2' }, principalBorrowed: { amount: '1.2' } }),
+    ).toBe('0')
+  })
+
+  it('falls back to the service field when principal is missing', () => {
+    expect(interestOf({ ...loan, principalBorrowed: null })).toBe('0.000001')
+    expect(interestOf(null)).toBe('0')
   })
 })

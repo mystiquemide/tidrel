@@ -35,6 +35,7 @@ export type RawLoan = {
   dataStatus: 'READY' | 'PENDING'
   collateral: { amount: string } | null
   borrowed: { amount: string } | null
+  principalBorrowed?: { amount: string } | null
   accruedInterest: { amount: string } | null
   healthFactor: number | null
   healthFactorBand: Band | null
@@ -42,6 +43,21 @@ export type RawLoan = {
 }
 
 const SCALE = 1_000_000n
+
+/**
+ * Right after a borrow the service can report accruedInterest equal to the whole
+ * debt while dataStatus already says READY. Borrowed minus principal is exact
+ * and does not depend on that field, so prefer it.
+ */
+export function interestOf(loan: RawLoan | null): string {
+  if (!loan) return '0'
+  if (loan.borrowed && loan.principalBorrowed) {
+    const owed = parseUnits(loan.borrowed.amount, USDC_DECIMALS)
+    const principal = parseUnits(loan.principalBorrowed.amount, USDC_DECIMALS)
+    return formatUnits(owed > principal ? owed - principal : 0n, USDC_DECIMALS)
+  }
+  return loan.accruedInterest?.amount ?? '0'
+}
 const hfUnits = (hf: number) => BigInt(Math.round(hf * Number(SCALE)))
 
 /**
@@ -88,7 +104,7 @@ export function buildPosition(args: {
     dataStatus: loan?.dataStatus ?? null,
     collateralCirBtc: loan?.collateral?.amount ?? '0',
     debtUsdc,
-    accruedInterestUsdc: loan?.accruedInterest?.amount ?? '0',
+    accruedInterestUsdc: interestOf(loan),
     healthFactor: loan?.healthFactor ?? null,
     band: loan?.healthFactorBand ?? null,
     liquidationPriceUsd: loan?.liquidationPrice?.amount ?? null,
