@@ -44,19 +44,19 @@ export async function HowItWorks() {
   };
 
   return (
-    <section className="bg-ink text-text">
-      <div className="mx-auto w-full max-w-[1200px] px-6 pt-16 pb-24 md:pt-24 md:pb-32">
+    <section id="how-it-works" className="scroll-mt-16 bg-ink text-text focus:outline-none">
+      <div className="mx-auto w-full max-w-[1200px] px-6 py-24 md:py-32">
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
-            <h1 className="text-[40px] leading-[1.05] font-[550] tracking-[-0.03em] md:text-display">
+            <h2 className="text-[40px] leading-[1.05] font-[550] tracking-[-0.03em] md:text-h2">
               How it works
-            </h1>
+            </h2>
             <p className="mt-4 text-lead text-ebb">
               Three steps. Each one is a transaction on Arc that you can open and check.
             </p>
           </div>
-          <PillLink href="/proof" variant="dark" className="self-start md:self-auto">
-            See the mainnet proof
+          <PillLink href="/safety" variant="dark" className="self-start md:self-auto">
+            Read the safety rules
           </PillLink>
         </div>
 
@@ -69,7 +69,7 @@ export async function HowItWorks() {
                 className="flex flex-col rounded-card bg-panel p-6 md:p-8"
               >
                 <p className="text-[14px] font-medium text-tide">{step.label}</p>
-                <h2 className="mt-3 text-sub font-medium text-text">{step.title}</h2>
+                <h3 className="mt-3 text-sub font-medium text-text">{step.title}</h3>
                 <p className="mt-3 text-small text-ebb">{step.body}</p>
                 <div className="mt-auto pt-8">
                   {hash && (
