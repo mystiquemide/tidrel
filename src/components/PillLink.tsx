@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-type Variant = "primary" | "soft" | "ink";
+type Variant = "primary" | "soft" | "ink" | "light" | "dark";
 
 const BASE =
   "inline-flex items-center justify-center rounded-pill font-medium whitespace-nowrap transition-colors duration-150";
@@ -12,6 +12,9 @@ const VARIANTS: Record<Variant, string> = {
   // Ink text on the soft pill is 15.4:1. Teal text on it only reaches 4.1:1.
   soft: "bg-tide-deep/10 text-ink hover:bg-tide-deep/15",
   ink: "bg-ink text-paper hover:bg-ink/85",
+  // For dark surfaces: a white pill (ink text, 19.4:1) and a panel pill (light text, 14.9:1).
+  light: "bg-paper text-ink hover:bg-paper/90",
+  dark: "bg-panel text-text hover:bg-line",
 };
 
 const SIZES = {

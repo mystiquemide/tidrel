@@ -33,3 +33,11 @@ export const CIRBTC_USDC_MARKET_ID =
 /** Desk whose history feeds the landing page tide line. Public on-chain address, no key. */
 export const DEMO_DESK_ADDRESS = (process.env.NEXT_PUBLIC_DEMO_DESK ??
   '0x100E8AF5Ba507641Bb87c7D3229B8d458b78ca04') as Address
+
+/** First block of the demo desk's activity (its swap). History is read from here so it never ages out. */
+export const DEMO_DESK_FROM_BLOCK = BigInt(
+  process.env.NEXT_PUBLIC_DEMO_FROM_BLOCK ?? '24575996',
+)
+
+/** Budget of the mainnet run, in USDC. A statement about the run, not a chain reading. */
+export const RUN_BUDGET_USDC = process.env.NEXT_PUBLIC_RUN_BUDGET_USDC ?? '5'

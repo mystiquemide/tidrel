@@ -1,5 +1,9 @@
 import { Hero } from "@/components/Hero";
 import { NavBar } from "@/components/NavBar";
+import { ProofBand } from "@/components/ProofBand";
+
+// The proof band reads Arc, so the page refreshes every five minutes.
+export const revalidate = 300;
 
 export default function Home() {
   return (
@@ -13,6 +17,7 @@ export default function Home() {
       <NavBar />
       <main id="main" className="flex-1">
         <Hero />
+        <ProofBand />
       </main>
     </>
   );
