@@ -1,16 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { rememberSection, scrollToSection } from "@/lib/scroll";
 import { PillLink } from "./PillLink";
 import { TidrelLockup } from "./TidrelMark";
 
-const LINKS = [
-  { href: "/how-it-works", label: "How it works" },
-  { href: "/proof", label: "Proof" },
-  { href: "/safety", label: "Safety" },
-] as const;
+type NavLink =
+  | { label: string; href: string }
+  // A section of the home page. It scrolls there and never adds a hash to the address.
+  | { label: string; section: string };
+
+const LINKS: NavLink[] = [
+  { label: "How it works", section: "how-it-works" },
+  { label: "Proof", href: "/proof" },
+  { label: "Safety", href: "/safety" },
+];
 
 /**
  * Site nav. It sits flat on the page surface, then gains a hairline once the page
@@ -22,6 +28,7 @@ export function NavBar({ tone = "light" }: { tone?: "light" | "dark" }) {
   // The menu is remembered per page, so moving to another page closes it.
   const [openFor, setOpenFor] = useState<string | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const dark = tone === "dark";
   const open = openFor === pathname;
 
@@ -40,6 +47,17 @@ export function NavBar({ tone = "light" }: { tone?: "light" | "dark" }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
+
+  const goToSection = (id: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    setOpenFor(null);
+    if (pathname === "/") {
+      scrollToSection(id);
+    } else {
+      rememberSection(id);
+      router.push("/");
+    }
+  };
 
   const surface = dark
     ? scrolled || open
@@ -67,11 +85,13 @@ export function NavBar({ tone = "light" }: { tone?: "light" | "dark" }) {
 
         <div className="flex items-center gap-2 sm:gap-4">
           {LINKS.map((l) => {
-            const current = pathname === l.href;
+            const section = "section" in l;
+            const current = !section && pathname === l.href;
             return (
               <Link
-                key={l.href}
-                href={l.href}
+                key={l.label}
+                href={section ? "/" : l.href}
+                onClick={section ? goToSection(l.section) : undefined}
                 aria-current={current ? "page" : undefined}
                 className={`hidden rounded-badge px-2 py-1 text-[14px] font-medium underline-offset-[6px] sm:inline-flex ${linkTone} ${
                   current ? "underline decoration-2" : ""
@@ -119,13 +139,14 @@ export function NavBar({ tone = "light" }: { tone?: "light" | "dark" }) {
         >
           <ul className="mx-auto w-full max-w-[1200px] px-6 py-2">
             {LINKS.map((l) => {
-              const current = pathname === l.href;
+              const section = "section" in l;
+              const current = !section && pathname === l.href;
               return (
-                <li key={l.href}>
+                <li key={l.label}>
                   <Link
-                    href={l.href}
+                    href={section ? "/" : l.href}
                     aria-current={current ? "page" : undefined}
-                    onClick={() => setOpenFor(null)}
+                    onClick={section ? goToSection(l.section) : () => setOpenFor(null)}
                     className={`flex items-center justify-between rounded-badge py-3 text-[17px] font-medium ${linkTone}`}
                   >
                     {l.label}
