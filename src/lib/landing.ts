@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { DEMO_DESK_ADDRESS, DEMO_DESK_FROM_BLOCK } from './chain'
 import { publicClient } from './client'
 import { formatUsdc } from './format'
@@ -7,21 +8,32 @@ export type DemoCycles =
   | { ok: true; settlements: Settlement[]; blockNumber: bigint }
   | { ok: false }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+async function readCycles(): Promise<DemoCycles> {
+  const [history, blockNumber] = await Promise.all([
+    readHistory(DEMO_DESK_ADDRESS, { fromBlock: DEMO_DESK_FROM_BLOCK }),
+    publicClient.getBlockNumber(),
+  ])
+  return { ok: true, settlements: history.settlements, blockNumber }
+}
+
 /**
  * Settlement history of the demo desk, read from its first block so the proof never
- * ages out. A failed read is reported as such, never as an empty history.
+ * ages out. Wrapped in React cache so every component on one page render shares a
+ * single read (two parallel reads tripped the public RPC's rate limit and one came
+ * back empty). A failed read is retried, then reported as failed, never as empty.
  */
-export async function getDemoCycles(): Promise<DemoCycles> {
-  try {
-    const [history, blockNumber] = await Promise.all([
-      readHistory(DEMO_DESK_ADDRESS, { fromBlock: DEMO_DESK_FROM_BLOCK }),
-      publicClient.getBlockNumber(),
-    ])
-    return { ok: true, settlements: history.settlements, blockNumber }
-  } catch {
-    return { ok: false }
+export const getDemoCycles = cache(async (): Promise<DemoCycles> => {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      return await readCycles()
+    } catch {
+      if (attempt < 2) await sleep(1000 * (attempt + 1))
+    }
   }
-}
+  return { ok: false }
+})
 
 /** The newest repaid settlement that closed on its own draw, else the newest repaid one. */
 export function headlineCycle(settlements: Settlement[]): Settlement | null {
