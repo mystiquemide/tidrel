@@ -1,7 +1,8 @@
 import { cache } from 'react'
-import { isAddress, getAddress, type Address } from 'viem'
+import { type Address } from 'viem'
 import { morphoAbi } from './abis'
-import { ADDRESSES, CIRBTC_DECIMALS, CIRBTC_USDC_MARKET_ID, DEMO_DESK_ADDRESS } from './chain'
+import { ADDRESSES, CIRBTC_DECIMALS, CIRBTC_USDC_MARKET_ID } from './chain'
+import { isDemoDesk } from './deskAddress'
 import { publicClient } from './client'
 import { formatUnits } from 'viem'
 import { readHistory, type Settlement } from './history'
@@ -21,11 +22,6 @@ export type Desk =
       blockNumber: bigint
     }
   | { ok: false; address: Address; reason: 'chain' }
-
-export const parseDeskAddress = (raw: string): Address | null =>
-  isAddress(raw, { strict: false }) ? getAddress(raw.toLowerCase()) : null
-
-export const isDemoDesk = (a: Address) => a.toLowerCase() === DEMO_DESK_ADDRESS.toLowerCase()
 
 /**
  * Everything the console shows for one address. The loan comes from Circle's Borrow

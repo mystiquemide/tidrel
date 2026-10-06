@@ -1,7 +1,19 @@
-import { redirect } from "next/navigation";
-import { DEMO_DESK_ADDRESS } from "@/lib/chain";
+import type { Metadata } from "next";
+import { DeskApp } from "@/components/DeskApp";
+import { NavBar } from "@/components/NavBar";
+import { SkipLink } from "@/components/SkipLink";
 
-// Until a wallet can connect, the desk opens the real demo desk read-only.
+export const metadata: Metadata = { title: "Your desk" };
+
+// The wallet is read in the browser, so this page is static. It has no footer.
 export default function DeskPage() {
-  redirect(`/view/${DEMO_DESK_ADDRESS}`);
+  return (
+    <>
+      <SkipLink />
+      <NavBar tone="dark" />
+      <main id="main" className="flex-1">
+        <DeskApp />
+      </main>
+    </>
+  );
 }

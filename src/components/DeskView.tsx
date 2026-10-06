@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { explorerAddress, RUN_BUDGET_USDC } from "@/lib/chain";
 import type { Desk } from "@/lib/desk";
-import { isDemoDesk } from "@/lib/desk";
+import { isDemoDesk } from "@/lib/deskAddress";
+import type { Notice } from "@/lib/notices";
 import { formatFixed, formatUsdc, shortHash } from "@/lib/format";
 import type { Band } from "@/lib/position";
 import { PillLink } from "./PillLink";
@@ -30,8 +31,19 @@ function Cell({ label, value, unit, note }: { label: string; value: string; unit
 }
 
 /** The console layout. Read-only: it holds no write action, so a viewer needs no wallet. */
-export function DeskView({ desk }: { desk: Desk }) {
-  const demo = isDemoDesk(desk.address);
+export function DeskView({
+  desk,
+  mode = "view",
+  notices = [],
+  actions,
+}: {
+  desk: Desk;
+  /** "view" is the read-only page for any address. "desk" is a connected wallet's own. */
+  mode?: "view" | "desk";
+  notices?: Notice[];
+  actions?: React.ReactNode;
+}) {
+  const demo = mode === "view" && isDemoDesk(desk.address);
 
   if (!desk.ok) {
     return (
@@ -63,7 +75,7 @@ export function DeskView({ desk }: { desk: Desk }) {
       <div className="mx-auto w-full max-w-[1200px] px-6 pt-12 pb-24 md:pt-16 md:pb-32">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-small text-muted">{demo ? "Demo desk" : "Desk"}</p>
+            <p className="text-small text-muted">{mode === "desk" ? "Your desk" : demo ? "Demo desk" : "Desk"}</p>
             <h1 className="num mt-1 text-[32px] leading-[1.1] font-[550] tracking-[-0.02em] md:text-[40px]">
               <a
                 href={explorerAddress(desk.address)}
@@ -75,6 +87,8 @@ export function DeskView({ desk }: { desk: Desk }) {
               </a>
             </h1>
           </div>
+          <div className="flex flex-wrap items-center gap-3">
+          {actions}
           {p?.band && p.healthFactor !== null ? (
             <span className={`inline-flex w-fit items-center gap-2 rounded-badge px-3 py-2 text-[14px] font-medium ${BAND_TONE[p.band]}`}>
               Health <span className="num">{p.healthFactor.toFixed(2)}</span>
@@ -84,12 +98,37 @@ export function DeskView({ desk }: { desk: Desk }) {
               {p ? "No open loan" : "Loan data unavailable"}
             </span>
           )}
+          </div>
         </div>
 
         <p className="mt-4 max-w-2xl text-small text-muted">
-          Read-only view. Everything here is read from Arc
+          {mode === "desk" ? "Everything here is read from Arc. Your wallet signs every step" : "Read-only view. Everything here is read from Arc"}
           {demo ? `, from the wallet that ran the mainnet proof. Its counterparties are builder-controlled and the run was sized to a ${RUN_BUDGET_USDC} USDC budget` : ""}.
         </p>
+
+        {notices.map((n) => (
+          <p
+            key={n.text}
+            className={`mt-4 rounded-badge bg-panel px-4 py-3 text-small ${
+              n.tone === "urgent" ? "text-urgent" : n.tone === "warn" ? "text-warn" : "text-ebb"
+            }`}
+          >
+            {n.text}
+            {n.link && (
+              <>
+                {" "}
+                <a
+                  href={n.link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-badge underline underline-offset-4"
+                >
+                  {n.link.label}
+                </a>
+              </>
+            )}
+          </p>
+        ))}
 
         {!p && (
           <p className="mt-6 rounded-badge bg-panel px-4 py-3 text-small text-warn">

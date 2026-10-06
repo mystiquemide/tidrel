@@ -4,7 +4,8 @@ import { NavBar } from "@/components/NavBar";
 import { PillLink } from "@/components/PillLink";
 import { SkipLink } from "@/components/SkipLink";
 import { DEMO_DESK_ADDRESS } from "@/lib/chain";
-import { getDesk, parseDeskAddress } from "@/lib/desk";
+import { getDesk } from "@/lib/desk";
+import { parseDeskAddress } from "@/lib/deskAddress";
 import { shortHash } from "@/lib/format";
 
 // Read from Arc on request and kept for a minute. No footer on this page.
