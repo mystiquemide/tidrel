@@ -8,9 +8,17 @@ Draw USDC against your cirBTC the moment a trade settles, and repay it the secon
 
 <br clear="left">
 
+## The problem
+
+A desk settling a BTC trade in USDC has three options for the USDC leg today. It can hold idle USDC in advance, sell the BTC it wanted to keep, or ask a broker for a credit line, which comes with relationship terms and a credit process. Each one ties up capital for longer than the trade actually needs it.
+
+## The solution
+
+Tidrel turns cirBTC into USDC for exactly as long as a trade takes to settle. A desk posts cirBTC once. When a trade settles, Tidrel draws only the USDC shortfall through Circle's Borrow Kit and pays every counterparty in one Arc transaction, with the trade reference recorded on-chain. When USDC comes back, one click repays. There is no custody, no account and no database: the desk's own wallet signs every step.
+
 ## The mainnet cycle
 
-Tidrel turns cirBTC into USDC for exactly as long as a trade takes to settle. A desk posts cirBTC once. When a trade settles, Tidrel draws only the USDC shortfall through Circle's Borrow Kit and pays every counterparty in one Arc transaction, with the trade reference recorded on-chain. When USDC comes back, one click repays. On mainnet, a draw stayed open for **44 seconds** and cost **0.000001 USDC** in interest.
+On mainnet, a draw stayed open for **44 seconds** and cost **0.000001 USDC** in interest.
 
 [Draw](https://explorer.arc.io/tx/0xb861dc5e9c2f9fe6a6ae0c1063adcea340b6ae4130d6fc0fafaa92106b1a5a86) · [Payout, 3 counterparties](https://explorer.arc.io/tx/0xf839e087bd40643d9583c050a8bfda686c1488300c2a6454909dbee284f9521c) · [Repay](https://explorer.arc.io/tx/0xd7bdab379078589562720e46b36082265b5e7388a62ff177e3b7723b65ef93be)
 
