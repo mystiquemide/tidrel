@@ -1,4 +1,6 @@
 import { BuiltOn } from "@/components/BuiltOn";
+import { FinalCta } from "@/components/FinalCta";
+import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { HowItWorks } from "@/components/HowItWorks";
 import { NavBar } from "@/components/NavBar";
@@ -20,7 +22,9 @@ export default function Home() {
         <HowItWorks />
         <ProofCards />
         <BuiltOn />
+        <FinalCta />
       </main>
+      <Footer />
     </>
   );
 }
