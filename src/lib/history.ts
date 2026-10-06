@@ -33,6 +33,7 @@ export type Settlement = {
   legs: number
   totalUsdc: string
   drawTxHash: Hash | null
+  drawAt: number | null
   drawnUsdc: string
   repayTxHash: Hash | null
   repaidAt: number | null
@@ -71,12 +72,11 @@ const order = (a: Pos, b: Pos) =>
 
 const usdc = (v: bigint) => formatUnits(v, USDC_DECIMALS)
 
-type Row = Settlement & { _drawn: bigint; _drawTs: number | null; _pos: Pos }
+type Row = Settlement & { _drawn: bigint; _pos: Pos }
 
 function publicRow(row: Row): Settlement {
   const out: Partial<Row> = { ...row }
   delete out._drawn
-  delete out._drawTs
   delete out._pos
   return out as Settlement
 }
@@ -106,6 +106,7 @@ export function buildSettlements(
     legs: 0,
     totalUsdc: '0',
     drawTxHash: d.txHash,
+    drawAt: d.timestamp,
     drawnUsdc: usdc(d.assets),
     repayTxHash: null,
     repaidAt: null,
@@ -114,7 +115,6 @@ export function buildSettlements(
     sharedCycle: false,
     state: 'drawn-not-settled',
     _drawn: d.assets,
-    _drawTs: d.timestamp,
     _pos: d,
   })
 
@@ -136,6 +136,7 @@ export function buildSettlements(
         legs: e.legs,
         totalUsdc: usdc(e.totalUsdc),
         drawTxHash: pending?.txHash ?? null,
+        drawAt: pending?.timestamp ?? null,
         drawnUsdc: pending ? usdc(pending.assets) : '0',
         repayTxHash: null,
         repaidAt: null,
@@ -144,7 +145,6 @@ export function buildSettlements(
         sharedCycle: false,
         state: pending ? 'open' : 'self-funded',
         _drawn: pending?.assets ?? 0n,
-        _drawTs: pending?.timestamp ?? null,
         _pos: e,
       }
       rows.push(row)
@@ -174,7 +174,7 @@ export function buildSettlements(
           r.state = 'repaid'
           r.repayTxHash = e.txHash
           r.repaidAt = e.timestamp
-          r.openSeconds = r._drawTs === null ? null : e.timestamp - r._drawTs
+          r.openSeconds = r.drawAt === null ? null : e.timestamp - r.drawAt
           r.interestUsdc = usdc(part)
           r.sharedCycle = shared
         })

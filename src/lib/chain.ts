@@ -29,3 +29,7 @@ export const explorerAddress = (address: string) =>
 
 export const CIRBTC_USDC_MARKET_ID =
   '0xc2db905f174e5defcce01d321b09f15f78856a36a21b90cc7e1abbc29225815d'
+
+/** Desk whose history feeds the landing page tide line. Public on-chain address, no key. */
+export const DEMO_DESK_ADDRESS = (process.env.NEXT_PUBLIC_DEMO_DESK ??
+  '0x100E8AF5Ba507641Bb87c7D3229B8d458b78ca04') as Address
