@@ -1,5 +1,5 @@
 import { formatUnits, parseUnits, type Address } from 'viem'
-import { erc20Abi } from './abis'
+import { erc20Abi, morphoAbi } from './abis'
 import {
   ADDRESSES,
   CIRBTC_DECIMALS,
@@ -84,6 +84,8 @@ export function buildPosition(args: {
   borrowApy: number
   walletUsdc: bigint
   walletCirBtc: bigint
+  /** cirBTC posted to Morpho, from chain. It outlives a closed loan after a repay. */
+  postedCirBtc: bigint
   marketLiquidityUsdc: string
   blockNumber: bigint
   now?: number
@@ -91,7 +93,7 @@ export function buildPosition(args: {
   const { loan } = args
   const debtUsdc = loan?.borrowed?.amount ?? '0'
   const line =
-    loan?.collateral && args.maxBorrow
+    args.postedCirBtc > 0n && args.maxBorrow
       ? lineAtGuard({
           maxBorrowUsdc: args.maxBorrow.amount,
           maxBorrowHealth: args.maxBorrow.health,
@@ -102,7 +104,7 @@ export function buildPosition(args: {
     wallet: args.wallet,
     loanId: loan?.loanId ?? null,
     dataStatus: loan?.dataStatus ?? null,
-    collateralCirBtc: loan?.collateral?.amount ?? '0',
+    collateralCirBtc: formatUnits(args.postedCirBtc, CIRBTC_DECIMALS),
     debtUsdc,
     accruedInterestUsdc: interestOf(loan),
     healthFactor: loan?.healthFactor ?? null,
@@ -138,9 +140,14 @@ async function findActiveLoan(wallet: Address): Promise<RawLoan | null> {
   return null
 }
 
+/** A draw can proceed when collateral is posted or the wallet holds cirBTC to post. */
+export const hasCollateral = (p: Pick<Position, 'collateralCirBtc' | 'walletCirBtc'>) =>
+  parseUnits(p.collateralCirBtc, CIRBTC_DECIMALS) > 0n ||
+  parseUnits(p.walletCirBtc, CIRBTC_DECIMALS) > 0n
+
 export async function readPosition(wallet: Address): Promise<Position> {
   const kit = getKit()
-  const [loan, market, blockNumber, walletUsdc, walletCirBtc] =
+  const [loan, market, blockNumber, walletUsdc, walletCirBtc, morpho] =
     await Promise.all([
       findActiveLoan(wallet),
       kit.borrow.getMarket({ chain: BORROW_CHAIN, marketId: CIRBTC_USDC_MARKET_ID }),
@@ -157,15 +164,23 @@ export async function readPosition(wallet: Address): Promise<Position> {
         functionName: 'balanceOf',
         args: [wallet],
       }),
+      publicClient.readContract({
+        address: ADDRESSES.morpho,
+        abi: morphoAbi,
+        functionName: 'position',
+        args: [CIRBTC_USDC_MARKET_ID, wallet],
+      }),
     ])
 
-  const maxBorrow = loan?.collateral
-    ? await kit.borrow.getMaxBorrow({
-        chain: BORROW_CHAIN,
-        marketId: CIRBTC_USDC_MARKET_ID,
-        collateralAmount: loan.collateral.amount,
-      })
-    : null
+  const postedCirBtc = morpho[2]
+  const maxBorrow =
+    postedCirBtc > 0n
+      ? await kit.borrow.getMaxBorrow({
+          chain: BORROW_CHAIN,
+          marketId: CIRBTC_USDC_MARKET_ID,
+          collateralAmount: formatUnits(postedCirBtc, CIRBTC_DECIMALS),
+        })
+      : null
 
   return buildPosition({
     wallet,
@@ -176,6 +191,7 @@ export async function readPosition(wallet: Address): Promise<Position> {
     borrowApy: market.borrowApy ?? 0,
     walletUsdc,
     walletCirBtc,
+    postedCirBtc,
     marketLiquidityUsdc: market.liquidity?.amount ?? '0',
     blockNumber,
   })

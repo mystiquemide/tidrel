@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildPosition, interestOf, lineAtGuard, type RawLoan } from '../src/lib/position'
+import { buildPosition, hasCollateral, interestOf, lineAtGuard, type RawLoan } from '../src/lib/position'
 
 const WALLET = '0x2222222222222222222222222222222222222222' as const
 
@@ -19,6 +19,7 @@ const base = {
   borrowApy: 0.0139,
   walletUsdc: 400_000n,
   walletCirBtc: 2_980n,
+  postedCirBtc: 2_980n,
   marketLiquidityUsdc: '40004.957473',
   blockNumber: 123n,
   now: 1,
@@ -70,8 +71,26 @@ describe('buildPosition', () => {
     })
   })
 
+  it('keeps posted collateral and a line after a repay closes the loan', () => {
+    // Seen live: after a full repay the service closes the loan, Morpho keeps 1957 units posted.
+    const p = buildPosition({
+      ...base,
+      loan: null,
+      postedCirBtc: 1_957n,
+      maxBorrow: { amount: '1.2', health: 1.2 },
+    })
+    expect(p).toMatchObject({
+      loanId: null,
+      collateralCirBtc: '0.00001957',
+      debtUsdc: '0',
+      lineUsdc: '1.2',
+    })
+    expect(hasCollateral(p)).toBe(true)
+  })
+
   it('reports an honest empty position when there is no loan', () => {
-    const p = buildPosition({ ...base, loan: null, maxBorrow: null })
+    const p = buildPosition({ ...base, loan: null, postedCirBtc: 0n, walletCirBtc: 0n, maxBorrow: null })
+    expect(hasCollateral(p)).toBe(false)
     expect(p).toMatchObject({
       loanId: null,
       dataStatus: null,
