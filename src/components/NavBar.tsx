@@ -9,6 +9,7 @@ import { TidrelLockup } from "./TidrelMark";
 const LINKS = [
   { href: "/how-it-works", label: "How it works" },
   { href: "/proof", label: "Proof" },
+  { href: "/safety", label: "Safety" },
 ] as const;
 
 /**
