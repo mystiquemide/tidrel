@@ -3,8 +3,8 @@ import {
   createViemAdapterFromPrivateKey,
   createViemAdapterFromProvider,
 } from '@circle-fin/adapter-viem-v2/next'
-import { createPublicClient, http, type EIP1193Provider } from 'viem'
-import { ARC_RPC_URL, arcChain } from './chain'
+import type { EIP1193Provider } from 'viem'
+import { publicClient } from './client'
 
 export const BORROW_CHAIN = 'Arc' as const
 
@@ -15,10 +15,7 @@ export function getKit(): AppKit {
   return kit
 }
 
-export const publicClient = createPublicClient({
-  chain: arcChain,
-  transport: http(ARC_RPC_URL, { retryCount: 6, retryDelay: 500 }),
-})
+export { publicClient }
 
 export function browserAdapter(provider: EIP1193Provider) {
   return createViemAdapterFromProvider({

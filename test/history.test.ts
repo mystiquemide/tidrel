@@ -139,7 +139,7 @@ const transferLog = (from: string, value: bigint) => ({
 })
 
 const mocks = vi.hoisted(() => ({ getLogs: vi.fn(), receipt: vi.fn() }))
-vi.mock('../src/lib/kit', () => ({
+vi.mock('../src/lib/client', () => ({
   publicClient: {
     getBlockNumber: async () => 100n,
     getLogs: mocks.getLogs,

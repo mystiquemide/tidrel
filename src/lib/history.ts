@@ -9,7 +9,7 @@ import {
 } from 'viem'
 import { erc20Abi, memoAbi, morphoAbi } from './abis'
 import { ADDRESSES, CIRBTC_USDC_MARKET_ID, USDC_DECIMALS } from './chain'
-import { publicClient } from './kit'
+import { publicClient } from './client'
 import { decodeMemoData } from './memo'
 
 const memoEvent = getAbiItem({ abi: memoAbi, name: 'Memo' })
