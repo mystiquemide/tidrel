@@ -30,7 +30,7 @@ type Props = {
 };
 
 const field =
-  "w-full rounded-badge border border-line bg-ink px-3 py-3 text-body text-text placeholder:text-muted focus:border-tide focus:outline-none";
+  "w-full rounded-badge border border-line bg-ink px-3 py-3 text-[16px] text-text placeholder:text-muted focus:border-tide focus:outline-none";
 const primary =
   "inline-flex w-full items-center justify-center rounded-pill bg-tide px-6 py-3.5 text-[15px] font-medium text-ink transition-colors hover:brightness-95 disabled:opacity-50";
 

@@ -61,7 +61,7 @@ export function WalletPicker({
                   type="button"
                   disabled={busy}
                   onClick={() => onPick(w)}
-                  className="flex w-full items-center gap-3 rounded-badge bg-ink px-4 py-3 text-left text-body font-medium text-text hover:bg-line disabled:opacity-60"
+                  className="flex w-full items-center gap-3 rounded-badge bg-ink px-4 py-3 text-left text-[16px] font-medium text-text hover:bg-line disabled:opacity-60"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={w.icon} alt="" width={28} height={28} className="rounded-badge" />
@@ -72,7 +72,7 @@ export function WalletPicker({
           </ul>
         ) : (
           <div className="mt-5">
-            <p className="text-body text-ebb">
+            <p className="text-[16px] text-ebb">
               No wallet found in this browser. Install one, then reload this page.
             </p>
             <ul className="mt-4 flex flex-col gap-2">
@@ -82,7 +82,7 @@ export function WalletPicker({
                     href={l.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex w-full items-center justify-between rounded-badge bg-ink px-4 py-3 text-body font-medium hover:bg-line"
+                    className="flex w-full items-center justify-between rounded-badge bg-ink px-4 py-3 text-[16px] font-medium text-text hover:bg-line"
                   >
                     Install {l.name}
                   </a>

@@ -19,7 +19,7 @@ export function ArrivalToast({
       role="status"
       className="fixed inset-x-4 bottom-4 z-40 rounded-card border border-line bg-panel p-5 text-text shadow-lg sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-[380px]"
     >
-      <p className="text-body">
+      <p className="text-[16px] text-text">
         <span className="num">{formatUsdcTight(arrivedUsdc)} USDC</span> arrived. Repay{" "}
         <span className="num">{formatUsdcTight(repayUsdc)} USDC</span> now?
       </p>

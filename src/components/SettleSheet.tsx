@@ -40,7 +40,7 @@ const STEP_TEXT: Record<Step, (draw: string, legs: number) => string> = {
 };
 
 const field =
-  "w-full rounded-badge border border-line bg-ink px-3 py-3 text-body text-text placeholder:text-muted focus:border-tide focus:outline-none";
+  "w-full rounded-badge border border-line bg-ink px-3 py-3 text-[16px] text-text placeholder:text-muted focus:border-tide focus:outline-none";
 const primary =
   "inline-flex w-full items-center justify-center rounded-pill bg-tide px-6 py-3.5 text-[15px] font-medium text-ink transition-colors hover:brightness-95 disabled:opacity-50";
 
@@ -238,7 +238,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
         ) : outcome?.kind === "drawn-not-settled" ? (
           <div className="mt-8" role="alert">
             <p className="text-lead text-warn">Drawn, not settled.</p>
-            <p className="mt-3 text-body text-ebb">
+            <p className="mt-3 text-[16px] text-ebb">
               The draw went through but the payout did not. {outcome.error} Your counterparties have not been paid.
             </p>
             <p className="mt-4 text-small">
