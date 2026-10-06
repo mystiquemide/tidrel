@@ -2,7 +2,7 @@ import { AppKit } from '@circle-fin/app-kit'
 import {
   createViemAdapterFromPrivateKey,
   createViemAdapterFromProvider,
-} from '@circle-fin/adapter-viem-v2'
+} from '@circle-fin/adapter-viem-v2/next'
 import { createPublicClient, http, type EIP1193Provider } from 'viem'
 import { ARC_RPC_URL, arcChain } from './chain'
 
