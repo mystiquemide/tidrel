@@ -2,9 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { EIP1193Provider } from "viem";
-import { getAddress, type Address } from "viem";
+import { formatUnits, getAddress, type Address } from "viem";
 import { loadDeskHeader, loadDeskHistory } from "@/app/desk/actions";
-import { ARC_CHAIN_ID, DEMO_DESK_ADDRESS } from "@/lib/chain";
+import { erc20Abi } from "@/lib/abis";
+import { usdcArrival } from "@/lib/arrival";
+import { ADDRESSES, ARC_CHAIN_ID, DEMO_DESK_ADDRESS, USDC_DECIMALS } from "@/lib/chain";
 import { publicClient } from "@/lib/client";
 import { switchToArc } from "@/lib/connect";
 import type { Desk } from "@/lib/desk";
@@ -21,6 +23,8 @@ import { shortHash } from "@/lib/format";
 import { AppBar } from "./AppBar";
 import { DeskView } from "./DeskView";
 import { PillLink } from "./PillLink";
+import { ArrivalToast } from "./ArrivalToast";
+import { RepaySheet } from "./RepaySheet";
 import { SettleSheet } from "./SettleSheet";
 import { WalletPicker } from "./WalletPicker";
 
@@ -75,6 +79,10 @@ export function DeskApp() {
   const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
   const restored = useRef(false);
   const [settleOpen, setSettleOpen] = useState(false);
+  const [repayOpen, setRepayOpen] = useState(false);
+  const [repayRun, setRepayRun] = useState(0);
+  const [repaySuggested, setRepaySuggested] = useState<string | undefined>(undefined);
+  const [arrival, setArrival] = useState<{ arrivedUsdc: string; repayUsdc: string } | null>(null);
   // Bumped to read the desk again without changing wallet or network.
   const [refreshTick, setRefreshTick] = useState(0);
 
@@ -201,10 +209,50 @@ export function DeskApp() {
     };
   }, [address, chainId, refreshTick]);
 
+  // While a loan is open, watch the wallet for USDC arriving so the repay is one tap away.
+  const liveDesk = session && result && result.key === `${session.address}:${session.chainId}` && result.value.kind === "desk" && result.value.desk?.ok ? result.value.desk : null;
+  const livePosition = liveDesk?.position ?? null;
+  const positionRef = useRef(livePosition);
+  positionRef.current = livePosition;
+  const debtOpen = Number(livePosition?.debtUsdc ?? 0) > 0;
+  useEffect(() => {
+    if (!address || !debtOpen) return;
+    let live = true;
+    let baseline: string | undefined = positionRef.current?.walletUsdc;
+    const id = setInterval(async () => {
+      const raw = await publicClient
+        .readContract({ address: ADDRESSES.usdc, abi: erc20Abi, functionName: "balanceOf", args: [address] })
+        .catch(() => null);
+      const pos = positionRef.current;
+      if (!live || raw === null || !pos) return;
+      const current = formatUnits(raw, USDC_DECIMALS);
+      if (baseline === undefined) {
+        baseline = current;
+        return;
+      }
+      const hit = usdcArrival({ previousUsdc: baseline, currentUsdc: current, debtUsdc: pos.debtUsdc });
+      baseline = current;
+      if (hit) setArrival(hit);
+    }, 15_000);
+    return () => {
+      live = false;
+      clearInterval(id);
+    };
+  }, [address, debtOpen]);
+
+  function openRepay(suggested?: string) {
+    setRepaySuggested(suggested);
+    setRepayRun((n) => n + 1);
+    setSettleOpen(false);
+    setArrival(null);
+    setRepayOpen(true);
+  }
+
   function disconnect() {
     rememberWallet(null);
     setSession(null);
     setResult(null);
+    setArrival(null);
   }
 
   async function onSwitch() {
@@ -310,14 +358,25 @@ export function DeskApp() {
           primary={
             okDesk && (
             <div>
-              <button
-                type="button"
-                onClick={() => setSettleOpen(true)}
-                disabled={drawsDown}
-                className={`${btn} w-full bg-tide text-ink hover:brightness-95 sm:w-auto`}
-              >
-                Settle a trade
-              </button>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => setSettleOpen(true)}
+                  disabled={drawsDown}
+                  className={`${btn} w-full bg-tide text-ink hover:brightness-95 sm:w-auto`}
+                >
+                  Settle a trade
+                </button>
+                {debtOpen && (
+                  <button
+                    type="button"
+                    onClick={() => openRepay()}
+                    className={`${btn} w-full bg-panel text-text hover:bg-line sm:w-auto`}
+                  >
+                    Repay
+                  </button>
+                )}
+              </div>
               {drawsDown && (
                 <p className="mt-3 text-small text-muted">
                   Settling needs the Borrow service, which is unreachable. Chain data is still shown.
@@ -334,7 +393,28 @@ export function DeskApp() {
             provider={session.wallet.provider}
             settlements={okDesk.settlements}
             onClose={() => setSettleOpen(false)}
+            onRepay={() => openRepay()}
             onChanged={() => setRefreshTick((n) => n + 1)}
+          />
+        )}
+        {session && okDesk && (
+          <RepaySheet
+            key={repayRun}
+            open={repayOpen}
+            address={session.address}
+            provider={session.wallet.provider}
+            settlements={okDesk.settlements}
+            suggestedUsdc={repaySuggested}
+            onClose={() => setRepayOpen(false)}
+            onChanged={() => setRefreshTick((n) => n + 1)}
+          />
+        )}
+        {arrival && !settleOpen && !repayOpen && (
+          <ArrivalToast
+            arrivedUsdc={arrival.arrivedUsdc}
+            repayUsdc={arrival.repayUsdc}
+            onRepay={() => openRepay(arrival.repayUsdc)}
+            onDismiss={() => setArrival(null)}
           />
         )}
       </>

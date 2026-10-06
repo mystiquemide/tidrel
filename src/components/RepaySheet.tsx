@@ -1,0 +1,278 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import type { Address, EIP1193Provider } from "viem";
+import { explorerTx } from "@/lib/chain";
+import { browserAdapter } from "@/lib/kit";
+import { formatDuration, formatFixed, formatUsdc } from "@/lib/format";
+import type { Settlement } from "@/lib/history";
+import { readPosition, type Position } from "@/lib/position";
+import {
+  executeRepay,
+  kitRepayDeps,
+  planRepay,
+  quoteRepay,
+  RepayRefusalError,
+  type RepayOutcome,
+  type RepayPlan,
+} from "@/lib/repay";
+import { describeError } from "@/lib/settleFlow";
+
+type Props = {
+  open: boolean;
+  address: Address;
+  provider: EIP1193Provider;
+  settlements: Settlement[];
+  /** Shown first in the amount box, for example what just arrived. Capped at the debt and the wallet. */
+  suggestedUsdc?: string;
+  onClose: () => void;
+  onChanged: () => void;
+};
+
+const field =
+  "w-full rounded-badge border border-line bg-ink px-3 py-3 text-body text-text placeholder:text-muted focus:border-tide focus:outline-none";
+const primary =
+  "inline-flex w-full items-center justify-center rounded-pill bg-tide px-6 py-3.5 text-[15px] font-medium text-ink transition-colors hover:brightness-95 disabled:opacity-50";
+
+function Line({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 py-2">
+      <dt className="text-small text-ebb">{label}</dt>
+      <dd className="num text-right text-small text-text">{value}</dd>
+    </div>
+  );
+}
+
+/** Repay the open loan. The default is the smaller of the wallet's USDC and the debt; collateral stays posted. */
+export function RepaySheet({ open, address, provider, settlements, suggestedUsdc, onClose, onChanged }: Props) {
+  const ref = useRef<HTMLDialogElement>(null);
+  const [position, setPosition] = useState<Position | null>(null);
+  const [positionError, setPositionError] = useState(false);
+  // The parent gives this sheet a new key per opening, so the suggestion seeds a fresh box.
+  const [amount, setAmount] = useState(suggestedUsdc ?? "");
+  const [planned, setPlanned] = useState<{ key: string; plan: RepayPlan | null; error: boolean } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState<{ outcome: RepayOutcome; openSeconds: number | null; interest: string } | null>(null);
+  const [failure, setFailure] = useState<string | null>(null);
+  const [epoch, setEpoch] = useState(0);
+
+  useEffect(() => {
+    const d = ref.current;
+    if (!d) return;
+    if (open && !d.open) d.showModal();
+    if (!open && d.open) d.close();
+  }, [open]);
+
+  // A fresh read each time the sheet opens, and the suggested amount goes into the box.
+  useEffect(() => {
+    if (!open) return;
+    let live = true;
+    readPosition(address)
+      .then((p) => {
+        if (!live) return;
+        setPosition(p);
+        setPositionError(false);
+      })
+      .catch(() => live && setPositionError(true));
+    return () => {
+      live = false;
+    };
+  }, [open, address, epoch]);
+
+  const key = JSON.stringify([amount.trim(), position?.blockNumber?.toString(), position?.debtUsdc, position?.walletUsdc]);
+
+  useEffect(() => {
+    if (!open || !position || done) return;
+    let live = true;
+    const t = setTimeout(async () => {
+      try {
+        const plan = await planRepay(
+          position,
+          amount.trim() ? { amountUsdc: amount.trim() } : {},
+          { quoteRepay, newKey: () => crypto.randomUUID() },
+        );
+        if (live) setPlanned({ key, plan, error: false });
+      } catch {
+        if (live) setPlanned({ key, plan: null, error: true });
+      }
+    }, 400);
+    return () => {
+      live = false;
+      clearTimeout(t);
+    };
+  }, [open, position, amount, key, done]);
+
+  const current = planned?.key === key ? planned : null;
+  const plan = current?.plan ?? null;
+  const canRepay = !!plan && !plan.refusal && !busy && !done;
+
+  async function repay() {
+    if (!plan || plan.refusal || !position) return;
+    setBusy(true);
+    setFailure(null);
+    try {
+      const outcome = await executeRepay(plan, kitRepayDeps(browserAdapter(provider) as never, address));
+      const drawTimes = settlements
+        .filter((s) => (s.state === "open" || s.state === "drawn-not-settled") && s.drawAt !== null)
+        .map((s) => s.drawAt as number);
+      setDone({
+        outcome,
+        openSeconds: drawTimes.length ? Math.max(0, Math.floor(Date.now() / 1000) - Math.min(...drawTimes)) : null,
+        interest: position.accruedInterestUsdc,
+      });
+      onChanged();
+    } catch (e) {
+      setFailure(e instanceof RepayRefusalError ? e.message : describeError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function reset() {
+    setDone(null);
+    setFailure(null);
+    setPlanned(null);
+    setPosition(null);
+    setEpoch((n) => n + 1);
+  }
+
+  const noLoanYet = plan?.refusal === "NO_LOAN" && Number(position?.debtUsdc ?? 0) > 0;
+
+  return (
+    <dialog
+      ref={ref}
+      aria-labelledby="repay-title"
+      onClose={() => {
+        if (done) reset();
+        onClose();
+      }}
+      onCancel={(e) => busy && e.preventDefault()}
+      className="m-auto max-h-[100svh] w-full max-w-[100vw] overflow-y-auto bg-panel p-0 text-text backdrop:bg-ink/80 sm:max-h-[92svh] sm:w-[min(94vw,520px)] sm:rounded-card sm:border sm:border-line"
+    >
+      <div className="p-6 sm:p-8">
+        <div className="flex items-center justify-between gap-4">
+          <h2 id="repay-title" className="text-h2 font-[550] tracking-[-0.024em]">
+            Repay
+          </h2>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={onClose}
+            aria-label="Close"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-pill text-ebb hover:text-text disabled:opacity-40"
+          >
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              <path d="M5 5l10 10M15 5L5 15" />
+            </svg>
+          </button>
+        </div>
+
+        {done ? (
+          <div className="mt-8" role="status">
+            <p className="text-lead text-text">
+              Repaid.
+              {done.openSeconds !== null && ` Open ${formatDuration(done.openSeconds)}, cost ${formatUsdc(done.interest, 6)} USDC.`}
+            </p>
+            {done.outcome.dust && (
+              <p className="mt-3 text-small text-ebb">
+                A sliver of debt, <span className="num">{formatFixed(done.outcome.remainingDebtUsdc, 6)} USDC</span>, is left that a repay
+                cannot clear. Your collateral stays posted.
+              </p>
+            )}
+            <p className="mt-4 text-small">
+              <a
+                href={explorerTx(done.outcome.txHash)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-badge text-tide underline decoration-tide/40 underline-offset-4 hover:decoration-tide"
+              >
+                See the repay on Arc mainnet
+              </a>
+            </p>
+            <div className="mt-8">
+              <button type="button" onClick={onClose} className="w-full rounded-pill bg-ink px-6 py-3.5 text-[15px] font-medium text-text hover:bg-line">
+                Done
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form
+            className="mt-6"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (canRepay) void repay();
+            }}
+          >
+            <dl className="divide-y divide-line border-y border-line">
+              <Line label="Borrowed now" value={position ? `${formatUsdc(position.debtUsdc, 2)} USDC` : "Reading"} />
+              <Line label="In your wallet" value={position ? `${formatUsdc(position.walletUsdc, 2)} USDC` : "Reading"} />
+            </dl>
+
+            <label htmlFor="repay-amount" className="mt-6 block text-small text-ebb">
+              Amount to repay
+            </label>
+            <input
+              id="repay-amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              disabled={busy}
+              placeholder={plan && !plan.refusal ? plan.repayUsdc : "Everything you can"}
+              inputMode="decimal"
+              autoComplete="off"
+              className={`${field} num mt-2`}
+            />
+            <p className="mt-2 text-caption text-muted">
+              Leave it empty to repay the smaller of your USDC and the debt. Your collateral stays posted.
+            </p>
+
+            <dl className="mt-6 divide-y divide-line border-y border-line">
+              {plan && !plan.refusal ? (
+                <>
+                  <Line label="Repaying" value={`${formatUsdc(plan.repayUsdc, 2)} USDC`} />
+                  <Line
+                    label="Debt after"
+                    value={`${formatUsdc(String(Math.max(0, Number(plan.debtUsdc) - Number(plan.repayUsdc))), 2)} USDC`}
+                  />
+                  {plan.resultingHealth !== null && !plan.fullRepay && (
+                    <Line label="Health after" value={plan.resultingHealth.toFixed(2)} />
+                  )}
+                </>
+              ) : (
+                <p className="py-4 text-small text-muted">
+                  {positionError
+                    ? "Could not read your loan from Arc mainnet. Try again in a moment."
+                    : !position
+                      ? "Reading your loan."
+                      : current?.error
+                        ? "Could not price this repay. Try again in a moment."
+                        : !current
+                          ? "Reading what this will take."
+                          : "Fix the line below to see the repay."}
+                </p>
+              )}
+            </dl>
+
+            {plan?.refusal && (
+              <p role="alert" className="mt-4 text-small text-warn">
+                {noLoanYet
+                  ? "Circle's Borrow service has not caught up with your loan yet. Try again in a moment."
+                  : plan.detail}
+              </p>
+            )}
+            {failure && (
+              <p role="alert" className="mt-4 text-small text-warn">
+                {failure} Nothing was repaid.
+              </p>
+            )}
+
+            <div className="mt-6">
+              <button type="submit" disabled={!canRepay} className={primary}>
+                {busy ? "Repaying" : plan && !plan.refusal ? "Repay" : "Repay"}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </dialog>
+  );
+}

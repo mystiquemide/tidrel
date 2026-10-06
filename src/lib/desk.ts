@@ -7,6 +7,7 @@ import { publicClient } from './client'
 import { formatUnits } from 'viem'
 import { readHistory, type Settlement } from './history'
 import { getDemoCycles } from './landing'
+import { reconcileDebt, borrowSharesToAssets } from './debt'
 import { readPosition, type Position } from './position'
 
 export type Desk =
@@ -33,21 +34,32 @@ export type DeskHistory = { settlements: Settlement[]; truncated: boolean; block
 
 /** The quick half: the loan and the collateral. Reads in about a second or two. */
 export const getDeskHeader = cache(async (address: Address): Promise<DeskHeader | null> => {
-  const [position, collateral, head] = await Promise.all([
+  const [position, chain, head] = await Promise.all([
     readPosition(address).catch(() => null),
-    publicClient
-      .readContract({
+    Promise.all([
+      publicClient.readContract({
         address: ADDRESSES.morpho,
         abi: morphoAbi,
         functionName: 'position',
         args: [CIRBTC_USDC_MARKET_ID, address],
-      })
-      .then((p) => formatUnits(p[2], CIRBTC_DECIMALS))
-      .catch(() => null),
+      }),
+      publicClient.readContract({
+        address: ADDRESSES.morpho,
+        abi: morphoAbi,
+        functionName: 'market',
+        args: [CIRBTC_USDC_MARKET_ID],
+      }),
+    ]).catch(() => null),
     publicClient.getBlockNumber().catch(() => null),
   ])
-  if (collateral === null || head === null) return null
-  return { position, collateralCirBtc: collateral, blockNumber: position?.blockNumber ?? head }
+  if (!chain || head === null) return null
+  const [pos, mkt] = chain
+  const morphoDebt = borrowSharesToAssets(BigInt(pos[1]), BigInt(mkt[2]), BigInt(mkt[3]))
+  return {
+    position: position ? reconcileDebt(position, morphoDebt) : null,
+    collateralCirBtc: formatUnits(pos[2], CIRBTC_DECIMALS),
+    blockNumber: position?.blockNumber ?? head,
+  }
 })
 
 /** The slow half: the log scan. Memo is skipped for everyone but the demo desk, and pages read in parallel. */

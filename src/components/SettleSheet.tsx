@@ -27,6 +27,8 @@ type Props = {
   provider: EIP1193Provider;
   settlements: Settlement[];
   onClose: () => void;
+  /** Opens the repay sheet, used when a draw went through but the payout did not. */
+  onRepay: () => void;
   /** Called after a draw or payout went through, so the desk reads fresh figures. */
   onChanged: () => void;
 };
@@ -68,7 +70,7 @@ function TxLink({ hash, children }: { hash: string; children: React.ReactNode })
 }
 
 /** The settle sheet: a reference, who to pay, and a live read of what it will cost before anything is signed. */
-export function SettleSheet({ open, address, provider, settlements, onClose, onChanged }: Props) {
+export function SettleSheet({ open, address, provider, settlements, onClose, onRepay, onChanged }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const nextId = useRef(2);
   // Bumped after a settlement so the next one reads a fresh position.
@@ -245,6 +247,9 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onC
             <div className="mt-8 flex flex-col gap-3">
               <button type="button" disabled={busy} onClick={() => start({ drawTx: outcome.drawTx })} className={primary}>
                 Retry payout
+              </button>
+              <button type="button" disabled={busy} onClick={onRepay} className="rounded-pill bg-ink px-6 py-3.5 text-[15px] font-medium text-text hover:bg-line disabled:opacity-50">
+                Repay now
               </button>
             </div>
             {working && <p className="mt-4 text-small text-ebb" role="status">{working}</p>}
