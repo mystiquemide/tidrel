@@ -12,6 +12,16 @@ Draw USDC against your cirBTC the moment a trade settles, and repay it the secon
 
 A desk settling a BTC trade in USDC has three options for the USDC leg today. It can hold idle USDC in advance, sell the BTC it wanted to keep, or ask a broker for a credit line, which comes with relationship terms and a credit process. Each one ties up capital for longer than the trade actually needs it.
 
+What the sources say:
+
+- **Prefunding parks capital.** "Requiring full payment before each one would force it to keep enormous sums idle, pre-positioned across venues, just to be ready to trade." That is "capital-inefficient and operationally clumsy." ([Mintarex, Crypto OTC credit and financing](https://mintarex.com/en/blog/crypto-otc-credit-and-financing-for-institutions))
+- **Credit means limits and terms.** Instead of prefunding, "the desk extends a defined credit limit a client can trade against, settling periodically," and most credit beyond modest terms "is secured by collateral." ([same source](https://mintarex.com/en/blog/crypto-otc-credit-and-financing-for-institutions))
+- **Selling the BTC costs something.** "For many BTC holders, selling is a blunt instrument that can reduce potential upside exposure, disrupt strategic treasury operations, create accounting complexity, or trigger taxable events." ([Circle, How USDC and cirBTC unlock capital efficiency](https://www.circle.com/blog/how-usdc-and-cirbtc-unlock-capital-efficiency))
+- **The window is short and has risk in it.** "Stablecoin settlement via blockchain networks can complete in minutes," and in a bilateral trade there is "a window between execution and final settlement during which one side has committed, but the other has not yet delivered." ([Fasset, OTC crypto settlement](https://fasset.com/blog/otc-crypto-settlement-for-treasury-teams/))
+- **Circle built cirBTC for this buyer.** It is "designed for eligible institutional participants, including OTC desks, market makers, and DeFi protocols," as collateral on lending markets with USDC paid out. ([Circle, cirBTC](https://www.circle.com/cirbtc))
+
+The loans in this repo lasted 44 to 199 seconds, which is the size of the window those sources describe.
+
 ## The solution
 
 Tidrel turns cirBTC into USDC for exactly as long as a trade takes to settle. A desk posts cirBTC once. When a trade settles, Tidrel draws only the USDC shortfall through Circle's Borrow Kit and pays every counterparty in one Arc transaction, with the trade reference recorded on-chain. When USDC comes back, one click repays. There is no custody, no account and no database: the desk's own wallet signs every step.
