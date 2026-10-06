@@ -9,7 +9,7 @@ import {
   type WalletClient,
 } from 'viem'
 import { multicall3FromAbi } from './abis'
-import { ADDRESSES, USDC_DECIMALS } from './chain'
+import { ADDRESSES, CIRBTC_DECIMALS, USDC_DECIMALS } from './chain'
 import { buildPayoutCalls, memoIdOf, type PayoutLeg } from './memo'
 
 export const MIN_HEALTH = 1.2
@@ -31,6 +31,8 @@ export type SettlementPlan = {
   totalUsdc: string
   drawUsdc: string
   resultingHealth: number | null
+  /** cirBTC this draw will pull from the wallet to post, from the Borrow Kit quote. */
+  collateralToPostCirBtc: string | null
   refusal: Refusal | null
   detail: string | null
   duplicateTx: Hash | null
@@ -42,6 +44,7 @@ export type SettlePosition = {
   loanId: string | null
   hasCollateral: boolean
   walletUsdc: string
+  walletCirBtc: string
   marketLiquidityUsdc: string
 }
 
@@ -50,7 +53,10 @@ export type PlanDeps = {
     wallet: Address
     loanId: string | null
     drawUsdc: string
-  }) => Promise<{ resultingHealthFactor: number | null }>
+  }) => Promise<{
+    resultingHealthFactor: number | null
+    collateralCirBtc?: string | null
+  }>
   findReference: (reference: string, wallet: Address) => Promise<Hash | null>
   newKey: () => string
 }
@@ -106,6 +112,7 @@ export async function planSettlement(
     totalUsdc: '0',
     drawUsdc: '0',
     resultingHealth: null,
+    collateralToPostCirBtc: null,
     refusal: null,
     detail: null,
     duplicateTx: null,
@@ -165,14 +172,22 @@ export async function planSettlement(
     drawUsdc: usdc(draw),
   })
   const hf = quote.resultingHealthFactor
+  const toPost = quote.collateralCirBtc ?? null
   if (hf !== null && hf < MIN_HEALTH) {
     return refuse(
       'HEALTH',
       `This draw takes health to ${hf.toFixed(2)}. Reduce the amount or post more cirBTC.`,
-      { ...filled, resultingHealth: hf },
+      { ...filled, resultingHealth: hf, collateralToPostCirBtc: toPost },
     )
   }
-  return { ...base, ...filled, resultingHealth: hf }
+  if (toPost && parseUnits(toPost, CIRBTC_DECIMALS) > parseUnits(position.walletCirBtc, CIRBTC_DECIMALS)) {
+    return refuse(
+      'NO_COLLATERAL',
+      `This draw needs ${toPost} cirBTC posted and the wallet holds ${position.walletCirBtc}.`,
+      { ...filled, resultingHealth: hf, collateralToPostCirBtc: toPost },
+    )
+  }
+  return { ...base, ...filled, resultingHealth: hf, collateralToPostCirBtc: toPost }
 }
 
 export type DrawDeps = {

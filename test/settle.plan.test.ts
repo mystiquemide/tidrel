@@ -13,7 +13,7 @@ const position = (over: Partial<SettlePosition> = {}): SettlePosition => ({
   wallet: WALLET,
   loanId: 'loan-1',
   hasCollateral: true,
-  walletUsdc: '0.4',
+  walletUsdc: '0.4', walletCirBtc: '0.001',
   marketLiquidityUsdc: '100',
   ...over,
 })
@@ -89,6 +89,26 @@ describe('planSettlement', () => {
     const plan = await planSettlement({ reference: 'BLK-1', legs }, position({ marketLiquidityUsdc: '5' }), d)
     expect(plan.refusal).toBe('LIQUIDITY')
     expect(d.quoteDraw).not.toHaveBeenCalled()
+  })
+
+  it('reports the cirBTC the draw will post, from the quote', async () => {
+    const plan = await planSettlement(
+      { reference: 'BLK-1', legs },
+      position(),
+      deps({ quoteDraw: async () => ({ resultingHealthFactor: 1.31, collateralCirBtc: '0.00000049' }) }),
+    )
+    expect(plan.refusal).toBeNull()
+    expect(plan.collateralToPostCirBtc).toBe('0.00000049')
+  })
+
+  it('refuses when the wallet cannot cover the collateral the draw needs', async () => {
+    const plan = await planSettlement(
+      { reference: 'BLK-1', legs },
+      position({ walletCirBtc: '0.00000010' }),
+      deps({ quoteDraw: async () => ({ resultingHealthFactor: 1.31, collateralCirBtc: '0.00000049' }) }),
+    )
+    expect(plan.refusal).toBe('NO_COLLATERAL')
+    expect(plan.collateralToPostCirBtc).toBe('0.00000049')
   })
 
   it('refuses a draw with no collateral', async () => {

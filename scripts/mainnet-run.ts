@@ -126,7 +126,7 @@ async function main() {
       const history = await readHistory(wallet)
       const plan = await planSettlement(
         { reference, legs: amounts.map((amountUsdc, i) => ({ to: counterparties[i].address, amountUsdc })) },
-        { wallet, loanId: p.loanId, hasCollateral: hasCollateral(p), walletUsdc: p.walletUsdc, marketLiquidityUsdc: p.marketLiquidityUsdc },
+        { wallet, loanId: p.loanId, hasCollateral: hasCollateral(p), walletUsdc: p.walletUsdc, walletCirBtc: p.walletCirBtc, marketLiquidityUsdc: p.marketLiquidityUsdc },
         { quoteDraw, findReference: async (r) => findReference(history.settlements, r), newKey: () => crypto.randomUUID() },
       )
       console.log('plan', json(plan))

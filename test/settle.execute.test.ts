@@ -15,7 +15,7 @@ let n = 0
 async function plan(): Promise<SettlementPlan> {
   return planSettlement(
     { reference: 'BLK-1', legs: [{ to: A, amountUsdc: '6' }] },
-    { wallet: WALLET, loanId: 'loan-1', hasCollateral: true, walletUsdc: '0.4', marketLiquidityUsdc: '100' },
+    { wallet: WALLET, loanId: 'loan-1', hasCollateral: true, walletUsdc: '0.4', walletCirBtc: '0.001', marketLiquidityUsdc: '100' },
     {
       quoteDraw: async () => ({ resultingHealthFactor: 1.5 }),
       findReference: async () => null,

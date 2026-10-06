@@ -21,7 +21,10 @@ export const quoteDraw: PlanDeps['quoteDraw'] = async ({ wallet, loanId, drawUsd
         borrowAmount: drawUsdc,
         slippageBps: SLIPPAGE_BPS,
       })
-  return { resultingHealthFactor: quote.resultingHealthFactor }
+  return {
+    resultingHealthFactor: quote.resultingHealthFactor,
+    collateralCirBtc: quote.collateralAmount.amount,
+  }
 }
 
 export async function marketLiquidityUsdc(): Promise<string> {
