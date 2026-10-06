@@ -14,13 +14,15 @@ A desk settling a BTC trade in USDC has three options for the USDC leg today. It
 
 What the sources say:
 
+- **OTC is growing faster than exchange spot.** "Institutional spot OTC volumes expanded +109% YoY, while top-20 CEXs grew just +9% YoY by year-end 2025," and "40% of surveyed institutions name OTC as their first-choice execution venue, routing over half of trades off-screen." ([Finery Markets, State of Crypto OTC 2026](https://finerymarkets.com/blog/state-of-crypto-otc-2026))
 - **Prefunding parks capital.** "Requiring full payment before each one would force it to keep enormous sums idle, pre-positioned across venues, just to be ready to trade." That is "capital-inefficient and operationally clumsy." ([Mintarex, Crypto OTC credit and financing](https://mintarex.com/en/blog/crypto-otc-credit-and-financing-for-institutions))
-- **Credit means limits and terms.** Instead of prefunding, "the desk extends a defined credit limit a client can trade against, settling periodically," and most credit beyond modest terms "is secured by collateral." ([same source](https://mintarex.com/en/blog/crypto-otc-credit-and-financing-for-institutions))
+- **Credit comes with limits, terms and cost.** "The desk extends a defined credit limit a client can trade against, settling periodically," and most credit beyond modest terms "is secured by collateral." (same source) A bitcoin-backed lender like Ledn lists 9.25% to 11.49% APR depending on size, holds the collateral in custody, and quotes a "median funding 3.8 hours." ([Ledn](https://www.ledn.io/borrowing))
 - **Selling the BTC costs something.** "For many BTC holders, selling is a blunt instrument that can reduce potential upside exposure, disrupt strategic treasury operations, create accounting complexity, or trigger taxable events." ([Circle, How USDC and cirBTC unlock capital efficiency](https://www.circle.com/blog/how-usdc-and-cirbtc-unlock-capital-efficiency))
-- **The window is short and has risk in it.** "Stablecoin settlement via blockchain networks can complete in minutes," and in a bilateral trade there is "a window between execution and final settlement during which one side has committed, but the other has not yet delivered." ([Fasset, OTC crypto settlement](https://fasset.com/blog/otc-crypto-settlement-for-treasury-teams/))
-- **Circle built cirBTC for this buyer.** It is "designed for eligible institutional participants, including OTC desks, market makers, and DeFi protocols," as collateral on lending markets with USDC paid out. ([Circle, cirBTC](https://www.circle.com/cirbtc))
+- **The settlement window is short and has risk in it.** "Stablecoin settlement via blockchain networks can complete in minutes," and in a bilateral trade there is "a window between execution and final settlement during which one side has committed, but the other has not yet delivered." ([Fasset, OTC crypto settlement](https://fasset.com/blog/otc-crypto-settlement-for-treasury-teams/))
+- **Circle built cirBTC for this buyer.** It is "designed for eligible institutional participants, including OTC desks, market makers, and DeFi protocols," and cirBTC can be used as collateral on lending markets with USDC paid out. ([Circle, cirBTC](https://www.circle.com/cirbtc))
+- **The raw borrow already happens on Arc mainnet. Nothing ties it to a settlement.** Read from Arc mainnet at block 24,631,697: the cirBTC/USDC market on Morpho Blue has 194,225,393 USDC borrowed out of 194,926,201 supplied, 99.64% utilization, at a borrow rate near 1.40% a year. That figure moves every block, and the desk page shows the live one.
 
-The loans in this repo lasted 44 to 199 seconds, which is the size of the window those sources describe.
+Set against that, the loans in this repo lasted 44 to 199 seconds, at 0.000001 USDC each. These are different products with different collateral, so the rates are context, not a like-for-like comparison.
 
 ## The solution
 
