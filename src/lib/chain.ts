@@ -5,6 +5,17 @@ export const ARC_CHAIN_ID = 5042
 export const ARC_RPC_URL =
   process.env.NEXT_PUBLIC_ARC_RPC_URL ?? 'https://rpc.mainnet.arc.io'
 
+/**
+ * Public Arc RPCs that serve the 5,000 block log pages the history reader needs, in
+ * failover order. The primary honors NEXT_PUBLIC_ARC_RPC_URL. (The fourth listed in
+ * viem's chain config, dRPC, rejects these log requests on its free plan.)
+ */
+export const ARC_RPC_FALLBACK_URLS = [
+  ARC_RPC_URL,
+  'https://rpc.blockdaemon.mainnet.arc.io',
+  'https://rpc.quicknode.mainnet.arc.io',
+].filter((u, i, all) => all.indexOf(u) === i)
+
 export const arcChain = {
   ...arc,
   rpcUrls: { default: { http: [ARC_RPC_URL] } },

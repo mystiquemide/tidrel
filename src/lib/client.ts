@@ -1,8 +1,15 @@
-import { createPublicClient, http } from 'viem'
-import { ARC_RPC_URL, arcChain } from './chain'
+import { createPublicClient, fallback, http } from 'viem'
+import { ARC_RPC_FALLBACK_URLS, arcChain } from './chain'
 
-/** Read-only Arc client. Kept apart from kit.ts so server pages do not load the Circle SDKs. */
+/**
+ * Read-only Arc client. Kept apart from kit.ts so server pages skip the Circle SDKs.
+ * It fails over across several public RPCs, because one provider rate-limits the
+ * shared network addresses that serverless hosts use.
+ */
 export const publicClient = createPublicClient({
   chain: arcChain,
-  transport: http(ARC_RPC_URL, { retryCount: 6, retryDelay: 500 }),
+  transport: fallback(
+    ARC_RPC_FALLBACK_URLS.map((url) => http(url, { retryCount: 2, retryDelay: 400 })),
+    { retryCount: 2, retryDelay: 400 },
+  ),
 })

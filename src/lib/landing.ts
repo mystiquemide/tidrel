@@ -10,7 +10,14 @@ export type DemoCycles =
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
-async function readCycles(): Promise<DemoCycles> {
+type Good = Extract<DemoCycles, { ok: true }>
+
+// The last successful read, kept in memory for this server instance. Cycles that
+// already happened never change, so serving it after a failed read is still true.
+let lastGood: { at: number; value: Good } | null = null
+const FRESH_MS = 120_000
+
+async function readCycles(): Promise<Good> {
   const [history, blockNumber] = await Promise.all([
     readHistory(DEMO_DESK_ADDRESS, { fromBlock: DEMO_DESK_FROM_BLOCK }),
     publicClient.getBlockNumber(),
@@ -20,19 +27,23 @@ async function readCycles(): Promise<DemoCycles> {
 
 /**
  * Settlement history of the demo desk, read from its first block so the proof never
- * ages out. Wrapped in React cache so every component on one page render shares a
- * single read (two parallel reads tripped the public RPC's rate limit and one came
- * back empty). A failed read is retried, then reported as failed, never as empty.
+ * ages out. React cache lets every component in one render share a single read, a
+ * recent read is reused across pages, a failed read is retried, and if every attempt
+ * fails the last good read is served. Only with no good read at all is it reported
+ * as failed, and never as an empty history.
  */
 export const getDemoCycles = cache(async (): Promise<DemoCycles> => {
+  if (lastGood && Date.now() - lastGood.at < FRESH_MS) return lastGood.value
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      return await readCycles()
+      const value = await readCycles()
+      lastGood = { at: Date.now(), value }
+      return value
     } catch {
       if (attempt < 2) await sleep(1000 * (attempt + 1))
     }
   }
-  return { ok: false }
+  return lastGood?.value ?? { ok: false }
 })
 
 /** The newest repaid settlement that closed on its own draw, else the newest repaid one. */
