@@ -15,7 +15,7 @@ export function Hero() {
       <div className="mx-auto flex min-h-[calc(100svh-4rem)] w-full max-w-[1200px] flex-col items-center justify-center px-6 py-20 text-center md:py-28">
         <span className="inline-flex items-center gap-2 rounded-badge bg-bone px-3 py-2 text-[14px] font-medium">
           <TidrelMark size={18} strokeWidth={2.8} className="text-tide-deep" />
-          Settlement credit on Arc
+          Settlement credit on Arc mainnet
         </span>
 
         <h1 className="mt-8 text-[44px] leading-[1.02] font-[550] tracking-[-0.03em] sm:text-[56px] md:text-display">

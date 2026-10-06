@@ -44,7 +44,7 @@ export default async function ViewPage({ params }: Props) {
                 That is not a valid address.
               </h1>
               <p className="mt-4 max-w-xl text-lead text-ebb">
-                An Arc address starts with 0x and has 40 more characters.
+                An Arc mainnet address starts with 0x and has 40 more characters.
               </p>
               <div className="mt-8">
                 <PillLink href="/" variant="light">

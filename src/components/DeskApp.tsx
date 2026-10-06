@@ -171,7 +171,7 @@ export function DeskApp() {
     try {
       await switchToArc(session.wallet.provider);
     } catch {
-      setError("The wallet did not switch to Arc. Switch networks in the wallet and try again.");
+      setError("The wallet did not switch to Arc mainnet. Switch networks in the wallet and try again.");
     } finally {
       setBusy(false);
     }
@@ -204,7 +204,7 @@ export function DeskApp() {
       ) : (
         <Gate
           title="Connect a wallet to open your desk."
-          body="Tidrel runs on Arc. Your wallet signs every step, and Tidrel never holds your funds or your keys."
+          body="Tidrel runs on Arc mainnet. Your wallet signs every step, and Tidrel never holds your funds or your keys."
           note={errorLine}
         >
           <button type="button" onClick={() => setPickerOpen(true)} className={`${btn} bg-tide text-ink hover:brightness-95`}>
@@ -218,24 +218,24 @@ export function DeskApp() {
   } else if (!view) {
     content = (
       <section className="flex min-h-[calc(100svh-4rem)] items-center justify-center" aria-busy="true">
-        <p className="text-lead text-ebb">Reading your desk from Arc.</p>
+        <p className="text-lead text-ebb">Reading your desk from Arc mainnet.</p>
       </section>
     );
   } else if (view.kind === "blocked") {
     const wrongChain = view.check.reason === "WRONG_CHAIN";
     content = (
       <Gate
-        title={wrongChain ? "Switch to Arc to continue." : "Tidrel needs a regular wallet."}
+        title={wrongChain ? "Switch to Arc mainnet to continue." : "Tidrel needs a regular wallet."}
         body={
           wrongChain
-            ? `Your wallet is on chain ${view.check.reason === "WRONG_CHAIN" ? view.check.chainId : ""}. Tidrel runs on Arc, chain ${ARC_CHAIN_ID}.`
+            ? `Your wallet is on chain ${view.check.reason === "WRONG_CHAIN" ? view.check.chainId : ""}. Tidrel runs on Arc mainnet, chain ${ARC_CHAIN_ID}.`
             : "The payout contracts reject smart-contract accounts, so this wallet cannot settle trades. Connect a regular wallet instead."
         }
         note={errorLine}
       >
         {wrongChain && (
           <button type="button" disabled={busy} onClick={onSwitch} className={`${btn} bg-tide text-ink hover:brightness-95`}>
-            Switch to Arc
+            Switch to Arc mainnet
           </button>
         )}
         <button type="button" onClick={disconnect} className={`${btn} bg-panel text-text hover:bg-line`}>
@@ -245,7 +245,7 @@ export function DeskApp() {
     );
   } else if (!view.desk) {
     content = (
-      <Gate title="Chain data is unavailable right now." body="Every figure on this page is read from Arc, so nothing is shown until the read works. Try again in a moment.">
+      <Gate title="Chain data is unavailable right now." body="Every figure on this page is read from Arc mainnet, so nothing is shown until the read works. Try again in a moment.">
         <button type="button" onClick={() => setSession({ ...session })} className={`${btn} bg-paper text-ink hover:bg-paper/90`}>
           Try again
         </button>

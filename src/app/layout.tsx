@@ -15,7 +15,7 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 const DESCRIPTION =
-  "Draw USDC against your cirBTC the moment a trade settles, and repay it the second USDC comes back. On Arc.";
+  "Draw USDC against your cirBTC the moment a trade settles, and repay it the second USDC comes back. On Arc mainnet.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tidrel.vercel.app"),

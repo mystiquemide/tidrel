@@ -25,7 +25,7 @@ export async function ProofCards() {
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
             <h2 className="text-[40px] leading-[1.05] font-[550] tracking-[-0.03em] md:text-h2">
-              Numbers from a real loan on Arc.
+              Numbers from a real loan on Arc mainnet.
             </h2>
             <p className="mt-4 text-lead text-ebb">
               Read from the chain, not typed in. Open the proof page to check every one.

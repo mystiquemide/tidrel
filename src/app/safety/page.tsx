@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "What Tidrel enforces before anything is signed, what it cannot do, and where the mainnet run is limited.",
 };
 
-// A payout link is read from Arc, so the page refreshes every five minutes. This page has no footer.
+// A payout link is read from Arc mainnet, so the page refreshes every five minutes. This page has no footer.
 export const revalidate = 300;
 
 export default function SafetyPage() {

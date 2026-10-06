@@ -16,21 +16,21 @@ const STEPS: {
     title: "Exact USDC against cirBTC.",
     body: "Tidrel draws only the shortfall a trade needs, never more, and your bitcoin stays posted as collateral.",
     link: "draw",
-    linkLabel: "See the draw on Arc",
+    linkLabel: "See the draw on Arc mainnet",
   },
   {
     label: "Settle",
-    title: "One Arc transaction.",
+    title: "One Arc mainnet transaction.",
     body: "Every counterparty is paid together, and each payment is tagged with your trade reference on chain.",
     link: "payout",
-    linkLabel: "See the payout on Arc",
+    linkLabel: "See the payout on Arc mainnet",
   },
   {
     label: "Repay",
     title: "On arrival.",
     body: "The debt stays open for seconds, not days. When USDC comes back, one signature closes it.",
     link: "repay",
-    linkLabel: "See the repay on Arc",
+    linkLabel: "See the repay on Arc mainnet",
   },
 ];
 
@@ -52,7 +52,7 @@ export async function HowItWorks() {
               How it works
             </h2>
             <p className="mt-4 text-lead text-ebb">
-              Three steps. Each one is a transaction on Arc that you can open and check.
+              Three steps. Each one is a transaction on Arc mainnet that you can open and check.
             </p>
           </div>
           <PillLink href="/safety" variant="dark" className="self-start md:self-auto">

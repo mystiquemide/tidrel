@@ -54,8 +54,8 @@ export async function ProofBand() {
             </h1>
             <p className="mt-6 max-w-2xl text-lead text-ebb">
               {data.ok
-                ? "Every figure on this page is read from Arc. There is nothing to show until a draw has been repaid."
-                : "Every figure on this page is read from Arc, so nothing is shown until the read works. Try again in a moment."}
+                ? "Every figure on this page is read from Arc mainnet. There is nothing to show until a draw has been repaid."
+                : "Every figure on this page is read from Arc mainnet, so nothing is shown until the read works. Try again in a moment."}
             </p>
           </>
         )}
@@ -73,7 +73,7 @@ export async function ProofBand() {
           {data.ok && head && (
             <>
               {" "}
-              Read from Arc at block <span className="num">{data.blockNumber.toString()}</span>
+              Read from Arc mainnet at block <span className="num">{data.blockNumber.toString()}</span>
               {head.txHash ? (
                 <>
                   , latest payout <span className="num">{shortHash(head.txHash)}</span>

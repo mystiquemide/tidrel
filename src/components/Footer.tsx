@@ -13,7 +13,7 @@ const GROUPS = [
     ],
   },
   {
-    title: "On Arc",
+    title: "On Arc mainnet",
     links: [
       { label: "TidrelSettler", href: explorerAddress(ADDRESSES.settler) },
       { label: "Morpho Blue", href: explorerAddress(ADDRESSES.morpho) },
@@ -41,7 +41,7 @@ export function Footer() {
               <TidrelLockup tone="dark" size={28} />
             </Link>
             <p className="mt-4 max-w-xs text-small text-muted">
-              Settlement credit on Arc. Your wallet signs every step.
+              Settlement credit on Arc mainnet. Your wallet signs every step.
             </p>
           </div>
           {GROUPS.map((g) => (

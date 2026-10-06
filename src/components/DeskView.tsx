@@ -51,7 +51,7 @@ export function DeskView({
             Chain data is unavailable right now.
           </h1>
           <p className="mt-4 max-w-xl text-lead text-ebb">
-            Every figure on this page is read from Arc, so nothing is shown until the read
+            Every figure on this page is read from Arc mainnet, so nothing is shown until the read
             works. Try again in a moment.
           </p>
           <div className="mt-8">
@@ -99,7 +99,7 @@ export function DeskView({
         </div>
 
         <p className="mt-4 max-w-2xl text-small text-muted">
-          {mode === "desk" ? "Everything here is read from Arc. Your wallet signs every step" : "Read-only view. Everything here is read from Arc"}
+          {mode === "desk" ? "Everything here is read from Arc mainnet. Your wallet signs every step" : "Read-only view. Everything here is read from Arc mainnet"}
           {demo ? `, from the wallet that ran the mainnet proof. Its counterparties are builder-controlled and the run was sized to a ${RUN_BUDGET_USDC} USDC budget` : ""}.
         </p>
 
@@ -176,12 +176,12 @@ export function DeskView({
         )}
         {desk.truncated && (
           <p className="mt-4 text-small text-muted">
-            Older settlements are not loaded. This view reads the most recent stretch of Arc.
+            Older settlements are not loaded. This view reads the most recent stretch of Arc mainnet.
           </p>
         )}
 
         <p className="mt-10 text-small text-muted">
-          Read from Arc at block <span className="num">{desk.blockNumber.toString()}</span>.{" "}
+          Read from Arc mainnet at block <span className="num">{desk.blockNumber.toString()}</span>.{" "}
           <Link href="/proof" className="rounded-badge text-ebb underline underline-offset-4">
             See the mainnet proof
           </Link>
