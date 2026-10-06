@@ -24,7 +24,7 @@ describe('formatFixed', () => {
   })
 
   it('keeps large values exact', () => {
-    expect(formatFixed('194067197.88092', 2)).toBe('194067197.88')
+    expect(formatFixed('194067197.88092', 2)).toBe('194,067,197.88')
   })
 })
 
@@ -63,5 +63,19 @@ describe('formatUsdcTight', () => {
     expect(formatUsdcTight('1.200001')).toBe('1.200001')
     expect(formatUsdcTight('3')).toBe('3.00')
     expect(formatUsdcTight('0.0000004')).toBe('0.00')
+  })
+})
+
+describe('thousands separators', () => {
+  it('groups the whole part and leaves the decimals alone', () => {
+    expect(formatFixed('650847.07', 2)).toBe('650,847.07')
+    expect(formatFixed('1234567.891234', 6)).toBe('1,234,567.891234')
+    expect(formatFixed('1000', 0)).toBe('1,000')
+    expect(formatFixed('999.999', 2)).toBe('1,000.00')
+  })
+  it('leaves amounts under a thousand untouched', () => {
+    expect(formatFixed('999.5', 2)).toBe('999.50')
+    expect(formatFixed('0.00001966', 8)).toBe('0.00001966')
+    expect(formatUsdcTight('12345.5')).toBe('12,345.50')
   })
 })

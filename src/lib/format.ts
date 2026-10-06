@@ -2,7 +2,8 @@ import { parseUnits } from 'viem'
 
 /**
  * Format a decimal string to a fixed number of places, rounding half up, with no
- * floating point. "1.2" at 2 places is "1.20", "0.000001" at 6 places stays exact.
+ * floating point. "1.2" at 2 places is "1.20", "0.000001" at 6 places stays exact, and
+ * the whole part gets thousands separators: "650847.07" is "650,847.07".
  */
 export function formatFixed(value: string, places: number): string {
   const scale = 10n ** BigInt(places)
@@ -11,7 +12,8 @@ export function formatFixed(value: string, places: number): string {
   const rounded = (raw + unit / 2n) / unit
   const whole = rounded / scale
   const frac = (rounded % scale).toString().padStart(places, '0')
-  return places === 0 ? whole.toString() : `${whole}.${frac}`
+  const grouped = whole.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return places === 0 ? grouped : `${grouped}.${frac}`
 }
 
 /** Up to six places with trailing zeros dropped, never fewer than two: "0.002", "1.50". For small amounts that 2 places would show as zero. */

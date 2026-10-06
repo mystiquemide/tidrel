@@ -40,7 +40,7 @@ describe('deskNotices', () => {
   })
   it('warns on a risky band and goes red when urgent', () => {
     const warn = deskNotices(desk({ position: position({ debtUsdc: '1.2', band: 'WARN', healthFactor: 1.3, liquidationPriceUsd: '71000' }), collateral: '0.1' }))
-    expect(warn[0]).toMatchObject({ tone: 'warn', text: 'Health 1.30. Liquidation near $71000.' })
+    expect(warn[0]).toMatchObject({ tone: 'warn', text: 'Health 1.30. Liquidation near $71,000.' })
     const urgent = deskNotices(desk({ position: position({ debtUsdc: '1.2', band: 'URGENT', healthFactor: 1.1 }), collateral: '0.1' }))
     expect(urgent[0].tone).toBe('urgent')
   })
