@@ -15,7 +15,7 @@ export function BuiltOn() {
       <div className="mx-auto w-full max-w-[1200px] px-6 py-20 text-center md:py-24">
         <h2 className="text-h2 font-[550] tracking-[-0.024em]">Built on</h2>
         <p className="mx-auto mt-3 max-w-xl text-body text-body">
-          Tidrel uses these as they are. It deploys no contracts of its own.
+          Tidrel runs on these and adds one small contract of its own.
         </p>
         <ul className="mt-12 flex flex-wrap items-center justify-center gap-x-14 gap-y-10">
           {PARTNERS.map((p) => (

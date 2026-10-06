@@ -27,6 +27,8 @@ export const ADDRESSES = {
   multicall3From: '0x522fAf9A91c41c443c66765030741e4AaCe147D0',
   memo: '0x5294E9927c3306DcBaDb03fe70b92e01cCede505',
   morpho: '0x34cd04070dd72b14e241112f6d83812df5af7fcd',
+  /** Tidrel's own settlement contract, deployed by the demo desk (tx 0xbd7c4951...e0894). */
+  settler: '0xf041C51cA3E5F37D9F75C574AAe5aeBf42754957',
 } as const satisfies Record<string, Address>
 
 export const USDC_DECIMALS = 6

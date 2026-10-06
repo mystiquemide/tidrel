@@ -8,6 +8,11 @@ import { PillLink } from "./PillLink";
 
 const ROWS = [
   {
+    name: "TidrelSettler",
+    role: "Tidrel's own contract. Pays every counterparty in one transaction and accepts each trade reference once per wallet. It holds no funds, has no owner and takes no fee.",
+    address: ADDRESSES.settler,
+  },
+  {
     name: "USDC",
     role: "The dollar token Tidrel draws and pays out.",
     address: ADDRESSES.usdc,
@@ -24,12 +29,12 @@ const ROWS = [
   },
   {
     name: "Multicall3From",
-    role: "Sends every payout of a settlement in one transaction, so they land together or not at all.",
+    role: "Batches the approval and the settlement into one transaction from your wallet.",
     address: ADDRESSES.multicall3From,
   },
   {
     name: "Memo",
-    role: "Writes the trade reference next to each payment, so every payout can be matched to its trade on Arc.",
+    role: "Wrote the trade reference next to each payment in the first mainnet run, before TidrelSettler.",
     address: ADDRESSES.memo,
   },
   {
@@ -47,7 +52,7 @@ export function Contracts() {
           Contracts and addresses
         </h1>
         <p className="mt-4 max-w-2xl text-lead text-ebb">
-          Everything Tidrel touches on Arc mainnet. Tidrel deploys no contracts of its own.
+          Everything Tidrel touches on Arc mainnet.
         </p>
 
         <ul className="mt-14 divide-y divide-line border-y border-line">

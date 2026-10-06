@@ -8,9 +8,10 @@ import {
   type PublicClient,
   type WalletClient,
 } from 'viem'
-import { multicall3FromAbi } from './abis'
+import { multicall3FromAbi, settlerAbi } from './abis'
 import { ADDRESSES, CIRBTC_DECIMALS, USDC_DECIMALS } from './chain'
-import { buildPayoutCalls, memoIdOf, type PayoutLeg } from './memo'
+import type { PayoutLeg } from './memo'
+import { buildSettleCalls, MAX_REFERENCE_BYTES, referenceBytes, referenceToBytes32 } from './settler'
 
 export const MIN_HEALTH = 1.2
 export const SLIPPAGE_BPS = 50
@@ -128,6 +129,9 @@ export async function planSettlement(
   let parsed: ReturnType<typeof parseLegs>
   try {
     if (!reference) throw new SettleRefusal('INVALID', 'Reference is required.')
+    if (referenceBytes(reference) > MAX_REFERENCE_BYTES) {
+      throw new SettleRefusal('INVALID', `Reference must be ${MAX_REFERENCE_BYTES} bytes or fewer.`)
+    }
     if (input.legs.length === 0) throw new SettleRefusal('INVALID', 'Add at least one recipient.')
     parsed = parseLegs(input.legs)
   } catch (e) {
@@ -257,15 +261,24 @@ export async function executePayouts(args: {
     to: l.to,
     amount: parseUnits(l.amountUsdc, USDC_DECIMALS),
   }))
-  const calls = buildPayoutCalls(legs, plan.reference)
+  const calls = buildSettleCalls(legs, plan.reference)
 
-  const { request } = await publicClient.simulateContract({
-    account,
-    address: ADDRESSES.multicall3From,
-    abi: multicall3FromAbi,
-    functionName: 'aggregate3',
-    args: [calls],
-  })
+  let request
+  try {
+    ;({ request } = await publicClient.simulateContract({
+      account,
+      address: ADDRESSES.multicall3From,
+      abi: multicall3FromAbi,
+      functionName: 'aggregate3',
+      args: [calls],
+    }))
+  } catch (e) {
+    // Another tab or device may have used this reference since the plan was made.
+    if (await referenceTaken(publicClient, account.address, plan.reference)) {
+      throw new SettleRefusal('DUPLICATE_REF', 'This reference was already settled by this wallet.')
+    }
+    throw e
+  }
   const hash = await walletClient.writeContract(request)
   const receipt = await publicClient.waitForTransactionReceipt({ hash })
   if (receipt.status !== 'success') {
@@ -274,4 +287,15 @@ export async function executePayouts(args: {
   return hash
 }
 
-export { memoIdOf }
+async function referenceTaken(publicClient: PublicClient, payer: Address, reference: string) {
+  try {
+    return await publicClient.readContract({
+      address: ADDRESSES.settler,
+      abi: settlerAbi,
+      functionName: 'settled',
+      args: [payer, referenceToBytes32(reference)],
+    })
+  } catch {
+    return false
+  }
+}

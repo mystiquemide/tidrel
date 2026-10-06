@@ -23,3 +23,13 @@ export const morphoAbi = parseAbi([
   'event Repay(bytes32 indexed id, address indexed caller, address indexed onBehalf, uint256 assets, uint256 shares)',
   'function position(bytes32 id, address user) view returns (uint256 supplyShares, uint128 borrowShares, uint128 collateral)',
 ])
+
+export const settlerAbi = parseAbi([
+  'function settle(bytes32 ref, address[] recipients, uint256[] amounts)',
+  'function settled(address payer, bytes32 ref) view returns (bool)',
+  'event Settled(address indexed payer, bytes32 indexed ref, uint256 total, uint256 legs)',
+  'event Leg(address indexed payer, bytes32 indexed ref, address indexed to, uint256 amount)',
+  'error ReferenceUsed(address payer, bytes32 ref)',
+])
+
+export const erc20ApproveAbi = parseAbi(['function approve(address spender, uint256 amount) returns (bool)'])

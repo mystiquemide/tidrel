@@ -26,14 +26,14 @@ export async function SafetyRules() {
     },
     {
       title: "Payouts land together or not at all.",
-      body: "Every counterparty is paid in one transaction. If any single payment would fail, nothing is sent. If a draw lands but the payout does not, the history marks it as drawn, not settled, so nothing goes unaccounted.",
+      body: "Every counterparty is paid by one contract call. If any single payment would fail, nothing is sent. If a draw lands but the payout does not, the history marks it as drawn, not settled, so nothing goes unaccounted.",
       link: head?.txHash
         ? { href: explorerTx(head.txHash), label: "See a payout on Arc" }
         : undefined,
     },
     {
       title: "A trade reference can be used once.",
-      body: "Tidrel checks the chain for a reference you already used and stops you before you sign. References are public on Arc, so do not put anything private in one.",
+      body: "Tidrel checks the chain before you sign, and the settlement contract rejects a repeat on its own, even from another browser or device. References are public on Arc, so do not put anything private in one, and keep them to 31 characters.",
     },
     {
       title: "Regular wallets only.",

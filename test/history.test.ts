@@ -9,6 +9,7 @@ import {
   type PayoutEvent,
 } from '../src/lib/history'
 import { encodeMemoData } from '../src/lib/memo'
+import { referenceToBytes32 } from '../src/lib/settler'
 
 const tx = (n: number) => `0x${n.toString(16).padStart(64, '0')}` as const
 let seq = 0
@@ -177,6 +178,28 @@ describe('readHistory', () => {
     )
     expect(r.settlements.map((s) => s.reference)).toEqual(['BLK-1'])
     expect(r.settlements[0]).toMatchObject({ state: 'self-funded', totalUsdc: '6', legs: 1 })
+  })
+
+  it('reads a TidrelSettler settlement from its Settled event', async () => {
+    const { readHistory } = await import('../src/lib/history')
+    const settled = {
+      address: ADDRESSES.settler,
+      blockNumber: 80n,
+      transactionIndex: 0,
+      logIndex: 0,
+      transactionHash: tx(80),
+      blockTimestamp: 6000n,
+      args: { payer: WALLET, ref: referenceToBytes32('BLK-9'), total: 900_000n, legs: 2n },
+    }
+    mocks.getLogs.mockImplementation(async (p: { address: string }) =>
+      p.address === ADDRESSES.settler ? [settled] : [],
+    )
+    const r = await readHistory(WALLET, { fromBlock: 0n })
+    expect(mocks.getLogs).toHaveBeenCalledWith(
+      expect.objectContaining({ args: { payer: WALLET }, address: ADDRESSES.settler }),
+    )
+    expect(r.settlements).toHaveLength(1)
+    expect(r.settlements[0]).toMatchObject({ reference: 'BLK-9', totalUsdc: '0.9', legs: 2, state: 'self-funded' })
   })
 
   it('drops a Memo whose memoId does not match its reference', async () => {

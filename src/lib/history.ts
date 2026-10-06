@@ -7,14 +7,16 @@ import {
   type Address,
   type Hash,
 } from 'viem'
-import { erc20Abi, memoAbi, morphoAbi } from './abis'
+import { erc20Abi, memoAbi, morphoAbi, settlerAbi } from './abis'
 import { ADDRESSES, CIRBTC_USDC_MARKET_ID, USDC_DECIMALS } from './chain'
 import { publicClient } from './client'
 import { decodeMemoData } from './memo'
+import { bytes32ToReference } from './settler'
 
 const memoEvent = getAbiItem({ abi: memoAbi, name: 'Memo' })
 const borrowEvent = getAbiItem({ abi: morphoAbi, name: 'Borrow' })
 const repayEvent = getAbiItem({ abi: morphoAbi, name: 'Repay' })
+const settledEvent = getAbiItem({ abi: settlerAbi, name: 'Settled' })
 
 /** Arc's RPC rejects eth_getLogs ranges above 5,000 blocks (about 42 minutes). */
 export const LOG_PAGE_BLOCKS = 5000n
@@ -232,7 +234,7 @@ export async function readHistory(
 
   const perPage = await mapLimit(pages, opts.concurrency ?? 2, async (p) => {
     const range = { fromBlock: p.from, toBlock: p.to }
-    const [memos, borrows, repays] = await Promise.all([
+    const [memos, borrows, repays, settleds] = await Promise.all([
       publicClient.getLogs({
         address: ADDRESSES.memo,
         event: memoEvent,
@@ -251,8 +253,14 @@ export async function readHistory(
         args: { id: CIRBTC_USDC_MARKET_ID, onBehalf: wallet },
         ...range,
       }),
+      publicClient.getLogs({
+        address: ADDRESSES.settler,
+        event: settledEvent,
+        args: { payer: wallet },
+        ...range,
+      }),
     ])
-    return { memos, borrows, repays }
+    return { memos, borrows, repays, settleds }
   })
 
   const events: HistoryEvent[] = []
@@ -277,6 +285,21 @@ export async function readHistory(
           timestamp: Number(l.blockTimestamp),
         })
       }
+    }
+  }
+
+  // Settlements through TidrelSettler carry everything in one event.
+  for (const page of perPage) {
+    for (const l of page.settleds) {
+      events.push({
+        kind: 'payout',
+        ...pos(l),
+        reference: bytes32ToReference(l.args.ref!),
+        legs: Number(l.args.legs!),
+        totalUsdc: l.args.total!,
+        txHash: l.transactionHash,
+        timestamp: Number(l.blockTimestamp),
+      })
     }
   }
 

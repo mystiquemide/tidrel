@@ -5,7 +5,7 @@ import { TidrelMark } from "./TidrelMark";
 const PROOF_LINKS = [
   { label: "cirBTC", href: explorerAddress(ADDRESSES.cirBtc) },
   { label: "Multicall3From", href: explorerAddress(ADDRESSES.multicall3From) },
-  { label: "Memo", href: explorerAddress(ADDRESSES.memo) },
+  { label: "TidrelSettler", href: explorerAddress(ADDRESSES.settler) },
   { label: "Morpho Blue", href: explorerAddress(ADDRESSES.morpho) },
 ];
 

@@ -19,7 +19,7 @@ const approveAbi = parseAbi(['function approve(address,uint256) returns (bool)']
 const r1 = '0x00000000000000000000000000000000000000a1'
 const r2 = '0x00000000000000000000000000000000000000a2'
 const ref = padHex(stringToHex('SIM-1'), { size: 32, dir: 'right' })
-const calls = [
+const calls: { target: `0x${string}`; allowFailure: boolean; callData: `0x${string}` }[] = [
   { target: ADDRESSES.usdc, allowFailure: false, callData: encodeFunctionData({ abi: approveAbi, functionName: 'approve', args: [SETTLER, 900000n] }) },
   { target: SETTLER, allowFailure: false, callData: encodeFunctionData({ abi: settlerAbi, functionName: 'settle', args: [ref, [r1, r2], [500000n, 400000n]] }) },
 ]
