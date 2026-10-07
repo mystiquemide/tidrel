@@ -43,7 +43,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       className={`${geist.variable} ${geistMono.variable} h-full`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Scroll reveals only hide content once script is running, so the page reads without it. */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

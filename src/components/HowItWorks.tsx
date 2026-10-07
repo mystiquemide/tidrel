@@ -1,7 +1,10 @@
 import Image from "next/image";
 import { explorerTx } from "@/lib/chain";
 import { getDemoCycles, headlineCycle } from "@/lib/landing";
+import type { CSSProperties } from "react";
+import { Words } from "./Motion";
 import { PillLink } from "./PillLink";
+import { Reveal } from "./Reveal";
 
 type LinkKey = "draw" | "payout" | "repay";
 
@@ -72,29 +75,33 @@ export async function HowItWorks() {
       className="scroll-mt-24 bg-porcelain focus:outline-none"
     >
       <div className="mx-auto w-full max-w-[1224px] px-6 pb-24 md:px-8 md:pb-36">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <Reveal className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
-            <p className="eyebrow">How it works</p>
+            <p className="eyebrow rv">How it works</p>
             <h2 id="how-it-works-title" className="mt-4 text-[30px] leading-[1.1] tracking-[-0.015em] md:text-h2">
-              Three steps, each one a transaction on Arc mainnet.
+              <Words text="Three steps, each one a transaction on Arc mainnet." start={1} />
             </h2>
           </div>
-          <PillLink href="/safety" variant="secondary" className="self-start md:self-auto">
-            Read the safety rules
-          </PillLink>
-        </div>
+          <div className="rv self-start md:self-auto" style={{ "--i": 6 } as CSSProperties}>
+            <PillLink href="/safety" variant="secondary">
+              Read the safety rules
+            </PillLink>
+          </div>
+        </Reveal>
 
         <ol className="mt-14 flex flex-col gap-16 md:gap-24">
           {STEPS.map((step, i) => {
             const hash = hashes[step.link];
             return (
-              <li
+              <Reveal
+                as="li"
+                threshold={0.25}
                 key={step.n}
                 className={`grid items-center gap-8 lg:gap-16 ${
                   i % 2 === 1 ? "lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]" : "lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"
                 }`}
               >
-                <div className={i % 2 === 1 ? "lg:order-2" : undefined}>
+                <div className={`rv ${i % 2 === 1 ? "lg:order-2" : ""}`}>
                   <p className="num text-small text-violet">{step.n}</p>
                   <h3 className="mt-3 text-[26px] leading-[1.15] tracking-[-0.01em] text-ink md:text-h3">
                     {step.title}
@@ -106,7 +113,10 @@ export async function HowItWorks() {
                     </PillLink>
                   )}
                 </div>
-                <figure className={`rounded-card bg-violet-tint p-4 sm:p-6 md:p-8 ${i % 2 === 1 ? "lg:order-1" : ""}`}>
+                <figure
+                  className={`rv-scale rounded-card bg-violet-tint p-4 sm:p-6 md:p-8 ${i % 2 === 1 ? "lg:order-1" : ""}`}
+                  style={{ "--i": 2 } as CSSProperties}
+                >
                   <Image
                     src={step.screen.src}
                     alt={step.screen.alt}
@@ -116,7 +126,7 @@ export async function HowItWorks() {
                     className="h-auto w-full"
                   />
                 </figure>
-              </li>
+              </Reveal>
             );
           })}
         </ol>

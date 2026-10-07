@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 export type PillVariant = "primary" | "secondary" | "inverse";
 
 const BASE =
-  "inline-flex items-center justify-center gap-2 rounded-pill font-medium whitespace-nowrap transition-[background-color,color] duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40";
+  "inline-flex items-center justify-center gap-2 rounded-pill font-medium whitespace-nowrap transition-[background-color,color,scale] duration-150 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40";
 
 const VARIANTS: Record<PillVariant, string> = {
   // White on violet is 4.9:1. Violet marks the one action that matters on a screen.

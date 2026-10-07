@@ -50,11 +50,11 @@ export default async function ReceiptPage({ params }: Props) {
         <div className="mx-auto w-full max-w-[1224px] px-6 pt-16 pb-24 md:px-8 md:pt-24 md:pb-36">
           {!r.ok ? (
             <>
-              <p className="eyebrow">Settlement receipt</p>
-              <h1 className="mt-5 max-w-[20ch] text-[36px] leading-[1.08] tracking-[-0.02em] md:text-h1">
+              <p style={{ "--i": 0 } as React.CSSProperties} className="load eyebrow">Settlement receipt</p>
+              <h1 style={{ "--i": 1 } as React.CSSProperties} className="load mt-5 max-w-[20ch] text-[36px] leading-[1.08] tracking-[-0.02em] md:text-h1">
                 Arc mainnet is not responding right now.
               </h1>
-              <p className="mt-6 max-w-2xl text-lead text-slate">
+              <p style={{ "--i": 2 } as React.CSSProperties} className="load mt-6 max-w-2xl text-lead text-slate">
                 This receipt is read live from the chain, so nothing is shown until it answers. Try again in a moment.
               </p>
               <div className="mt-10 flex flex-col gap-3 sm:flex-row">

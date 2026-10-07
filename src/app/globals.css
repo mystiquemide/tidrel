@@ -159,3 +159,163 @@ dialog::backdrop {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
 }
+
+/* Motion, after aave.com: content sharpens out of a blur and rises into place on an
+   expo ease-out, headings arrive word by word, figures roll like an odometer.
+   Hidden start states only apply once JavaScript has added .js, so the page reads
+   fully without it, and reduced motion shows everything in place. */
+:root {
+  --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Revealed on scroll, inside a Reveal wrapper. --i staggers siblings. */
+.rv,
+.rv-scale,
+.word {
+  transition:
+    opacity 0.9s var(--ease-expo),
+    transform 0.9s var(--ease-expo),
+    filter 0.9s var(--ease-expo);
+  transition-delay: calc(var(--i, 0) * 70ms);
+}
+
+.js [data-reveal]:not([data-in]) .rv,
+.js [data-reveal]:not([data-in]).rv {
+  opacity: 0;
+  transform: translateY(24px) scale(0.985);
+  filter: blur(8px);
+}
+
+.js [data-reveal]:not([data-in]) .rv-scale {
+  opacity: 0;
+  transform: translateY(48px) scale(0.92);
+  filter: blur(6px);
+}
+
+/* Headings, one word at a time. */
+.word {
+  display: inline-block;
+  white-space: pre;
+}
+
+.js [data-reveal]:not([data-in]) .word {
+  opacity: 0;
+  transform: translateY(0.35em);
+  filter: blur(10px);
+}
+
+/* Leader lines draw out from their square. */
+.rv-line {
+  transition: transform 0.9s var(--ease-expo);
+  transition-delay: calc(var(--i, 0) * 70ms + 200ms);
+}
+
+.js [data-reveal]:not([data-in]) .rv-line {
+  transform: scaleX(0);
+}
+
+/* Odometer digits: each column holds 0 to 9 and slides to the real digit. */
+.roll {
+  display: inline-flex;
+  overflow: hidden;
+  height: 1.15em;
+  line-height: 1.15em;
+  vertical-align: bottom;
+}
+
+.roll-col {
+  display: flex;
+  flex-direction: column;
+  transform: translateY(calc(var(--d) * -1.15em));
+  transition: transform 1.4s var(--ease-expo);
+  transition-delay: calc(var(--i, 0) * 60ms + 150ms);
+}
+
+.js [data-reveal]:not([data-in]) .roll-col {
+  transform: translateY(0);
+}
+
+/* Above the fold, on load: the same rise and sharpen, played once. */
+.load {
+  animation: load-in 1s var(--ease-expo) both;
+  animation-delay: calc(var(--i, 0) * 90ms + 80ms);
+}
+
+.load-word {
+  display: inline-block;
+  white-space: pre;
+  animation: word-in 1.1s var(--ease-expo) both;
+  animation-delay: calc(var(--i, 0) * 70ms + 60ms);
+}
+
+@keyframes load-in {
+  from { opacity: 0; transform: translateY(24px) scale(0.985); filter: blur(8px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+@keyframes word-in {
+  from { opacity: 0; transform: translateY(0.35em); filter: blur(10px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rv,
+  .rv-scale,
+  .word,
+  .rv-line,
+  .roll-col,
+  .load,
+  .load-word {
+    opacity: 1 !important;
+    filter: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .rv,
+  .rv-scale,
+  .word,
+  .rv-line,
+  .load,
+  .load-word {
+    transform: none !important;
+  }
+
+  .roll-col {
+    transform: translateY(calc(var(--d) * -1.15em)) !important;
+  }
+}
+
+/* The hero photograph settles from a slight zoom as the page opens. */
+.load-zoom {
+  animation: zoom-in 2.2s var(--ease-expo) both;
+}
+
+@keyframes zoom-in {
+  from { transform: scale(1.08); }
+  to { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .load-zoom {
+    animation: none !important;
+  }
+}
+
+/* The vertical leader line under the bottom callout. */
+.rv-line-y {
+  transition: transform 0.9s var(--ease-expo);
+  transition-delay: calc(var(--i, 0) * 70ms + 200ms);
+  transform-origin: top;
+}
+
+.js [data-reveal]:not([data-in]) .rv-line-y {
+  transform: scaleY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rv-line-y {
+    transform: none !important;
+    transition: none !important;
+  }
+}

@@ -17,9 +17,9 @@ export default function NotFound() {
           <div className="relative h-[200px] overflow-hidden rounded-card md:h-[260px]">
             <Image src="/images/gate.webp" alt="" fill priority sizes="(min-width: 1224px) 1160px, 100vw" className="object-cover" />
           </div>
-          <p className="eyebrow mt-14">Page not found</p>
-          <h1 className="mt-5 text-[36px] leading-[1.08] tracking-[-0.02em] md:text-h1">This page is not here.</h1>
-          <p className="mt-6 max-w-xl text-lead text-slate">
+          <p style={{ "--i": 0 } as React.CSSProperties} className="load eyebrow mt-14">Page not found</p>
+          <h1 style={{ "--i": 1 } as React.CSSProperties} className="load mt-5 text-[36px] leading-[1.08] tracking-[-0.02em] md:text-h1">This page is not here.</h1>
+          <p style={{ "--i": 2 } as React.CSSProperties} className="load mt-6 max-w-xl text-lead text-slate">
             The link may be old or mistyped. The pages that exist are one tap away.
           </p>
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">

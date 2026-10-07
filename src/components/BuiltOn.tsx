@@ -1,4 +1,6 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
+import { Reveal } from "./Reveal";
 
 // Official logo files from each company's own brand kit, shown unaltered.
 const PARTNERS = [
@@ -17,9 +19,9 @@ export function BuiltOn() {
         <h2 id="built-on" className="eyebrow shrink-0">
           Built on
         </h2>
-        <ul className="grid flex-1 grid-cols-2 gap-y-6 sm:grid-cols-3 lg:grid-cols-5">
-          {PARTNERS.map((p) => (
-            <li key={p.name} className="flex justify-center border-mist last:col-span-2 sm:border-l sm:first:border-l-0 sm:last:col-span-1 lg:first:border-l">
+        <Reveal as="ul" className="grid flex-1 grid-cols-2 gap-y-6 sm:grid-cols-3 lg:grid-cols-5">
+          {PARTNERS.map((p, i) => (
+            <li key={p.name} style={{ "--i": i } as CSSProperties} className="rv flex justify-center border-mist last:col-span-2 sm:border-l sm:first:border-l-0 sm:last:col-span-1 lg:first:border-l">
               <a
                 href={p.href}
                 target="_blank"
@@ -38,7 +40,7 @@ export function BuiltOn() {
               </a>
             </li>
           ))}
-        </ul>
+        </Reveal>
       </div>
     </section>
   );

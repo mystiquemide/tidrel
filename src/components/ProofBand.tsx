@@ -13,15 +13,15 @@ export async function ProofBand() {
   return (
     <section className="bg-porcelain">
       <div className="mx-auto w-full max-w-[1224px] px-6 pt-16 pb-24 md:px-8 md:pt-24 md:pb-36">
-        <p className="eyebrow">Mainnet proof</p>
+        <p style={{ "--i": 0 } as React.CSSProperties} className="load eyebrow">Mainnet proof</p>
 
         {proven ? (
           <>
-            <h1 className="mt-5 max-w-[20ch] text-[36px] leading-[1.08] tracking-[-0.02em] md:text-h1">
+            <h1 style={{ "--i": 1 } as React.CSSProperties} className="load mt-5 max-w-[20ch] text-[36px] leading-[1.08] tracking-[-0.02em] md:text-h1">
               A loan against bitcoin that existed for{" "}
               <span className="text-violet">{formatDurationWords(head.openSeconds!)}</span>.
             </h1>
-            <p className="mt-6 max-w-2xl text-lead text-slate">
+            <p style={{ "--i": 2 } as React.CSSProperties} className="load mt-6 max-w-2xl text-lead text-slate">
               It drew <span className="num text-ink">{formatUsdc(head.drawnUsdc, 2)} USDC</span>, paid{" "}
               <span className="num text-ink">{head.legs}</span> counterparties in one transaction, and cost{" "}
               <span className="num text-ink">{formatUsdc(head.interestUsdc!, 6)} USDC</span> in interest.

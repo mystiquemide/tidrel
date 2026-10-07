@@ -51,11 +51,11 @@ export async function SafetyRules() {
   return (
     <section className="bg-porcelain">
       <div className="mx-auto w-full max-w-[1224px] px-6 pt-16 pb-24 md:px-8 md:pt-24 md:pb-36">
-        <p className="eyebrow">Safety rules</p>
-        <h1 className="mt-5 max-w-[20ch] text-[36px] leading-[1.08] tracking-[-0.02em] md:text-h1">
+        <p style={{ "--i": 0 } as React.CSSProperties} className="load eyebrow">Safety rules</p>
+        <h1 style={{ "--i": 1 } as React.CSSProperties} className="load mt-5 max-w-[20ch] text-[36px] leading-[1.08] tracking-[-0.02em] md:text-h1">
           What the code enforces before anything is signed.
         </h1>
-        <p className="mt-6 max-w-2xl text-lead text-slate">
+        <p style={{ "--i": 2 } as React.CSSProperties} className="load mt-6 max-w-2xl text-lead text-slate">
           Six rules Tidrel checks on every draw and payout, and the limits of what it can do.
         </p>
 

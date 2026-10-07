@@ -1,4 +1,7 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
+import { Words } from "./Motion";
+import { Reveal } from "./Reveal";
 import { formatUsdc } from "@/lib/format";
 import { getDemoCycles, headlineCycle } from "@/lib/landing";
 import { MIN_HEALTH } from "@/lib/settle";
@@ -66,16 +69,16 @@ export async function Faq() {
 
   return (
     <section aria-labelledby="faq" className="bg-porcelain">
-      <div className="mx-auto grid w-full max-w-[1224px] gap-10 px-6 pb-24 md:px-8 md:pb-36 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-12">
+      <Reveal className="mx-auto grid w-full max-w-[1224px] gap-10 px-6 pb-24 md:px-8 md:pb-36 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-12">
         <div>
-          <p className="eyebrow">Questions</p>
+          <p className="eyebrow rv">Questions</p>
           <h2 id="faq" className="mt-4 text-[30px] leading-[1.1] tracking-[-0.015em] md:text-h2">
-            Before you connect a wallet.
+            <Words text="Before you connect a wallet." start={1} />
           </h2>
         </div>
         <div className="flex flex-col gap-2">
-          {items.map((it) => (
-            <details key={it.q} className="group rounded-panel bg-cloud px-6 open:pb-6 md:px-8">
+          {items.map((it, i) => (
+            <details key={it.q} style={{ "--i": i + 3 } as CSSProperties} className="rv group rounded-panel bg-cloud px-6 open:pb-6 md:px-8">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-h4 font-medium text-ink marker:hidden md:py-6 [&::-webkit-details-marker]:hidden">
                 {it.q}
                 <span
@@ -91,7 +94,7 @@ export async function Faq() {
             </details>
           ))}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

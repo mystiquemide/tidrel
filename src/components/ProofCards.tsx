@@ -1,4 +1,7 @@
 import { formatDurationWords, formatUsdc } from "@/lib/format";
+import type { CSSProperties } from "react";
+import { Roll, Words } from "./Motion";
+import { Reveal } from "./Reveal";
 import { getDemoCycles, headlineCycle } from "@/lib/landing";
 import { PillLink } from "./PillLink";
 
@@ -23,23 +26,23 @@ export async function ProofCards() {
 
   return (
     <section aria-labelledby="proof-title" className="bg-porcelain">
-      <div className="mx-auto grid w-full max-w-[1224px] gap-10 px-6 pb-24 md:px-8 md:pb-36 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.2fr)] lg:gap-12">
+      <Reveal className="mx-auto grid w-full max-w-[1224px] gap-10 px-6 pb-24 md:px-8 md:pb-36 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.2fr)] lg:gap-12">
         <div>
-          <p className="eyebrow">Mainnet proof</p>
+          <p className="eyebrow rv">Mainnet proof</p>
           <h2 id="proof-title" className="mt-4 text-[30px] leading-[1.1] tracking-[-0.015em] md:text-h2">
-            Numbers from a real loan on Arc mainnet.
+            <Words text="Numbers from a real loan on Arc mainnet." start={1} />
           </h2>
-          <p className="mt-4 text-body text-slate">
+          <p className="rv mt-4 text-body text-slate" style={{ "--i": 6 } as CSSProperties}>
             Read from the chain, not typed in. Every figure links to its transaction on the proof page.
           </p>
         </div>
 
-        <div className="grid overflow-hidden rounded-card border border-mist md:grid-cols-2">
+        <div className="rv-scale grid overflow-hidden rounded-card border border-mist md:grid-cols-2" style={{ "--i": 2 } as CSSProperties}>
           <div className="on-image flex min-h-[320px] flex-col justify-between gap-10 bg-violet p-8 text-porcelain md:p-10">
             <p className="eyebrow text-porcelain/75">Headline cycle</p>
             <div>
               <p className="text-[30px] leading-[1.15] tracking-[-0.015em] md:text-h3">
-                A loan against bitcoin that existed for {formatDurationWords(head.openSeconds)}.
+                A loan against bitcoin that existed for <Roll value={formatDurationWords(head.openSeconds)} />.
               </p>
               <PillLink href="/proof" variant="inverse" size="sm" className="mt-8">
                 See the mainnet proof
@@ -50,12 +53,12 @@ export async function ProofCards() {
             <div className="flex flex-col justify-between gap-6 p-8 md:p-10">
               <dt className="eyebrow">Interest for the whole loan</dt>
               <dd className="num text-[32px] leading-none text-ink md:text-[40px]">
-                {formatUsdc(head.interestUsdc, 6)} <span className="text-lead text-slate">USDC</span>
+                <Roll value={formatUsdc(head.interestUsdc, 6)} /> <span className="text-lead text-slate">USDC</span>
               </dd>
             </div>
             <div className="flex flex-col justify-between gap-6 p-8 md:p-10">
               <dt className="eyebrow">
-                {repaid.length} {repaid.length === 1 ? "settlement" : "settlements"} drawn, paid and repaid
+                <Roll value={String(repaid.length)} /> {repaid.length === 1 ? "settlement" : "settlements"} drawn, paid and repaid
               </dt>
               <dd className="text-[24px] leading-tight text-ink md:text-[28px]">
                 {shortest === longest
@@ -65,7 +68,7 @@ export async function ProofCards() {
             </div>
           </dl>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

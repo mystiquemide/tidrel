@@ -1,3 +1,7 @@
+import type { CSSProperties } from "react";
+import { Words } from "./Motion";
+import { Reveal } from "./Reveal";
+
 const OPTIONS = [
   {
     label: "Prefund the USDC",
@@ -46,20 +50,32 @@ function Callout({
   label,
   body,
   side,
+  i,
 }: {
   label: string;
   body: string;
   side: "left" | "right" | "bottom";
+  i: number;
 }) {
-  const square = <span className="h-2.5 w-2.5 shrink-0 bg-violet" aria-hidden="true" />;
+  const stagger = { "--i": i } as CSSProperties;
+  const square = <span className="rv h-2.5 w-2.5 shrink-0 bg-violet" style={stagger} aria-hidden="true" />;
+  // The line draws out from its square toward the label.
   const rule = (
     <span
-      className={side === "bottom" ? "h-10 w-px bg-ash" : "h-px w-16 bg-ash xl:w-28"}
+      className={
+        side === "bottom"
+          ? "rv-line-y h-10 w-px bg-ash"
+          : `rv-line h-px w-16 bg-ash xl:w-28 ${side === "left" ? "origin-right" : "origin-left"}`
+      }
+      style={stagger}
       aria-hidden="true"
     />
   );
   const text = (
-    <div className={side === "left" ? "text-right" : side === "bottom" ? "text-center" : "text-left"}>
+    <div
+      className={`rv ${side === "left" ? "text-right" : side === "bottom" ? "text-center" : "text-left"}`}
+      style={{ "--i": i + 3 } as CSSProperties}
+    >
       <p className="eyebrow text-ink">{label}</p>
       <p className="mt-2 max-w-[17rem] text-small text-slate">{body}</p>
     </div>
@@ -100,33 +116,33 @@ export function Problem() {
 
         {/* One statement. Wide screens set it inside the lattice with three callouts around it,
             narrow screens follow it with the options as a list. */}
-        <div className="relative mt-8 lg:mt-10">
-          <div className="hidden lg:block">
+        <Reveal className="relative mt-8 lg:mt-10">
+          <div className="rv hidden lg:block" style={{ "--i": 0 } as CSSProperties}>
             <Lattice />
           </div>
           <div className="relative lg:grid lg:grid-cols-[1fr_minmax(0,560px)_1fr] lg:items-center lg:gap-y-14">
             <div className="hidden lg:block">
-              <Callout side="left" {...OPTIONS[0]} />
+              <Callout side="left" i={6} {...OPTIONS[0]} />
             </div>
             <div className="hidden lg:block" />
             <div className="hidden lg:block">
-              <Callout side="right" {...OPTIONS[1]} />
+              <Callout side="right" i={7} {...OPTIONS[1]} />
             </div>
             <h2
               id="problem"
               className="mx-auto max-w-[17ch] text-center text-[34px] leading-[1.1] tracking-[-0.015em] sm:text-h2 lg:col-span-3 lg:text-h1"
             >
-              The USDC leg of a trade ties up capital for longer than the trade needs it.
+              <Words text="The USDC leg of a trade ties up capital for longer than the trade needs it." />
             </h2>
             <div className="hidden lg:block" />
             <div className="hidden lg:block">
-              <Callout side="bottom" {...OPTIONS[2]} />
+              <Callout side="bottom" i={8} {...OPTIONS[2]} />
             </div>
           </div>
 
           <ul className="mt-12 border-t border-mist lg:hidden">
-            {OPTIONS.map((o) => (
-              <li key={o.label} className="flex gap-4 border-b border-mist py-6">
+            {OPTIONS.map((o, i) => (
+              <li key={o.label} className="rv flex gap-4 border-b border-mist py-6" style={{ "--i": i + 4 } as CSSProperties}>
                 <span className="mt-1.5 h-2.5 w-2.5 shrink-0 bg-violet" aria-hidden="true" />
                 <div>
                   <p className="eyebrow text-ink">{o.label}</p>
@@ -135,11 +151,11 @@ export function Problem() {
               </li>
             ))}
           </ul>
-        </div>
+        </Reveal>
 
-        <p className="mx-auto mt-20 max-w-[30ch] border-t border-mist pt-14 text-center text-[28px] leading-[1.2] tracking-[-0.015em] text-violet md:mt-28 md:text-h2">
-          Tidrel lends the exact USDC for exactly as long as the trade takes to settle.
-        </p>
+        <Reveal as="p" className="mx-auto mt-20 max-w-[30ch] border-t border-mist pt-14 text-center text-[28px] leading-[1.2] tracking-[-0.015em] text-violet md:mt-28 md:text-h2">
+          <Words text="Tidrel lends the exact USDC for exactly as long as the trade takes to settle." />
+        </Reveal>
       </div>
     </section>
   );

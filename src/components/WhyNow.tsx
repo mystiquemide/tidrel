@@ -1,4 +1,7 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
+import { Words } from "./Motion";
+import { Reveal } from "./Reveal";
 import { SOURCES, type Source } from "@/lib/sources";
 import { ExternalGlyph } from "./PillLink";
 
@@ -22,14 +25,14 @@ export function WhyNow() {
   const [lead, ...rest] = SOURCES;
   return (
     <section aria-labelledby="why-now" className="bg-porcelain">
-      <div className="mx-auto w-full max-w-[1224px] px-6 pb-24 md:px-8 md:pb-36">
-        <p className="eyebrow">Why now</p>
+      <Reveal className="mx-auto w-full max-w-[1224px] px-6 pb-24 md:px-8 md:pb-36">
+        <p className="eyebrow rv">Why now</p>
         <h2 id="why-now" className="mt-4 max-w-2xl text-[30px] leading-[1.1] tracking-[-0.015em] md:text-h2">
-          What the market says about the capital a settlement ties up.
+          <Words text="What the market says about the capital a settlement ties up." start={1} />
         </h2>
 
         <div className="mt-12 grid overflow-hidden rounded-card border border-mist lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
-          <figure className="relative flex min-h-[420px] flex-col justify-end bg-cloud p-4 md:p-6">
+          <figure style={{ "--i": 3 } as CSSProperties} className="rv-scale relative flex min-h-[420px] flex-col justify-end bg-cloud p-4 md:p-6">
             <Image
               src="/images/city.webp"
               alt="Glass towers and curved balconies in a financial district."
@@ -45,15 +48,15 @@ export function WhyNow() {
             </div>
           </figure>
           <ul className="divide-y divide-mist border-t border-mist lg:border-t-0 lg:border-l">
-            {rest.map((s) => (
-              <li key={s.href} className="flex flex-col justify-between gap-6 p-6 md:p-8">
+            {rest.map((s, i) => (
+              <li key={s.href} style={{ "--i": i + 5 } as CSSProperties} className="rv flex flex-col justify-between gap-6 p-6 md:p-8">
                 <blockquote className="text-body leading-[1.5] text-graphite">&ldquo;{s.quote}&rdquo;</blockquote>
                 <SourceLink s={s} />
               </li>
             ))}
           </ul>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }
