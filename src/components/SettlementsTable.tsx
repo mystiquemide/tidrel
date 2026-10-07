@@ -16,10 +16,12 @@ const STATE_TONE: Record<SettlementState, string> = {
   "drawn-not-settled": "bg-warn/15 text-warn",
 };
 
-function StateBadge({ state }: { state: SettlementState }) {
+function StateBadge({ s }: { s: Settlement }) {
+  const state = s.state;
+  const label = state === "repaid" && s.reference === null ? "Repaid, no payout" : STATE_LABEL[state];
   return (
     <span className={`inline-flex items-center rounded-pill px-2.5 py-1 text-caption font-medium whitespace-nowrap ${STATE_TONE[state]}`}>
-      {STATE_LABEL[state]}
+      {label}
     </span>
   );
 }
@@ -39,7 +41,7 @@ function TxLink({ hash, children }: { hash: string | null; children: React.React
 }
 
 const cells = (s: Settlement) => ({
-  ref: s.reference ?? "No payout yet",
+  ref: s.reference ?? (s.state === "drawn-not-settled" ? "Awaiting payout" : "No payout"),
   legs: s.legs ? String(s.legs) : "None",
   drawn: s.drawTxHash ? `${formatUsdc(s.drawnUsdc, 2)} USDC` : "None",
   open: !s.drawTxHash ? "None" : s.openSeconds === null ? "Open" : formatDuration(s.openSeconds),
@@ -79,7 +81,7 @@ export function SettlementsTable({ rows }: { rows: Settlement[] }) {
                       <td className="num px-6 py-4">
                         <TxLink hash={s.repayTxHash}>{c.cost}</TxLink>
                       </td>
-                      <td className="px-6 py-4"><StateBadge state={s.state} /></td>
+                      <td className="px-6 py-4"><StateBadge s={s} /></td>
                     </tr>
                   );
                 })}
@@ -95,7 +97,7 @@ export function SettlementsTable({ rows }: { rows: Settlement[] }) {
                       <span className="num text-body text-text">
                         <TxLink hash={s.txHash}>{c.ref}</TxLink>
                       </span>
-                      <StateBadge state={s.state} />
+                      <StateBadge s={s} />
                     </div>
                     <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-small">
                       {[
