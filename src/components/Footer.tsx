@@ -28,25 +28,25 @@ const GROUPS = [
 ] as const;
 
 const linkClass =
-  "inline-block rounded-badge py-1 text-small text-ebb underline-offset-4 hover:text-text hover:underline";
+  "inline-block rounded-badge py-1 text-small text-body underline-offset-4 hover:text-ink hover:underline";
 
 /** Home page only. The proof, safety and contracts pages carry no footer. */
 export function Footer() {
   return (
-    <footer className="border-t border-line bg-ink text-text">
+    <footer className="on-light bg-paper text-ink">
       <div className="mx-auto w-full max-w-[1200px] px-6 py-16">
         <div className="grid gap-12 md:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
           <div>
             <Link href="/" aria-label="Tidrel home" className="inline-block rounded-badge">
-              <TidrelLockup tone="dark" size={28} />
+              <TidrelLockup tone="light" size={28} />
             </Link>
-            <p className="mt-4 max-w-xs text-small text-muted">
+            <p className="mt-4 max-w-xs text-small text-body">
               Settlement credit on Arc mainnet. Your wallet signs every step.
             </p>
           </div>
           {GROUPS.map((g) => (
             <nav key={g.title} aria-label={g.title}>
-              <h2 className="text-small font-medium text-text">{g.title}</h2>
+              <h2 className="text-small font-medium text-ink">{g.title}</h2>
               <ul className="mt-3 flex flex-col gap-1">
                 {g.links.map((l) => (
                   <li key={l.label}>
@@ -70,9 +70,9 @@ export function Footer() {
             </nav>
           ))}
         </div>
-        <p className="mt-14 border-t border-line pt-6 text-small text-muted">
+        <p className="mt-14 border-t border-ink/10 pt-6 text-small text-body">
           Tidrel moves real USDC on Arc mainnet. Read the{" "}
-          <Link href="/safety" className="rounded-badge text-ebb underline underline-offset-4">
+          <Link href="/safety" className="rounded-badge text-ink underline underline-offset-4">
             safety rules
           </Link>{" "}
           before you use it.

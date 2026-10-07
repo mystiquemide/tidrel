@@ -13,7 +13,7 @@ const PROOF_LINKS = [
 
 export function Hero() {
   return (
-    <section className="on-light bg-tide-wash text-ink">
+    <section className="on-light bg-paper pb-16 text-ink md:pb-24">
       <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center px-6 pt-20 text-center md:pt-28">
         <span className="inline-flex items-center gap-2 rounded-badge bg-bone px-3 py-2 text-[14px] font-medium">
           <TidrelMark size={18} strokeWidth={2.8} className="text-tide-deep" />
@@ -50,7 +50,7 @@ export function Hero() {
               href={l.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block rounded-pill border border-ink/15 bg-paper/60 px-3.5 py-1.5 text-ink transition-colors hover:border-tide-deep hover:text-tide-deep"
+              className="inline-block rounded-pill border border-ink/10 bg-bone px-3.5 py-1.5 text-ink transition-colors hover:border-tide-deep hover:text-tide-deep"
             >
               {l.label}
             </a>
@@ -61,7 +61,7 @@ export function Hero() {
       {/* A real capture of the demo desk, read from Arc mainnet by the built app. It is
           cut off at the bottom and sits flush on the dark section that follows. */}
       <div className="mx-auto mt-14 w-full max-w-[1100px] px-6">
-        <div className="overflow-hidden rounded-t-card border border-b-0 border-ink/15 bg-ink shadow-[0_-8px_40px_rgba(11,14,17,0.12)]">
+        <div className="overflow-hidden rounded-card border border-ink/15 bg-ink shadow-[0_24px_60px_-24px_rgba(11,14,17,0.25)]">
           <div className="flex items-center gap-2 border-b border-line bg-panel px-4 py-3" aria-hidden="true">
             <span className="h-2.5 w-2.5 rounded-pill bg-line" />
             <span className="h-2.5 w-2.5 rounded-pill bg-line" />

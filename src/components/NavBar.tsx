@@ -66,7 +66,7 @@ export function NavBar({ tone = "light" }: { tone?: "light" | "dark" }) {
       : "border-transparent bg-ink"
     : scrolled || open
       ? "on-light border-ink/10 bg-paper"
-      : "on-light border-transparent bg-tide-wash";
+      : "on-light border-transparent bg-paper";
 
   const linkTone = dark
     ? "text-text hover:text-tide"

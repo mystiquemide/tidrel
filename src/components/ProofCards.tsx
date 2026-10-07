@@ -20,18 +20,18 @@ export async function ProofCards() {
   ];
 
   return (
-    <section className="border-t border-line bg-ink text-text">
-      <div className="mx-auto w-full max-w-[1200px] px-6 py-24 md:py-32">
+    <section className="on-light bg-paper px-3 pt-4 text-ink md:px-6 md:pt-6">
+      <div className="mx-auto w-full max-w-[1320px] rounded-[28px] bg-tide-wash px-6 py-20 md:rounded-[36px] md:px-12 md:py-28">
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
             <h2 className="text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-h2">
               Numbers from a real loan on Arc mainnet.
             </h2>
-            <p className="mt-4 text-lead text-ebb">
+            <p className="mt-4 text-lead text-body">
               Read from the chain, not typed in. Open the proof page to check every one.
             </p>
           </div>
-          <PillLink href="/proof" variant="dark" className="self-start md:self-auto">
+          <PillLink href="/proof" variant="ink" className="self-start md:self-auto">
             See the mainnet proof
           </PillLink>
         </div>
@@ -41,12 +41,12 @@ export async function ProofCards() {
             <li key={c.label} className="flex">
               <Link
                 href="/proof"
-                className="card flex w-full flex-col justify-between p-6 transition-colors duration-150 hover:border-tide/50 md:p-8"
+                className="flex w-full flex-col justify-between rounded-card border border-ink/10 bg-paper p-6 transition-colors duration-150 hover:border-tide-deep/50 md:p-8"
               >
-                <span className="text-[34px] leading-none font-medium tracking-[-0.03em] text-tide md:text-[40px]">
+                <span className="text-[34px] leading-none font-medium tracking-[-0.03em] text-tide-deep md:text-[40px]">
                   {c.value}
                 </span>
-                <span className="mt-6 text-small text-ebb">{c.label}</span>
+                <span className="mt-6 text-small text-body">{c.label}</span>
               </Link>
             </li>
           ))}

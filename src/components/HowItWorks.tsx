@@ -44,8 +44,8 @@ export async function HowItWorks() {
   };
 
   return (
-    <section id="how-it-works" className="scroll-mt-16 border-t border-line bg-ink text-text focus:outline-none">
-      <div className="mx-auto w-full max-w-[1200px] px-6 py-24 md:py-32">
+    <section id="how-it-works" className="scroll-mt-16 bg-paper px-3 text-text focus:outline-none md:px-6">
+      <div className="mx-auto w-full max-w-[1320px] rounded-[28px] bg-ink px-6 py-20 md:rounded-[36px] md:px-12 md:py-28">
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
             <h2 className="text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-h2">
