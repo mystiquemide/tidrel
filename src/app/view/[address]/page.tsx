@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { DeskView } from "@/components/DeskView";
 import { AppBar } from "@/components/AppBar";
 import { PillLink } from "@/components/PillLink";
@@ -19,11 +20,13 @@ type Props = { params: Promise<{ address: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const address = parseDeskAddress((await params).address);
-  return { title: address ? `Desk ${shortHash(address)}` : "Desk" };
+  return { title: address ? `Desk ${shortHash(address)}` : "Not a valid address" };
 }
 
 export default async function ViewPage({ params }: Props) {
   const address = parseDeskAddress((await params).address);
+  // A malformed address has nothing to read. The route's not-found page explains why.
+  if (!address) notFound();
 
   return (
     <>
@@ -35,27 +38,7 @@ export default async function ViewPage({ params }: Props) {
         </PillLink>
       </AppBar>
       <main id="main" className="flex-1">
-        {address ? (
-          <DeskView desk={await getDesk(address)} />
-        ) : (
-          <section className="bg-porcelain">
-            <div className="mx-auto w-full max-w-[1224px] px-6 pt-16 pb-24 md:px-8 md:pt-24">
-              <p className="eyebrow">Read-only desk</p>
-              <h1 className="mt-5 text-[36px] leading-[1.08] tracking-[-0.02em] md:text-h1">
-                That is not a valid address.
-              </h1>
-              <p className="mt-6 max-w-xl text-lead text-slate">
-                An Arc mainnet address starts with 0x and has 40 more characters.
-              </p>
-              <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-                <PillLink href="/">Go to the home page</PillLink>
-                <PillLink href={`/view/${DEMO_DESK_ADDRESS}`} variant="secondary">
-                  View the demo desk
-                </PillLink>
-              </div>
-            </div>
-          </section>
-        )}
+        <DeskView desk={await getDesk(address)} />
       </main>
     </>
   );

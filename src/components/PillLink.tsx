@@ -4,15 +4,15 @@ import type { ReactNode } from "react";
 export type PillVariant = "primary" | "secondary" | "inverse";
 
 const BASE =
-  "inline-flex items-center justify-center gap-2 rounded-pill font-medium whitespace-nowrap transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-40";
+  "inline-flex items-center justify-center gap-2 rounded-pill font-medium whitespace-nowrap transition-[background-color,color] duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40";
 
 const VARIANTS: Record<PillVariant, string> = {
   // White on violet is 4.9:1. Violet marks the one action that matters on a screen.
-  primary: "bg-violet text-porcelain hover:bg-violet-deep",
+  primary: "bg-violet text-porcelain hover:bg-violet-deep focus-visible:outline-violet",
   // Every second action: a filled cloud pill, never an outline.
-  secondary: "bg-cloud text-ink hover:bg-mist",
+  secondary: "bg-cloud text-ink hover:bg-mist focus-visible:outline-violet",
   // On photographs and violet bands only.
-  inverse: "bg-porcelain text-ink hover:bg-cloud",
+  inverse: "bg-porcelain text-ink hover:bg-cloud focus-visible:outline-porcelain",
 };
 
 const SIZES = {

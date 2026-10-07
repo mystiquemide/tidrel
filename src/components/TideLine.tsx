@@ -89,14 +89,19 @@ export function TideLine({ settlements }: { settlements: Settlement[] }) {
             rel="noopener noreferrer"
             aria-label={`${p.kind === "draw" ? "Draw" : "Repay"} on Arc mainnet, ${formatUsdc(p.debtUsdc, 2)} USDC outstanding after it`}
             title={`${p.kind === "draw" ? "Draw" : "Repay"}, ${formatUsdc(p.debtUsdc, 2)} USDC outstanding`}
-            className={`absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 transition-transform hover:scale-150 ${
-              p.kind === "draw" ? "bg-violet" : "border border-violet bg-porcelain"
-            }`}
+            className="group absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-input"
             style={{
               left: `${(x(i + 1) / W) * 100}%`,
               top: `${(y(levels[i + 1]) / H) * 100}%`,
             }}
-          />
+          >
+            {/* A 24px target around a small square, so it is easy to tap. */}
+            <span
+              className={`h-2.5 w-2.5 transition-transform group-hover:scale-150 ${
+                p.kind === "draw" ? "bg-violet" : "border border-violet bg-porcelain"
+              }`}
+            />
+          </a>
         ))}
       </div>
       <figcaption className="mt-4 flex flex-wrap justify-between gap-x-6 gap-y-2 text-caption text-slate">

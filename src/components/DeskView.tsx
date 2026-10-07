@@ -281,19 +281,20 @@ export function DeskView({
                 Arc mainnet
               </span>
             </div>
-            <h1 className="num mt-4 flex flex-wrap items-center gap-x-4 gap-y-3 text-[28px] leading-[1.15] md:text-[40px]">
-              <a
-                href={explorerAddress(desk.address)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-input hover:text-violet"
-              >
-                {shortHash(desk.address)}
-              </a>
-              <span className="font-sans text-base font-normal tracking-normal">
-                <CopyAddress value={desk.address} />
-              </span>
-            </h1>
+            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-3">
+              <h1 className="num text-[28px] leading-[1.15] md:text-[40px]">
+                <a
+                  href={explorerAddress(desk.address)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Desk ${desk.address}, open on the Arc mainnet explorer`}
+                  className="rounded-input hover:text-violet"
+                >
+                  {shortHash(desk.address)}
+                </a>
+              </h1>
+              <CopyAddress value={desk.address} />
+            </div>
           </div>
           {primary && <div className="shrink-0">{primary}</div>}
         </header>
