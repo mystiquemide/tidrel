@@ -24,6 +24,7 @@ import { AppBar } from "./AppBar";
 import { DeskView } from "./DeskView";
 import { PillLink } from "./PillLink";
 import { ArrivalToast } from "./ArrivalToast";
+import { CollateralSheet } from "./CollateralSheet";
 import { RepaySheet } from "./RepaySheet";
 import { SettleSheet } from "./SettleSheet";
 import { WalletPicker } from "./WalletPicker";
@@ -84,6 +85,7 @@ export function DeskApp() {
   const restored = useRef(false);
   const [settleOpen, setSettleOpen] = useState(false);
   const [repayOpen, setRepayOpen] = useState(false);
+  const [collateralOpen, setCollateralOpen] = useState(false);
   const [repayRun, setRepayRun] = useState(0);
   const [repaySuggested, setRepaySuggested] = useState<string | undefined>(undefined);
   const [arrival, setArrival] = useState<{ arrivedUsdc: string; repayUsdc: string } | null>(null);
@@ -371,6 +373,15 @@ export function DeskApp() {
             okDesk && (
             <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-ink/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:static sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
               <div className="flex gap-3">
+                {okDesk?.position && (
+                  <button
+                    type="button"
+                    onClick={() => setCollateralOpen(true)}
+                    className={`${btn} border border-line bg-panel text-text hover:bg-raised sm:w-auto`}
+                  >
+                    Collateral
+                  </button>
+                )}
                 {debtOpen && (
                   <button
                     type="button"
@@ -421,7 +432,16 @@ export function DeskApp() {
             onChanged={() => setRefreshTick((n) => n + 1)}
           />
         )}
-        {arrival && !settleOpen && !repayOpen && (
+        {session && okDesk && (
+          <CollateralSheet
+            open={collateralOpen}
+            address={session.address}
+            provider={session.wallet.provider}
+            onClose={() => setCollateralOpen(false)}
+            onChanged={() => setRefreshTick((n) => n + 1)}
+          />
+        )}
+        {arrival && !settleOpen && !repayOpen && !collateralOpen && (
           <ArrivalToast
             arrivedUsdc={arrival.arrivedUsdc}
             repayUsdc={arrival.repayUsdc}

@@ -34,3 +34,14 @@ export const settlerAbi = parseAbi([
 ])
 
 export const erc20ApproveAbi = parseAbi(['function approve(address spender, uint256 amount) returns (bool)'])
+
+export const morphoCollateralAbi = parseAbi([
+  'struct MarketParams { address loanToken; address collateralToken; address oracle; address irm; uint256 lltv; }',
+  'function idToMarketParams(bytes32 id) view returns (address loanToken, address collateralToken, address oracle, address irm, uint256 lltv)',
+  'function supplyCollateral(MarketParams marketParams, uint256 assets, address onBehalf, bytes data)',
+  'function withdrawCollateral(MarketParams marketParams, uint256 assets, address onBehalf, address receiver)',
+])
+
+export const erc20AllowanceAbi = parseAbi([
+  'function allowance(address owner, address spender) view returns (uint256)',
+])
