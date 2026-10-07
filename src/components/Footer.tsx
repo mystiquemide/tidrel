@@ -21,10 +21,6 @@ const GROUPS = [
       { label: "Arc mainnet explorer", href: EXPLORER_URL },
     ],
   },
-  {
-    title: "Source",
-    links: [{ label: "GitHub", href: "https://github.com/mystiquemide/tidrel" }],
-  },
 ] as const;
 
 const linkClass =
@@ -35,7 +31,7 @@ export function Footer() {
   return (
     <footer className="bg-obsidian px-2 pt-2 pb-2 md:px-4 md:pb-4">
       <div className="mx-auto w-full max-w-[1224px] rounded-card bg-porcelain px-6 py-12 md:px-12 md:py-16">
-        <div className="grid gap-12 md:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
+        <div className="grid gap-12 md:grid-cols-[minmax(0,2fr)_repeat(2,minmax(0,1fr))]">
           <div>
             <Link href="/" aria-label="Tidrel home" className="inline-block rounded-input">
               <TidrelLockup tone="light" size={28} />
