@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { NavBar } from "@/components/NavBar";
 import { PillLink } from "@/components/PillLink";
 import { SkipLink } from "@/components/SkipLink";
@@ -26,13 +27,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const MESSAGES = {
-  invalid: "That is not a transaction hash.",
-  "not-found": "That transaction is not on Arc mainnet.",
-  "not-a-payout": "That transaction is not a Tidrel payout.",
-  chain: "Chain data is unavailable right now. Try again in a moment.",
-} as const;
-
 const link =
   "rounded-badge text-tide-deep underline decoration-tide-deep/40 underline-offset-4 hover:decoration-tide-deep";
 
@@ -43,6 +37,8 @@ const when = (ts: number) =>
 
 export default async function ReceiptPage({ params }: Props) {
   const r = await getReceipt((await params).tx);
+  // A hash that is malformed, absent from Arc mainnet or not a Tidrel payout has no receipt to show.
+  if (!r.ok && r.reason !== "chain") notFound();
 
   return (
     <>
@@ -53,7 +49,7 @@ export default async function ReceiptPage({ params }: Props) {
           {!r.ok ? (
             <>
               <h1 className="text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-[44px]">
-                {MESSAGES[r.reason]}
+                Chain data is unavailable right now. Try again in a moment.
               </h1>
               <div className="mt-10">
                 <PillLink href="/proof" variant="ink">
