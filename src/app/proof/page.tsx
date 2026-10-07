@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Footer } from "@/components/Footer";
 import { NavBar } from "@/components/NavBar";
 import { ProofBand } from "@/components/ProofBand";
 import { SkipLink } from "@/components/SkipLink";
@@ -9,17 +10,18 @@ export const metadata: Metadata = {
     "A full draw, settle and repay cycle on Arc mainnet, read from chain with a link to every transaction.",
 };
 
-// Reads Arc, so the page refreshes every five minutes. This page has no footer.
+// Reads Arc, so the page refreshes every five minutes.
 export const revalidate = 300;
 
 export default function ProofPage() {
   return (
     <>
       <SkipLink />
-      <NavBar tone="light" />
-      <main id="main" className="flex-1 bg-paper">
+      <NavBar />
+      <main id="main" className="flex-1">
         <ProofBand />
       </main>
+      <Footer />
     </>
   );
 }

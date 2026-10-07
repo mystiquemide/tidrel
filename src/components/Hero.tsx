@@ -1,87 +1,43 @@
 import Image from "next/image";
-import { ADDRESSES, DEMO_DESK_ADDRESS, explorerAddress } from "@/lib/chain";
-import { shortHash } from "@/lib/format";
+import Link from "next/link";
 import { PillLink } from "./PillLink";
-import { TidrelMark } from "./TidrelMark";
 
-const PROOF_LINKS = [
-  { label: "cirBTC", href: explorerAddress(ADDRESSES.cirBtc) },
-  { label: "Multicall3From", href: explorerAddress(ADDRESSES.multicall3From) },
-  { label: "TidrelSettler", href: explorerAddress(ADDRESSES.settler) },
-  { label: "Morpho Blue", href: explorerAddress(ADDRESSES.morpho) },
-];
-
+/**
+ * Full-bleed violet curtain with the claim set low and left, as the reference does.
+ * The photograph is darkened toward the bottom left when it is processed, so white
+ * text there stays above 6:1 without any overlay in CSS.
+ */
 export function Hero() {
   return (
-    <section className="on-light bg-paper pb-16 text-ink md:pb-24">
-      <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center px-6 pt-20 text-center md:pt-28">
-        <span className="inline-flex items-center gap-2 rounded-badge bg-bone px-3 py-2 text-[14px] font-medium">
-          <TidrelMark size={18} strokeWidth={2.8} className="text-tide-deep" />
-          Settlement credit on Arc mainnet
-        </span>
-
-        <h1 className="mt-8 text-[34px] leading-[1.08] font-medium tracking-[-0.03em] sm:text-[44px] md:text-display">
+    <section className="on-image relative isolate flex min-h-[640px] items-end overflow-hidden bg-ink text-porcelain h-[92svh] max-h-[900px]">
+      <Image
+        src="/images/hero.webp"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="-z-10 object-cover"
+      />
+      <div className="mx-auto w-full max-w-[1224px] px-6 pt-32 pb-14 md:px-8 md:pb-20">
+        <p className="eyebrow text-porcelain/75">Settlement credit on Arc mainnet</p>
+        <h1 className="mt-5 text-[44px] leading-[1.05] tracking-[-0.02em] text-porcelain sm:text-[56px] md:text-display">
           <span className="block">Settle in USDC.</span>
           <span className="block">Keep your bitcoin.</span>
         </h1>
-
-        <p className="mt-6 max-w-xl text-lead text-body">
-          Post cirBTC once. Tidrel draws the exact USDC a trade needs and repays
-          it the moment USDC comes back.
+        <p className="mt-6 max-w-[34rem] text-lead text-porcelain/85">
+          Post cirBTC once. Tidrel draws the exact USDC a trade needs and repays it the
+          moment USDC comes back.
         </p>
-
-        <div className="mt-10 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row">
-          <PillLink href="/desk" variant="primary">
+        <div className="mt-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-8">
+          <PillLink href="/desk" variant="inverse">
             Open the desk
           </PillLink>
-          <PillLink href="/proof" variant="soft">
+          <Link
+            href="/proof"
+            className="rounded-input text-body font-medium text-porcelain underline decoration-porcelain/40 underline-offset-[6px] hover:decoration-porcelain"
+          >
             See the mainnet run
-          </PillLink>
-        </div>
-
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-2 text-small">
-          <span className="inline-flex items-center gap-2 pr-2 font-medium text-ink">
-            <span className="h-2 w-2 rounded-pill bg-tide-deep" aria-hidden="true" />
-            Live on Arc mainnet
-          </span>
-          {PROOF_LINKS.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block rounded-pill border border-ink/10 bg-bone px-3.5 py-1.5 text-ink transition-colors hover:border-tide-deep hover:text-tide-deep"
-            >
-              {l.label}
-            </a>
-          ))}
-        </div>
-      </div>
-
-      {/* A real capture of the demo desk, read from Arc mainnet by the built app. It is
-          cut off at the bottom and sits flush on the dark section that follows. */}
-      <div className="mx-auto mt-14 w-full max-w-[1100px] px-6">
-        <div className="overflow-hidden rounded-card border border-ink/15 bg-ink shadow-[0_24px_60px_-24px_rgba(11,14,17,0.25)]">
-          <div className="flex items-center gap-2 border-b border-line bg-panel px-4 py-3" aria-hidden="true">
-            <span className="h-2.5 w-2.5 rounded-pill bg-line" />
-            <span className="h-2.5 w-2.5 rounded-pill bg-line" />
-            <span className="h-2.5 w-2.5 rounded-pill bg-line" />
-            <span className="num ml-3 truncate rounded-badge bg-ink px-3 py-1 text-caption text-muted">
-              tidrel.vercel.app/view/{shortHash(DEMO_DESK_ADDRESS)}
-            </span>
-          </div>
-          <div className="max-h-[380px] overflow-hidden sm:max-h-[460px] md:max-h-[560px]">
-            <Image
-              src="/captures/desk.png"
-              alt="The Tidrel desk for the demo wallet: collateral posted, available to draw, borrowed now, cost so far, and the tide line of its mainnet draws and repays."
-              width={2560}
-              height={1622}
-              priority
-              unoptimized
-              sizes="(min-width: 1148px) 1100px, 100vw"
-              className="block h-auto w-[230%] max-w-none sm:w-full sm:max-w-full"
-            />
-          </div>
+          </Link>
         </div>
       </div>
     </section>

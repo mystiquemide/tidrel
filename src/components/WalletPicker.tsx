@@ -34,7 +34,7 @@ export function WalletPicker({
       onClick={(e) => {
         if (e.target === ref.current) onClose();
       }}
-      className="card m-auto w-[min(92vw,420px)] p-0 text-text"
+      className="card m-auto w-[min(92vw,420px)] p-0 text-ink"
     >
       <div className="p-6">
         <div className="flex items-center justify-between gap-4">
@@ -45,7 +45,7 @@ export function WalletPicker({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-pill text-ebb hover:text-text"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-pill text-graphite hover:text-ink"
           >
             <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <path d="M5 5l10 10M15 5L5 15" />
@@ -61,10 +61,10 @@ export function WalletPicker({
                   type="button"
                   disabled={busy}
                   onClick={() => onPick(w)}
-                  className="flex w-full items-center gap-3 rounded-badge border border-line bg-ink px-4 py-3.5 text-left text-[16px] font-medium text-text transition-colors hover:border-tide/60 hover:bg-raised disabled:opacity-60"
+                  className="flex w-full items-center gap-3 rounded-cell border border-mist bg-porcelain px-4 py-3.5 text-left text-[16px] font-medium text-ink transition-colors hover:border-violet/60 hover:bg-mist disabled:opacity-60"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={w.icon} alt="" width={28} height={28} className="rounded-badge" />
+                  <img src={w.icon} alt="" width={28} height={28} className="rounded-input" />
                   {w.name}
                 </button>
               </li>
@@ -72,7 +72,7 @@ export function WalletPicker({
           </ul>
         ) : (
           <div className="mt-5">
-            <p className="text-[16px] text-ebb">
+            <p className="text-[16px] text-graphite">
               No wallet found in this browser. Install one, then reload this page.
             </p>
             <ul className="mt-4 flex flex-col gap-2">
@@ -82,7 +82,7 @@ export function WalletPicker({
                     href={l.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex w-full items-center justify-between rounded-badge border border-line bg-ink px-4 py-3.5 text-[16px] font-medium text-text transition-colors hover:border-tide/60 hover:bg-raised"
+                    className="flex w-full items-center justify-between rounded-cell border border-mist bg-porcelain px-4 py-3.5 text-[16px] font-medium text-ink transition-colors hover:border-violet/60 hover:bg-mist"
                   >
                     Install {l.name}
                   </a>

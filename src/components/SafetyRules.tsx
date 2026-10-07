@@ -2,6 +2,7 @@ import { explorerTx } from "@/lib/chain";
 import { getDemoCycles, headlineCycle } from "@/lib/landing";
 import { MIN_HEALTH } from "@/lib/settle";
 import { PillLink } from "./PillLink";
+import { AllOrNothingIcon, FloorIcon, LiquidityIcon, OnceIcon, SignIcon, WalletIcon } from "./SafetyIcons";
 
 const LIMITS = [
   "The mainnet run is small and its counterparties are wallets controlled by the builder. The code path is the same at any size.",
@@ -28,7 +29,7 @@ export async function SafetyRules() {
       title: "Payouts land together or not at all.",
       body: "Every counterparty is paid by one contract call. If any single payment would fail, nothing is sent. If a draw lands but the payout does not, the history marks it as drawn, not settled, so nothing goes unaccounted.",
       link: head?.txHash
-        ? { href: explorerTx(head.txHash), label: "See a payout on Arc mainnet" }
+        ? { href: explorerTx(head.txHash), label: "See a payout" }
         : undefined,
     },
     {
@@ -45,56 +46,54 @@ export async function SafetyRules() {
     },
   ];
 
+  const icons = [<FloorIcon key="f" />, <LiquidityIcon key="l" />, <AllOrNothingIcon key="a" />, <OnceIcon key="o" />, <WalletIcon key="w" />, <SignIcon key="s" />];
+
   return (
-    <section className="on-light bg-paper text-ink">
-      <div className="mx-auto w-full max-w-[1200px] px-6 pt-16 pb-24 md:pt-24 md:pb-32">
-        <h1 className="text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-[44px]">
-          Safety rules
+    <section className="bg-porcelain">
+      <div className="mx-auto w-full max-w-[1224px] px-6 pt-16 pb-24 md:px-8 md:pt-24 md:pb-36">
+        <p className="eyebrow">Safety rules</p>
+        <h1 className="mt-5 max-w-[20ch] text-[36px] leading-[1.08] tracking-[-0.02em] md:text-h1">
+          What the code enforces before anything is signed.
         </h1>
-        <p className="mt-4 max-w-2xl text-lead text-body">
-          What the code enforces before anything is signed, and what Tidrel cannot do.
+        <p className="mt-6 max-w-2xl text-lead text-slate">
+          Six rules Tidrel checks on every draw and payout, and the limits of what it can do.
         </p>
 
-        <ul className="mt-14 divide-y divide-ink/10 border-y border-ink/10">
-          {rules.map((r) => (
+        <ul className="mt-14 grid gap-px overflow-hidden border border-mist bg-mist md:grid-cols-2 lg:grid-cols-3">
+          {rules.map((r, i) => (
             <li
               key={r.title}
-              className="grid gap-4 py-8 md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] md:gap-12 md:py-10"
+              className="flex flex-col bg-porcelain p-8 md:p-10"
             >
-              <h2 className="text-h3 font-medium tracking-[-0.02em] text-ink">{r.title}</h2>
-              <div>
-                <p className="text-body text-body">{r.body}</p>
-                {r.link && (
-                  <a
-                    href={r.link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-4 inline-block rounded-badge text-small font-medium text-tide-deep underline decoration-tide-deep/40 underline-offset-4 hover:decoration-tide-deep"
-                  >
+              {icons[i]}
+              <h2 className="mt-10 text-h4 font-medium">{r.title}</h2>
+              <p className="mt-3 text-body text-slate">{r.body}</p>
+              {r.link && (
+                <div className="mt-auto pt-6">
+                  <PillLink href={r.link.href} variant="secondary" size="sm">
                     {r.link.label}
-                  </a>
-                )}
-              </div>
+                  </PillLink>
+                </div>
+              )}
             </li>
           ))}
         </ul>
 
-        <div className="mt-20 rounded-[24px] bg-ink px-6 py-10 text-text md:px-10 md:py-12">
-          <h2 className="text-h2 font-medium tracking-[-0.024em]">Limits to know</h2>
-          <ul className="mt-8 divide-y divide-line border-y border-line">
-            {LIMITS.map((l) => (
-              <li key={l} className="py-5 text-body text-ebb">
-                {l}
+        <div className="mt-16 rounded-card bg-cloud px-6 py-10 md:px-12 md:py-14">
+          <p className="eyebrow">Limits to know</p>
+          <ol className="mt-6">
+            {LIMITS.map((l, i) => (
+              <li key={l} className="flex gap-5 border-b border-mist py-5 last:border-b-0">
+                <span className="num w-6 shrink-0 text-violet">{String(i + 1).padStart(2, "0")}</span>
+                <p className="text-body text-graphite">{l}</p>
               </li>
             ))}
-          </ul>
+          </ol>
         </div>
 
         <div className="mt-12 flex flex-col gap-3 sm:flex-row">
-          <PillLink href="/proof" variant="ink">
-            See the mainnet proof
-          </PillLink>
-          <PillLink href="/contracts" variant="soft">
+          <PillLink href="/proof">See the mainnet proof</PillLink>
+          <PillLink href="/contracts" variant="secondary">
             See the contracts
           </PillLink>
         </div>

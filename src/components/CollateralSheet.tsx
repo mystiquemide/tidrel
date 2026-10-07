@@ -28,9 +28,9 @@ type Props = {
 };
 
 const field =
-  "w-full rounded-badge border border-line bg-ink px-3.5 py-3 text-[16px] text-text transition-colors placeholder:text-muted hover:border-muted/60 focus:border-tide focus:outline-none focus:ring-2 focus:ring-tide/25 disabled:opacity-60";
+  "w-full rounded-cell border border-mist bg-porcelain px-3.5 py-3 text-[16px] text-ink transition-colors placeholder:text-slate hover:border-ash/60 focus:border-violet focus:outline-none focus:ring-2 focus:ring-violet/25 disabled:opacity-60";
 const primary =
-  "inline-flex w-full items-center justify-center rounded-pill bg-tide px-5 py-3 text-[14px] font-medium text-ink transition-colors hover:brightness-95 disabled:opacity-50";
+  "inline-flex h-12 w-full items-center justify-center rounded-pill bg-violet px-6 text-[16px] font-medium text-porcelain transition-colors hover:bg-violet-deep disabled:cursor-not-allowed disabled:opacity-40";
 
 const COPY: Record<CollateralMode, { tab: string; title: string; hint: string; cta: string; busy: string; done: string }> = {
   add: {
@@ -54,8 +54,8 @@ const COPY: Record<CollateralMode, { tab: string; title: string; hint: string; c
 function Line({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-4 py-2">
-      <dt className="text-small text-ebb">{label}</dt>
-      <dd className="num text-right text-small text-text">{value}</dd>
+      <dt className="text-small text-graphite">{label}</dt>
+      <dd className="num text-right text-small text-ink">{value}</dd>
     </div>
   );
 }
@@ -164,7 +164,7 @@ export function CollateralSheet({ open, address, provider, onClose, onChanged }:
         onClose();
       }}
       onCancel={(e) => busy && e.preventDefault()}
-      className="card m-auto max-h-[100svh] w-full max-w-[100vw] overflow-y-auto rounded-none p-0 text-text sm:max-h-[92svh] sm:w-[min(94vw,520px)] sm:rounded-card"
+      className="card m-auto max-h-[100svh] w-full max-w-[100vw] overflow-y-auto rounded-none p-0 text-ink sm:max-h-[92svh] sm:w-[min(94vw,520px)] sm:rounded-card"
     >
       <div className="p-6 sm:p-8">
         <div className="flex items-center justify-between gap-4">
@@ -176,7 +176,7 @@ export function CollateralSheet({ open, address, provider, onClose, onChanged }:
             disabled={busy}
             onClick={onClose}
             aria-label="Close"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-pill text-ebb hover:text-text disabled:opacity-40"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-pill text-graphite hover:text-ink disabled:opacity-40"
           >
             <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <path d="M5 5l10 10M15 5L5 15" />
@@ -186,27 +186,27 @@ export function CollateralSheet({ open, address, provider, onClose, onChanged }:
 
         {done ? (
           <div className="mt-8" role="status">
-            <span className="flex h-12 w-12 items-center justify-center rounded-pill bg-tide/15 text-tide" aria-hidden="true">
+            <span className="flex h-12 w-12 items-center justify-center rounded-pill bg-violet-tint text-violet" aria-hidden="true">
               <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 10.5l4 4 8-9" />
               </svg>
             </span>
-            <p className="mt-4 text-[20px] leading-tight font-medium tracking-[-0.01em] text-text">{COPY[done.mode].done}</p>
-            <p className="mt-2 text-[16px] text-ebb">
+            <p className="mt-4 text-[20px] leading-tight font-medium tracking-[-0.01em] text-ink">{COPY[done.mode].done}</p>
+            <p className="mt-2 text-[16px] text-graphite">
               <span className="num">{formatFixed(done.amount, 8)} cirBTC</span>
             </p>
-            <p className="mt-5 rounded-badge border border-line bg-ink/60 px-4 py-3 text-small">
+            <p className="mt-5 rounded-cell border border-mist bg-cloud px-4 py-3 text-small">
               <a
                 href={explorerTx(done.txHash)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-badge text-tide underline decoration-tide/40 underline-offset-4 hover:decoration-tide"
+                className="rounded-input text-violet underline decoration-violet/40 underline-offset-4 hover:decoration-violet"
               >
                 See it on Arc mainnet
               </a>
             </p>
             <div className="mt-8">
-              <button type="button" onClick={onClose} className="w-full rounded-pill border border-line bg-panel px-5 py-3 text-[14px] font-medium text-text transition-colors hover:bg-raised">
+              <button type="button" onClick={onClose} className="h-12 w-full rounded-pill bg-cloud px-6 text-[16px] font-medium text-ink transition-colors hover:bg-mist">
                 Done
               </button>
             </div>
@@ -219,7 +219,7 @@ export function CollateralSheet({ open, address, provider, onClose, onChanged }:
               if (canRun) void run();
             }}
           >
-            <div role="tablist" aria-label="Collateral action" className="grid grid-cols-2 gap-1 rounded-pill border border-line bg-ink p-1">
+            <div role="tablist" aria-label="Collateral action" className="grid grid-cols-2 gap-1 rounded-pill bg-cloud p-1">
               {(["add", "withdraw"] as const).map((m) => (
                 <button
                   key={m}
@@ -232,23 +232,23 @@ export function CollateralSheet({ open, address, provider, onClose, onChanged }:
                     setPlanned(null);
                     setFailure(null);
                   }}
-                  className={`rounded-pill px-4 py-2 text-[14px] font-medium transition-colors ${
-                    mode === m ? "bg-panel text-text" : "text-muted hover:text-text"
+                  className={`h-10 rounded-pill px-4 text-[15px] font-medium transition-colors ${
+                    mode === m ? "bg-violet-wash text-ink" : "text-slate hover:text-ink"
                   }`}
                 >
                   {COPY[m].tab}
                 </button>
               ))}
             </div>
-            <p className="mt-4 text-small text-muted">{copy.hint}</p>
+            <p className="mt-4 text-small text-slate">{copy.hint}</p>
 
-            <dl className="mt-5 divide-y divide-line rounded-badge border border-line bg-ink/60 px-4">
+            <dl className="mt-5 divide-y divide-mist rounded-cell border border-mist bg-cloud px-4">
               <Line label="Posted as collateral" value={`${posted} cirBTC`} />
               <Line label="In your wallet" value={`${held} cirBTC`} />
             </dl>
 
             <div className="mt-6 flex items-baseline justify-between">
-              <label htmlFor="collateral-amount" className="text-small font-medium text-ebb">
+              <label htmlFor="collateral-amount" className="text-small font-medium text-graphite">
                 Amount of cirBTC
               </label>
               {max && Number(max) > 0 && (
@@ -256,7 +256,7 @@ export function CollateralSheet({ open, address, provider, onClose, onChanged }:
                   type="button"
                   disabled={busy}
                   onClick={() => setAmount(max)}
-                  className="rounded-badge text-caption font-medium text-tide hover:underline"
+                  className="rounded-input text-caption font-medium text-violet hover:underline"
                 >
                   Use all
                 </button>
@@ -273,12 +273,12 @@ export function CollateralSheet({ open, address, provider, onClose, onChanged }:
               className={`${field} num mt-2`}
             />
 
-            <dl className="mt-6 divide-y divide-line rounded-badge border border-line bg-ink/60 px-4">
+            <dl className="mt-6 divide-y divide-mist rounded-cell border border-mist bg-cloud px-4">
               {plan && !plan.refusal ? (
                 <>
                   <Line label={mode === "add" ? "Adding" : "Withdrawing"} value={`${formatFixed(plan.amountCirBtc, 8)} cirBTC`} />
                   {plan.route === "direct" && (
-                    <p className="py-3 text-caption text-muted">
+                    <p className="py-3 text-caption text-slate">
                       No loan is open, so this moves cirBTC straight against the market and health does not change.
                       {mode === "add" ? " Your wallet may ask twice: an approval, then the deposit." : ""}
                     </p>
@@ -292,7 +292,7 @@ export function CollateralSheet({ open, address, provider, onClose, onChanged }:
                   )}
                 </>
               ) : (
-                <p className="py-4 text-small text-muted">
+                <p className="py-4 text-small text-slate">
                   {positionError
                     ? "Could not read your loan from Arc mainnet. Try again in a moment."
                     : !position

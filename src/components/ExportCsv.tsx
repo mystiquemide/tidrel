@@ -16,7 +16,7 @@ export function ExportCsv({ rows, name }: { rows: Settlement[]; name: string }) 
         a.click();
         URL.revokeObjectURL(url);
       }}
-      className="rounded-pill border border-line px-3.5 py-1.5 text-caption font-medium text-ebb transition-colors hover:border-muted hover:text-text"
+      className="inline-flex h-9 items-center rounded-pill bg-cloud px-4 text-small font-medium text-ink transition-colors hover:bg-mist"
     >
       Export CSV
     </button>

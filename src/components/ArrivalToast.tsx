@@ -17,9 +17,9 @@ export function ArrivalToast({
   return (
     <div
       role="status"
-      className="card fixed inset-x-4 bottom-24 z-40 p-5 text-text shadow-2xl shadow-black/50 sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-[380px]"
+      className="card fixed inset-x-4 bottom-24 z-40 p-5 text-ink shadow-float sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-[380px]"
     >
-      <p className="text-[16px] text-text">
+      <p className="text-[16px] text-ink">
         <span className="num">{formatUsdcTight(arrivedUsdc)} USDC</span> arrived. Repay{" "}
         <span className="num">{formatUsdcTight(repayUsdc)} USDC</span> now?
       </p>
@@ -27,14 +27,14 @@ export function ArrivalToast({
         <button
           type="button"
           onClick={onRepay}
-          className="inline-flex flex-1 items-center justify-center rounded-pill bg-tide px-5 py-3 text-[14px] font-medium text-ink hover:brightness-95"
+          className="inline-flex h-12 flex-1 items-center justify-center rounded-pill bg-violet px-6 text-[16px] font-medium text-porcelain hover:bg-violet-deep"
         >
           Repay
         </button>
         <button
           type="button"
           onClick={onDismiss}
-          className="inline-flex items-center justify-center rounded-pill bg-ink px-5 py-3 text-[14px] font-medium text-ebb hover:bg-line hover:text-text"
+          className="inline-flex h-12 items-center justify-center rounded-pill bg-cloud px-6 text-[16px] font-medium text-ink hover:bg-mist"
         >
           Not now
         </button>

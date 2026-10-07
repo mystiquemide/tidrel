@@ -1,23 +1,21 @@
+import Image from "next/image";
 import { PillLink } from "./PillLink";
 
+/** The closing band: the tide photograph in violet, one white button. */
 export function FinalCta() {
   return (
-    <section className="bg-paper px-3 pb-3 text-text md:px-6 md:pb-6">
-      <div className="mx-auto flex w-full max-w-[1320px] flex-col items-center rounded-[28px] bg-ink px-6 py-20 text-center md:rounded-[36px] md:py-28">
-        <h2 className="max-w-3xl text-balance text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-[40px]">
+    <section className="on-image relative isolate overflow-hidden bg-ink text-porcelain">
+      <Image src="/images/tide.webp" alt="" fill sizes="100vw" className="-z-10 object-cover" />
+      <div className="mx-auto flex w-full max-w-[1224px] flex-col items-center px-6 py-28 text-center md:px-8 md:py-40">
+        <h2 className="max-w-[18ch] text-[36px] leading-[1.08] tracking-[-0.02em] text-porcelain md:text-h1">
           Pay the trade now. Keep your bitcoin.
         </h2>
-        <p className="mt-5 max-w-xl text-lead text-ebb">
+        <p className="mt-6 max-w-xl text-lead text-porcelain/85">
           Connect a wallet, post cirBTC once, and settle in USDC the moment a trade needs it.
         </p>
-        <div className="mt-10 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row">
-          <PillLink href="/desk" variant="primary">
-            Open the desk
-          </PillLink>
-          <PillLink href="/proof" variant="dark">
-            See the mainnet run
-          </PillLink>
-        </div>
+        <PillLink href="/desk" variant="inverse" className="mt-10">
+          Open the desk
+        </PillLink>
       </div>
     </section>
   );

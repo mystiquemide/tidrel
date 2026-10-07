@@ -1,56 +1,69 @@
-import Link from "next/link";
-import { getDemoCycles, headlineCycle, proofFigures } from "@/lib/landing";
+import { formatDurationWords, formatUsdc } from "@/lib/format";
+import { getDemoCycles, headlineCycle } from "@/lib/landing";
 import { PillLink } from "./PillLink";
 
 /**
- * Four figures from the newest repaid cycle, read from Arc. If the chain cannot be
- * read or no cycle is repaid yet, nothing is rendered: the proof page carries the
- * honest empty state, and the home page never shows a number it does not have.
+ * The headline loan and the run around it, read from Arc. If the chain cannot be read
+ * or no cycle is repaid yet, nothing is rendered: the proof page carries the honest
+ * empty state, and the home page never shows a number it does not have.
  */
 export async function ProofCards() {
   const data = await getDemoCycles();
-  const figures = data.ok ? proofFigures(headlineCycle(data.settlements)) : null;
-  if (!figures) return null;
+  if (!data.ok) return null;
+  const head = headlineCycle(data.settlements);
+  if (!head || head.openSeconds === null || head.interestUsdc === null) return null;
 
-  const cards = [
-    { value: figures.drawn, label: "USDC drawn. Only what the trade needed." },
-    { value: figures.seconds, label: "seconds the loan stayed open." },
-    { value: figures.interest, label: "USDC in interest for the whole loan." },
-    { value: figures.legs, label: "counterparties paid in one transaction." },
-  ];
+  const repaid = data.settlements.filter(
+    (s) => s.state === "repaid" && s.drawTxHash && s.openSeconds !== null,
+  );
+  const times = repaid.map((s) => s.openSeconds as number);
+  const shortest = Math.min(...times);
+  const longest = Math.max(...times);
 
   return (
-    <section className="on-light bg-paper px-3 pt-4 text-ink md:px-6 md:pt-6">
-      <div className="mx-auto w-full max-w-[1320px] rounded-[28px] bg-tide-wash px-6 py-20 md:rounded-[36px] md:px-12 md:py-28">
-        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-2xl">
-            <h2 className="text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-h2">
-              Numbers from a real loan on Arc mainnet.
-            </h2>
-            <p className="mt-4 text-lead text-body">
-              Read from the chain, not typed in. Open the proof page to check every one.
-            </p>
-          </div>
-          <PillLink href="/proof" variant="ink" className="self-start md:self-auto">
-            See the mainnet proof
-          </PillLink>
+    <section aria-labelledby="proof-title" className="bg-porcelain">
+      <div className="mx-auto grid w-full max-w-[1224px] gap-10 px-6 pb-24 md:px-8 md:pb-36 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.2fr)] lg:gap-12">
+        <div>
+          <p className="eyebrow">Mainnet proof</p>
+          <h2 id="proof-title" className="mt-4 text-[30px] leading-[1.1] tracking-[-0.015em] md:text-h2">
+            Numbers from a real loan on Arc mainnet.
+          </h2>
+          <p className="mt-4 text-body text-slate">
+            Read from the chain, not typed in. Every figure links to its transaction on the proof page.
+          </p>
         </div>
 
-        <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {cards.map((c) => (
-            <li key={c.label} className="flex">
-              <Link
-                href="/proof"
-                className="flex w-full flex-col justify-between rounded-card border border-ink/10 bg-paper p-6 transition-colors duration-150 hover:border-tide-deep/50 md:p-8"
-              >
-                <span className="text-[34px] leading-none font-medium tracking-[-0.03em] text-tide-deep md:text-[40px]">
-                  {c.value}
-                </span>
-                <span className="mt-6 text-small text-body">{c.label}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <div className="grid overflow-hidden rounded-card border border-mist md:grid-cols-2">
+          <div className="on-image flex min-h-[320px] flex-col justify-between gap-10 bg-violet p-8 text-porcelain md:p-10">
+            <p className="eyebrow text-porcelain/75">Headline cycle</p>
+            <div>
+              <p className="text-[30px] leading-[1.15] tracking-[-0.015em] md:text-h3">
+                A loan against bitcoin that existed for {formatDurationWords(head.openSeconds)}.
+              </p>
+              <PillLink href="/proof" variant="inverse" size="sm" className="mt-8">
+                See the mainnet proof
+              </PillLink>
+            </div>
+          </div>
+          <dl className="grid grid-rows-2 divide-y divide-mist">
+            <div className="flex flex-col justify-between gap-6 p-8 md:p-10">
+              <dt className="eyebrow">Interest for the whole loan</dt>
+              <dd className="num text-[32px] leading-none text-ink md:text-[40px]">
+                {formatUsdc(head.interestUsdc, 6)} <span className="text-lead text-slate">USDC</span>
+              </dd>
+            </div>
+            <div className="flex flex-col justify-between gap-6 p-8 md:p-10">
+              <dt className="eyebrow">
+                {repaid.length} {repaid.length === 1 ? "cycle" : "cycles"} repaid
+              </dt>
+              <dd className="text-[24px] leading-tight text-ink md:text-[28px]">
+                {shortest === longest
+                  ? `Open for ${formatDurationWords(shortest)}`
+                  : `${formatDurationWords(shortest)} to ${formatDurationWords(longest)} each`}
+              </dd>
+            </div>
+          </dl>
+        </div>
       </div>
     </section>
   );

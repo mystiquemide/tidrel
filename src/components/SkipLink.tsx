@@ -17,7 +17,7 @@ export function SkipLink() {
         main.focus();
         main.scrollIntoView();
       }}
-      className="on-light sr-only rounded-pill bg-paper px-4 py-2 text-small text-ink focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60]"
+      className="sr-only rounded-pill bg-violet px-4 py-2 text-small text-porcelain focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60]"
     >
       Skip to content
     </a>

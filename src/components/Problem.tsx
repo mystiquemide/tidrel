@@ -1,57 +1,145 @@
-import { PillLink } from "./PillLink";
-
 const OPTIONS = [
   {
-    title: "Prefund the USDC",
-    body: "Hold idle USDC at every venue, ready for a trade that may not come. The capital sits still.",
+    label: "Prefund the USDC",
+    body: "Hold idle USDC at every venue, ready for a trade that may not come.",
   },
   {
-    title: "Sell the bitcoin",
-    body: "Raise the USDC by selling what you meant to keep, and give up the position to pay for a few minutes of settlement.",
+    label: "Sell the bitcoin",
+    body: "Give up the position you meant to keep, to pay for a few minutes of settlement.",
   },
   {
-    title: "Ask a broker for credit",
-    body: "Open a credit line with relationship terms and a credit process, for a need that lasts seconds.",
+    label: "Ask a broker for credit",
+    body: "Relationship terms and a credit process, for a need that lasts seconds.",
   },
 ];
 
+/** A faint isometric stack behind the statement, drawn in the hairline grey. */
+function Lattice() {
+  const hex = (cx: number, cy: number, r: number) => {
+    const pts = [0, 1, 2, 3, 4, 5].map((i) => {
+      const a = (Math.PI / 3) * i - Math.PI / 2;
+      return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
+    });
+    return pts.join(" ");
+  };
+  const cells = [
+    [300, 120], [222, 165], [378, 165], [300, 210], [222, 255], [378, 255], [300, 300],
+  ];
+  return (
+    <svg
+      viewBox="0 0 600 420"
+      className="pointer-events-none absolute inset-0 m-auto h-full w-full max-w-[640px]"
+      fill="none"
+      stroke="var(--color-mist)"
+      strokeWidth="1.25"
+      aria-hidden="true"
+    >
+      {cells.map(([x, y]) => (
+        <polygon key={`${x}-${y}`} points={hex(x, y, 90)} />
+      ))}
+    </svg>
+  );
+}
+
+/** A label on a leader line that ends in a violet square, as on the reference. */
+function Callout({
+  label,
+  body,
+  side,
+}: {
+  label: string;
+  body: string;
+  side: "left" | "right" | "bottom";
+}) {
+  const square = <span className="h-2.5 w-2.5 shrink-0 bg-violet" aria-hidden="true" />;
+  const rule = (
+    <span
+      className={side === "bottom" ? "h-10 w-px bg-ash" : "h-px w-16 bg-ash xl:w-28"}
+      aria-hidden="true"
+    />
+  );
+  const text = (
+    <div className={side === "left" ? "text-right" : side === "bottom" ? "text-center" : "text-left"}>
+      <p className="eyebrow text-ink">{label}</p>
+      <p className="mt-2 max-w-[17rem] text-small text-slate">{body}</p>
+    </div>
+  );
+  if (side === "bottom") {
+    return (
+      <div className="flex flex-col items-center">
+        {square}
+        {rule}
+        <div className="mt-3">{text}</div>
+      </div>
+    );
+  }
+  return (
+    <div className={`flex items-center gap-4 ${side === "left" ? "justify-end" : "justify-start"}`}>
+      {side === "left" ? (
+        <>
+          {text}
+          {rule}
+          {square}
+        </>
+      ) : (
+        <>
+          {square}
+          {rule}
+          {text}
+        </>
+      )}
+    </div>
+  );
+}
+
 export function Problem() {
   return (
-    <section className="on-light bg-paper text-ink">
-      <div className="mx-auto w-full max-w-[1200px] px-6 pb-24 md:pb-32">
-        <div className="max-w-2xl">
-          <p className="text-[12px] font-medium tracking-[0.08em] text-body uppercase">The problem</p>
-          <h2 className="mt-4 text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-h2">
-            The USDC leg of a trade ties up capital for longer than the trade needs it.
-          </h2>
-        </div>
+    <section aria-labelledby="problem" className="bg-porcelain">
+      <div className="mx-auto w-full max-w-[1224px] px-6 py-24 md:px-8 md:py-36">
+        <p className="eyebrow text-center">The problem</p>
 
-        <div className="mt-12 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <ul className="divide-y divide-ink/10 overflow-hidden rounded-card border border-ink/10 bg-bone">
+        {/* One statement. Wide screens set it inside the lattice with three callouts around it,
+            narrow screens follow it with the options as a list. */}
+        <div className="relative mt-8 lg:mt-10">
+          <div className="hidden lg:block">
+            <Lattice />
+          </div>
+          <div className="relative lg:grid lg:grid-cols-[1fr_minmax(0,560px)_1fr] lg:items-center lg:gap-y-14">
+            <div className="hidden lg:block">
+              <Callout side="left" {...OPTIONS[0]} />
+            </div>
+            <div className="hidden lg:block" />
+            <div className="hidden lg:block">
+              <Callout side="right" {...OPTIONS[1]} />
+            </div>
+            <h2
+              id="problem"
+              className="mx-auto max-w-[17ch] text-center text-[34px] leading-[1.1] tracking-[-0.015em] sm:text-h2 lg:col-span-3 lg:text-h1"
+            >
+              The USDC leg of a trade ties up capital for longer than the trade needs it.
+            </h2>
+            <div className="hidden lg:block" />
+            <div className="hidden lg:block">
+              <Callout side="bottom" {...OPTIONS[2]} />
+            </div>
+          </div>
+
+          <ul className="mt-12 border-t border-mist lg:hidden">
             {OPTIONS.map((o) => (
-              <li key={o.title} className="p-6 md:p-8">
-                <h3 className="text-sub font-medium text-ink">{o.title}</h3>
-                <p className="mt-2 text-small text-body">{o.body}</p>
+              <li key={o.label} className="flex gap-4 border-b border-mist py-6">
+                <span className="mt-1.5 h-2.5 w-2.5 shrink-0 bg-violet" aria-hidden="true" />
+                <div>
+                  <p className="eyebrow text-ink">{o.label}</p>
+                  <p className="mt-2 text-body text-slate">{o.body}</p>
+                </div>
               </li>
             ))}
           </ul>
-
-          <div className="flex flex-col rounded-card border border-tide-deep/25 bg-tide-wash p-6 md:p-8">
-            <p className="text-[12px] font-medium tracking-[0.08em] text-tide-deep uppercase">With Tidrel</p>
-            <h3 className="mt-4 text-[22px] leading-[1.2] font-medium tracking-[-0.02em] md:text-[26px]">
-              Borrow the exact USDC for exactly as long as the trade takes to settle.
-            </h3>
-            <p className="mt-4 text-small text-body">
-              Your bitcoin stays posted as collateral. Tidrel draws only the shortfall, pays every
-              counterparty in one transaction, and the loan closes the moment USDC comes back.
-            </p>
-            <div className="mt-auto pt-8">
-              <PillLink href="/desk" variant="ink">
-                Open the desk
-              </PillLink>
-            </div>
-          </div>
         </div>
+
+        <p className="mx-auto mt-20 max-w-[30ch] border-t border-mist pt-14 text-center text-[28px] leading-[1.2] tracking-[-0.015em] text-violet md:mt-28 md:text-h2">
+          Tidrel lends the exact USDC for exactly as long as the trade takes to settle.
+        </p>
       </div>
     </section>
   );

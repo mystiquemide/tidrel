@@ -9,13 +9,13 @@ import { TidrelLockup } from "./TidrelMark";
  */
 export function AppBar({ children }: { children?: ReactNode }) {
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-ink/85 text-text backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-mist bg-porcelain text-ink">
       <nav
         aria-label="Desk"
-        className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between gap-4 px-6"
+        className="mx-auto flex h-16 w-full max-w-[1224px] items-center justify-between gap-4 px-6 md:px-8"
       >
-        <Link href="/" aria-label="Tidrel home" className="rounded-badge">
-          <TidrelLockup tone="dark" size={28} />
+        <Link href="/" aria-label="Tidrel home" className="rounded-input">
+          <TidrelLockup tone="light" size={28} />
         </Link>
         <div className="flex items-center gap-3">{children}</div>
       </nav>

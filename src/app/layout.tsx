@@ -1,15 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Inter_Tight, JetBrains_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const interTight = Inter_Tight({
-  variable: "--font-inter-tight",
+const geist = Geist({
+  variable: "--font-geist",
   subsets: ["latin"],
   display: "swap",
 });
 
-const jetBrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
 });
@@ -35,14 +35,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b0e11",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${interTight.variable} ${jetBrainsMono.variable} h-full`}
+      className={`${geist.variable} ${geistMono.variable} h-full`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

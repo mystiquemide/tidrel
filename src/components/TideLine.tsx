@@ -14,7 +14,7 @@ export function TideLine({ settlements }: { settlements: Settlement[] }) {
   const pts = tidePoints(settlements);
   if (pts.length < 2) {
     return (
-      <p className="px-6 py-12 text-center text-small text-muted">
+      <p className="px-6 py-12 text-center text-small text-slate">
         Your first draw and repay will appear here.
       </p>
     );
@@ -40,7 +40,7 @@ export function TideLine({ settlements }: { settlements: Settlement[] }) {
       <svg
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
-        className="h-[132px] w-full text-tide"
+        className="h-[132px] w-full text-violet"
         role="img"
         aria-label={`Principal outstanding across ${pts.length} draws and repays across ${formatDurationWords(span)}`}
       >
@@ -51,9 +51,9 @@ export function TideLine({ settlements }: { settlements: Settlement[] }) {
         <path d={`${d} L ${x(pts.length - 1)} ${y(0)} Z`} fill="currentColor" fillOpacity="0.1" />
         <path d={d} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
       </svg>
-      <figcaption className="mt-3 flex justify-between text-caption text-muted">
+      <figcaption className="mt-3 flex justify-between text-caption text-slate">
         <span>One step per draw or repay</span>
-        <span>Peak <span className="num text-ebb">{formatUsdc(String(max), 2)}</span> USDC</span>
+        <span>Peak <span className="num text-graphite">{formatUsdc(String(max), 2)}</span> USDC</span>
       </figcaption>
     </figure>
   );

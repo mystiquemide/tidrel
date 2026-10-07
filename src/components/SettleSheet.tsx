@@ -36,9 +36,9 @@ type Props = {
 };
 
 const field =
-  "w-full rounded-badge border border-line bg-ink px-3.5 py-3 text-[16px] text-text transition-colors placeholder:text-muted hover:border-muted/60 focus:border-tide focus:outline-none focus:ring-2 focus:ring-tide/25 disabled:opacity-60";
+  "w-full rounded-cell border border-mist bg-porcelain px-3.5 py-3 text-[16px] text-ink transition-colors placeholder:text-slate hover:border-ash/60 focus:border-violet focus:outline-none focus:ring-2 focus:ring-violet/25 disabled:opacity-60";
 const secondary =
-  "inline-flex w-full items-center justify-center rounded-pill border border-line bg-panel px-5 py-3 text-[14px] font-medium text-text transition-colors hover:bg-raised disabled:opacity-50";
+  "inline-flex h-12 w-full items-center justify-center rounded-pill bg-cloud px-6 text-[16px] font-medium text-ink transition-colors hover:bg-mist disabled:opacity-40";
 
 const STEP_ORDER: Step[] = ["checking", "drawing", "paying"];
 
@@ -50,14 +50,14 @@ function Progress({ step, skipDraw }: { step: Step; skipDraw: boolean }) {
       {steps.map((s, i) => (
         <li key={s} className="flex items-center gap-3 text-small">
           <span
-            className={`flex h-5 w-5 items-center justify-center rounded-pill text-[11px] font-medium ${
-              i < at ? "bg-tide text-ink" : i === at ? "border border-tide text-tide" : "border border-line text-muted"
+            className={`flex h-6 w-6 items-center justify-center rounded-pill text-[12px] font-medium ${
+              i < at ? "bg-violet text-porcelain" : i === at ? "border border-violet text-violet" : "border border-mist text-slate"
             }`}
             aria-hidden="true"
           >
             {i < at ? "✓" : i + 1}
           </span>
-          <span className={i === at ? "text-text" : i < at ? "text-ebb" : "text-muted"}>
+          <span className={i === at ? "text-ink" : i < at ? "text-graphite" : "text-slate"}>
             {{ checking: "Check the reference", drawing: "Draw USDC", paying: "Pay counterparties" }[s]}
           </span>
         </li>
@@ -68,7 +68,7 @@ function Progress({ step, skipDraw }: { step: Step; skipDraw: boolean }) {
 
 function Check() {
   return (
-    <span className="flex h-12 w-12 items-center justify-center rounded-pill bg-tide/15 text-tide" aria-hidden="true">
+    <span className="flex h-12 w-12 items-center justify-center rounded-pill bg-violet-tint text-violet" aria-hidden="true">
       <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 10.5l4 4 8-9" />
       </svg>
@@ -76,15 +76,15 @@ function Check() {
   );
 }
 const primary =
-  "inline-flex w-full items-center justify-center rounded-pill bg-tide px-5 py-3 text-[14px] font-medium text-ink transition-colors hover:brightness-95 disabled:opacity-50";
+  "inline-flex h-12 w-full items-center justify-center rounded-pill bg-violet px-6 text-[16px] font-medium text-porcelain transition-colors hover:bg-violet-deep disabled:cursor-not-allowed disabled:opacity-40";
 
 function Line({ label, value, note }: { label: string; value: string; note?: string }) {
   return (
     <div className="flex items-baseline justify-between gap-4 py-2">
-      <dt className="text-small text-ebb">{label}</dt>
-      <dd className="num text-right text-small text-text">
+      <dt className="text-small text-graphite">{label}</dt>
+      <dd className="num text-right text-small text-ink">
         {value}
-        {note && <span className="ml-2 text-muted">{note}</span>}
+        {note && <span className="ml-2 text-slate">{note}</span>}
       </dd>
     </div>
   );
@@ -96,7 +96,7 @@ function TxLink({ hash, children }: { hash: string; children: React.ReactNode })
       href={explorerTx(hash)}
       target="_blank"
       rel="noopener noreferrer"
-      className="rounded-badge text-tide underline decoration-tide/40 underline-offset-4 hover:decoration-tide"
+      className="rounded-input text-violet underline decoration-violet/40 underline-offset-4 hover:decoration-violet"
     >
       {children}
     </a>
@@ -248,7 +248,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
         onClose();
       }}
       onCancel={(e) => busy && e.preventDefault()}
-      className="card m-auto max-h-[100svh] w-full max-w-[100vw] overflow-y-auto rounded-none p-0 text-text sm:max-h-[92svh] sm:w-[min(94vw,560px)] sm:rounded-card"
+      className="card m-auto max-h-[100svh] w-full max-w-[100vw] overflow-y-auto rounded-none p-0 text-ink sm:max-h-[92svh] sm:w-[min(94vw,560px)] sm:rounded-card"
     >
       <div className="p-6 sm:p-8">
         <div className="flex items-center justify-between gap-4">
@@ -256,14 +256,14 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
             <h2 id="settle-title" className="text-h3 font-medium tracking-[-0.02em]">
               Settle a trade
             </h2>
-            <p className="mt-1 text-small text-muted">Draw only what the payout needs, then pay in one transaction.</p>
+            <p className="mt-1 text-small text-slate">Draw only what the payout needs, then pay in one transaction.</p>
           </div>
           <button
             type="button"
             disabled={busy}
             onClick={onClose}
             aria-label="Close"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-pill text-ebb hover:text-text disabled:opacity-40"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-pill text-graphite hover:text-ink disabled:opacity-40"
           >
             <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <path d="M5 5l10 10M15 5L5 15" />
@@ -274,11 +274,11 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
         {outcome?.kind === "settled" ? (
           <div className="mt-8" role="status">
             <Check />
-            <p className="mt-4 text-[22px] leading-tight font-medium tracking-[-0.01em] text-text">Settled</p>
-            <p className="mt-2 text-[16px] text-ebb">
+            <p className="mt-4 text-[22px] leading-tight font-medium tracking-[-0.01em] text-ink">Settled</p>
+            <p className="mt-2 text-[16px] text-graphite">
               {outcome.drawTx && plan ? `${formatUsdc(plan.drawUsdc, 2)} USDC drawn and paid out.` : "Paid from your wallet, nothing drawn."}
             </p>
-            <p className="mt-5 flex flex-col gap-2 rounded-badge border border-line bg-ink/60 px-4 py-3 text-small">
+            <p className="mt-5 flex flex-col gap-2 rounded-cell border border-mist bg-cloud px-4 py-3 text-small">
               {outcome.drawTx && <TxLink hash={outcome.drawTx}>See the draw on Arc mainnet</TxLink>}
               <TxLink hash={outcome.payoutTx}>See the payout on Arc mainnet</TxLink>
             </p>
@@ -294,7 +294,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
         ) : outcome?.kind === "drawn-not-settled" ? (
           <div className="mt-8" role="alert">
             <p className="text-lead text-warn">Drawn, not settled.</p>
-            <p className="mt-3 text-[16px] text-ebb">
+            <p className="mt-3 text-[16px] text-graphite">
               The draw went through but the payout did not. {outcome.error} Your counterparties have not been paid.
             </p>
             <p className="mt-4 text-small">
@@ -319,10 +319,10 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
             }}
           >
             <div className="flex items-baseline justify-between">
-              <label htmlFor="settle-ref" className="text-small font-medium text-ebb">
+              <label htmlFor="settle-ref" className="text-small font-medium text-graphite">
                 Reference
               </label>
-              <span className={`num text-caption ${refBytes > MAX_REFERENCE_BYTES ? "text-warn" : "text-muted"}`}>
+              <span className={`num text-caption ${refBytes > MAX_REFERENCE_BYTES ? "text-warn" : "text-slate"}`}>
                 {refBytes}/{MAX_REFERENCE_BYTES}
               </span>
             </div>
@@ -336,12 +336,12 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
               spellCheck={false}
               className={`${field} mt-2`}
             />
-            <p className={`mt-2 text-caption ${refBytes > MAX_REFERENCE_BYTES ? "text-warn" : "text-muted"}`}>
+            <p className={`mt-2 text-caption ${refBytes > MAX_REFERENCE_BYTES ? "text-warn" : "text-slate"}`}>
               Public on Arc mainnet, so keep it free of anything private. Use a new reference each time, up to {MAX_REFERENCE_BYTES} characters.
             </p>
 
             <fieldset className="mt-6" disabled={busy}>
-              <legend className="text-small font-medium text-ebb">Pay to</legend>
+              <legend className="text-small font-medium text-graphite">Pay to</legend>
               <ul className="mt-2 flex flex-col gap-3">
                 {rows.map((r, i) => (
                   <li key={r.id} className="grid grid-cols-[minmax(0,1fr)_112px_auto] items-center gap-2 sm:grid-cols-[minmax(0,1fr)_132px_auto]">
@@ -369,7 +369,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
                         type="button"
                         onClick={() => setRows((rs) => rs.filter((x) => x.id !== r.id))}
                         aria-label={`Remove recipient ${i + 1}`}
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-pill text-ebb hover:text-text"
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-pill text-graphite hover:text-ink"
                       >
                         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                           <path d="M5 5l10 10M15 5L5 15" />
@@ -384,20 +384,20 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
               <button
                 type="button"
                 onClick={() => setRows((rs) => [...rs, { id: nextId.current++, to: "", amount: "" }])}
-                className="mt-3 inline-flex items-center gap-1.5 rounded-pill border border-line px-3.5 py-2 text-small font-medium text-tide transition-colors hover:border-tide/60 hover:bg-raised"
+                className="mt-3 inline-flex h-10 items-center gap-1.5 rounded-pill bg-cloud px-4 text-small font-medium text-ink transition-colors hover:bg-mist"
               >
                 + Add counterparty
               </button>
               <button
                 type="button"
                 onClick={() => setPasteOpen((v) => !v)}
-                className="mt-3 ml-2 inline-flex items-center gap-1.5 rounded-pill border border-line px-3.5 py-2 text-small font-medium text-ebb transition-colors hover:border-muted hover:text-text"
+                className="mt-3 ml-2 inline-flex h-10 items-center gap-1.5 rounded-pill bg-cloud px-4 text-small font-medium text-ink transition-colors hover:bg-mist"
               >
                 {pasteOpen ? "Hide list" : "Paste a list"}
               </button>
               {pasteOpen && (
                 <div className="mt-3">
-                  <label htmlFor="paste-list" className="text-caption text-muted">
+                  <label htmlFor="paste-list" className="text-caption text-slate">
                     One counterparty per line: an address, then an amount in USDC. This replaces the list above.
                   </label>
                   <textarea
@@ -418,7 +418,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
                     type="button"
                     onClick={applyPaste}
                     disabled={!pasteText.trim()}
-                    className="mt-2 rounded-pill bg-panel px-4 py-2 text-small font-medium text-text transition-colors hover:bg-raised disabled:opacity-50"
+                    className="mt-2 rounded-pill bg-cloud px-4 py-2 text-small font-medium text-ink transition-colors hover:bg-mist disabled:opacity-50"
                   >
                     Use this list
                   </button>
@@ -431,16 +431,16 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
               </datalist>
             </fieldset>
 
-            <dl className="mt-6 divide-y divide-line rounded-badge border border-line bg-ink/60 px-4">
+            <dl className="mt-6 divide-y divide-mist rounded-cell border border-mist bg-cloud px-4">
               {plan && !plan.refusal ? (
                 <>
-                  <p className="py-3 text-small text-ebb">
+                  <p className="py-3 text-small text-graphite">
                     Your wallet pays{" "}
-                    <span className="num text-text">{formatUsdcTight(plan.totalUsdc)} USDC</span> to{" "}
+                    <span className="num text-ink">{formatUsdcTight(plan.totalUsdc)} USDC</span> to{" "}
                     {plan.legs.length} {plan.legs.length === 1 ? "counterparty" : "counterparties"}
                     {plan.drawUsdc !== "0" ? (
                       <>
-                        , after Tidrel draws <span className="num text-text">{formatUsdcTight(plan.drawUsdc)} USDC</span> against your cirBTC
+                        , after Tidrel draws <span className="num text-ink">{formatUsdcTight(plan.drawUsdc)} USDC</span> against your cirBTC
                       </>
                     ) : null}
                     .
@@ -468,7 +468,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
                   )}
                 </>
               ) : (
-                <p className="py-4 text-small text-muted">
+                <p className="py-4 text-small text-slate">
                   {positionError
                     ? "Could not read your position from Arc mainnet. Try again in a moment."
                     : !ready
@@ -483,7 +483,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
             </dl>
 
             {plan?.mergedDuplicates && !plan.refusal && (
-              <p className="mt-3 text-caption text-muted">Duplicate recipients were added together.</p>
+              <p className="mt-3 text-caption text-slate">Duplicate recipients were added together.</p>
             )}
             {plan?.refusal && (
               <p role="alert" className="mt-4 text-small text-warn">

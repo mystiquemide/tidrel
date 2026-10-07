@@ -37,7 +37,7 @@ export function TidrelMark({
   );
 }
 
-/** Lowercase "tidrel" in Inter Tight 600. Sized in em, so set the font size on the parent. */
+/** Lowercase "tidrel" in Geist 600. Sized in em, so set the font size on the parent. */
 export function TidrelWordmark({ className }: { className?: string }) {
   return (
     <span
@@ -53,7 +53,7 @@ export function TidrelLockup({
   size = 24,
   className,
 }: {
-  /** "dark" is for dark surfaces (light text, light teal), "light" for light surfaces. */
+  /** "dark" is for photographs and dark bands (all white), "light" for white surfaces. */
   tone?: "dark" | "light";
   size?: number;
   className?: string;
@@ -61,13 +61,13 @@ export function TidrelLockup({
   const light = tone === "light";
   return (
     <span
-      className={`inline-flex items-center gap-2.5 ${light ? "text-ink" : "text-text"} ${className ?? ""}`}
+      className={`inline-flex items-center gap-2.5 ${light ? "text-ink" : "text-porcelain"} ${className ?? ""}`}
       style={{ fontSize: size * 0.95 }}
     >
       <TidrelMark
         size={size}
         strokeWidth={size <= 18 ? 3 : 2.6}
-        className={light ? "text-tide-deep" : "text-tide"}
+        className={light ? "text-violet" : "text-porcelain"}
       />
       <TidrelWordmark />
     </span>

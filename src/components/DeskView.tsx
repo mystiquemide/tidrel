@@ -15,15 +15,15 @@ import { SettlementsTable } from "./SettlementsTable";
 import { TideLine } from "./TideLine";
 
 const BAND_TONE: Record<Band, string> = {
-  SAFE: "bg-tide/15 text-tide",
-  WARN: "bg-warn/15 text-warn",
-  URGENT: "bg-urgent/15 text-urgent",
-  IMMINENT: "bg-urgent/15 text-urgent",
-  LIQUIDATABLE: "bg-urgent/15 text-urgent",
+  SAFE: "bg-cloud text-ink",
+  WARN: "bg-warn/10 text-warn",
+  URGENT: "bg-urgent/10 text-urgent-ink",
+  IMMINENT: "bg-urgent/10 text-urgent-ink",
+  LIQUIDATABLE: "bg-urgent/10 text-urgent-ink",
 };
 
 const BAND_FILL: Record<Band, string> = {
-  SAFE: "bg-tide",
+  SAFE: "bg-violet",
   WARN: "bg-warn",
   URGENT: "bg-urgent",
   IMMINENT: "bg-urgent",
@@ -45,12 +45,12 @@ const gaugePct = (hf: number) => Math.min(100, Math.max(0, ((hf - GAUGE_MIN) / (
 
 function Stat({ label, value, unit, note }: { label: string; value: string; unit: string; note?: string }) {
   return (
-    <div className="min-w-0 px-6 py-5">
-      <dt className="text-small text-muted">{label}</dt>
-      <dd className="mt-2">
-        <span className="num text-[20px] leading-none font-medium tracking-[-0.01em] text-text">{value}</span>{" "}
-        <span className="text-small text-muted">{unit}</span>
-        {note && <span className="mt-1.5 block text-caption text-muted">{note}</span>}
+    <div className="min-w-0 px-6 py-5 md:px-8">
+      <dt className="eyebrow">{label}</dt>
+      <dd className="mt-3">
+        <span className="num text-[20px] leading-none text-ink">{value}</span>{" "}
+        <span className="text-small text-slate">{unit}</span>
+        {note && <span className="mt-1.5 block text-caption text-slate">{note}</span>}
       </dd>
     </div>
   );
@@ -67,8 +67,8 @@ function Panel({
 }) {
   return (
     <section className="card overflow-hidden">
-      <div className="flex items-center justify-between gap-4 border-b border-line px-6 py-4">
-        <h2 className="text-[17px] font-medium tracking-[-0.01em]">{title}</h2>
+      <div className="flex min-h-16 items-center justify-between gap-4 border-b border-mist px-6 py-3 md:px-8">
+        <h2 className="text-h4 font-medium">{title}</h2>
         {aside}
       </div>
       {children}
@@ -77,7 +77,7 @@ function Panel({
 }
 
 function PanelNote({ children }: { children: React.ReactNode }) {
-  return <p className="px-6 py-12 text-center text-small text-muted">{children}</p>;
+  return <p className="px-6 py-12 text-center text-small text-slate">{children}</p>;
 }
 
 function GetStarted({ walletCirBtc, canSettle }: { walletCirBtc: string | null; canSettle: boolean }) {
@@ -93,24 +93,24 @@ function GetStarted({ walletCirBtc, canSettle }: { walletCirBtc: string | null; 
     { title: "Repay when USDC lands", body: "Repay in one tap. Your collateral stays posted for the next trade." },
   ];
   return (
-    <section className="card p-6 md:p-8" aria-labelledby="get-started">
-      <h2 id="get-started" className="text-[17px] font-medium tracking-[-0.01em]">
+    <section className="rounded-panel bg-violet-tint p-6 md:p-8" aria-labelledby="get-started">
+      <h2 id="get-started" className="text-h4 font-medium">
         Start your first settlement
       </h2>
       <ol className="mt-5 grid gap-6 md:grid-cols-3">
         {steps.map((st, i) => (
           <li key={st.title} className="flex gap-4">
-            <span className="num flex h-7 w-7 shrink-0 items-center justify-center rounded-pill border border-line text-caption text-ebb">
+            <span className="num flex h-7 w-7 shrink-0 items-center justify-center rounded-pill bg-violet text-caption text-porcelain">
               {i + 1}
             </span>
             <div>
-              <p className="text-small font-medium text-text">{st.title}</p>
-              <p className="mt-1 text-small text-muted">{st.body}</p>
+              <p className="text-body font-medium text-ink">{st.title}</p>
+              <p className="mt-1 text-small text-slate">{st.body}</p>
             </div>
           </li>
         ))}
       </ol>
-      {!canSettle && <p className="mt-5 text-caption text-muted">Settling opens once the Borrow service is reachable.</p>}
+      {!canSettle && <p className="mt-5 text-caption text-slate">Settling opens once the Borrow service is reachable.</p>}
     </section>
   );
 }
@@ -133,38 +133,38 @@ function HealthPanel({ p, last, since, live }: { p: Position; last: Settlement |
   const band = p.band;
   const floor = gaugePct(MIN_HEALTH);
   return (
-    <section className="card flex flex-col p-6">
+    <section className="card flex flex-col p-6 md:p-8">
       <h2 className="eyebrow">Loan health</h2>
       {hf !== null && band ? (
         <>
           <div className="mt-4 flex items-baseline gap-3">
-            <span className="num text-[36px] leading-none font-medium tracking-[-0.03em]">{hf.toFixed(2)}</span>
-            <span className={`rounded-badge px-2.5 py-1 text-caption font-medium ${BAND_TONE[band]}`}>
+            <span className="num text-[44px] leading-none text-ink">{hf.toFixed(2)}</span>
+            <span className={`rounded-pill px-3 py-1 text-small font-medium ${BAND_TONE[band]}`}>
               {BAND_LABEL[band]}
             </span>
           </div>
-          <div className="relative mt-6 h-2 rounded-pill bg-raised" role="img" aria-label={`Health ${hf.toFixed(2)}, settling pauses below ${MIN_HEALTH.toFixed(2)}`}>
+          <div className="relative mt-6 h-2 rounded-pill bg-mist" role="img" aria-label={`Health ${hf.toFixed(2)}, settling pauses below ${MIN_HEALTH.toFixed(2)}`}>
             <div className={`h-full rounded-pill ${BAND_FILL[band]}`} style={{ width: `${gaugePct(hf)}%` }} />
             <span
-              className="absolute -top-1 h-4 w-px bg-ebb/70"
+              className="absolute -top-1 h-4 w-px bg-slate"
               style={{ left: `${floor}%` }}
               aria-hidden="true"
             />
           </div>
-          <p className="mt-3 text-caption text-muted">
-            Settling pauses below <span className="num text-ebb">{MIN_HEALTH.toFixed(2)}</span>. Liquidation starts at 1.00.
+          <p className="mt-3 text-caption text-slate">
+            Settling pauses below <span className="num text-graphite">{MIN_HEALTH.toFixed(2)}</span>. Liquidation starts at 1.00.
           </p>
           <dl className="mt-5 grid grid-cols-2 gap-4 text-small">
             {p.liquidationPriceUsd && (
               <div>
-                <dt className="text-caption text-muted">Liquidation price</dt>
-                <dd className="num mt-1 text-text">{formatUsdc(p.liquidationPriceUsd, 2)} USD</dd>
+                <dt className="text-caption text-slate">Liquidation price</dt>
+                <dd className="num mt-1 text-ink">{formatUsdc(p.liquidationPriceUsd, 2)} USD</dd>
               </div>
             )}
             {live && since !== null && (
               <div>
-                <dt className="text-caption text-muted">Open for</dt>
-                <dd className="mt-1 text-tide">
+                <dt className="text-caption text-slate">Open for</dt>
+                <dd className="mt-1 text-violet">
                   <OpenClock since={since} />
                 </dd>
               </div>
@@ -173,43 +173,43 @@ function HealthPanel({ p, last, since, live }: { p: Position; last: Settlement |
         </>
       ) : (
         <>
-          <p className="mt-4 text-[22px] leading-tight font-medium tracking-[-0.01em] text-ebb">No open loan</p>
-          <div className="mt-6 h-2 rounded-pill bg-raised" aria-hidden="true" />
-          <p className="mt-3 text-caption text-muted">
+          <p className="mt-4 text-h3 text-ink">No open loan</p>
+          <div className="mt-6 h-2 rounded-pill bg-mist" aria-hidden="true" />
+          <p className="mt-3 text-caption text-slate">
             Health appears once a draw is open. Settling pauses below{" "}
-            <span className="num text-ebb">{MIN_HEALTH.toFixed(2)}</span>.
+            <span className="num text-graphite">{MIN_HEALTH.toFixed(2)}</span>.
           </p>
           {last && (
-            <div className="mt-6 rounded-badge border border-line bg-ink/60 px-4 py-3">
+            <div className="mt-6 rounded-cell border border-mist bg-cloud px-4 py-3">
               <p className="eyebrow">Last cycle</p>
               <p className="mt-2 flex items-baseline justify-between gap-3 text-small">
-                <span className="num text-text">{last.reference ?? "No payout"}</span>
+                <span className="num text-ink">{last.reference ?? "No payout"}</span>
                 <a
                   href={explorerTx(last.repayTxHash ?? last.txHash ?? "")}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="num rounded-badge text-tide underline decoration-tide/40 underline-offset-4 hover:decoration-tide"
+                  className="num rounded-input text-violet underline decoration-violet/40 underline-offset-4 hover:decoration-violet"
                 >
                   {last.openSeconds !== null ? formatDuration(last.openSeconds) : "Open"}
                 </a>
               </p>
-              <p className="mt-1 text-caption text-muted">
-                Drew <span className="num text-ebb">{formatUsdc(last.drawnUsdc, 2)}</span> USDC, repaid at a cost of{" "}
-                <span className="num text-ebb">{formatUsdc(last.interestUsdc ?? "0", 6)}</span> USDC
+              <p className="mt-1 text-caption text-slate">
+                Drew <span className="num text-graphite">{formatUsdc(last.drawnUsdc, 2)}</span> USDC, repaid at a cost of{" "}
+                <span className="num text-graphite">{formatUsdc(last.interestUsdc ?? "0", 6)}</span> USDC
               </p>
             </div>
           )}
         </>
       )}
       <div className="min-h-6 flex-1" aria-hidden="true" />
-      <dl className="grid grid-cols-2 gap-4 border-t border-line pt-5 text-small">
+      <dl className="grid grid-cols-2 gap-4 border-t border-mist pt-5 text-small">
         <div>
-          <dt className="text-caption text-muted">Market liquidity</dt>
-          <dd className="num mt-1 text-text">{formatUsdc(p.marketLiquidityUsdc, 2)} USDC</dd>
+          <dt className="text-caption text-slate">Market liquidity</dt>
+          <dd className="num mt-1 text-ink">{formatUsdc(p.marketLiquidityUsdc, 2)} USDC</dd>
         </div>
         <div>
-          <dt className="text-caption text-muted">Borrow rate</dt>
-          <dd className="num mt-1 text-text">{(p.borrowApy * 100).toFixed(2)}% a year</dd>
+          <dt className="text-caption text-slate">Borrow rate</dt>
+          <dd className="num mt-1 text-ink">{(p.borrowApy * 100).toFixed(2)}% a year</dd>
         </div>
       </dl>
     </section>
@@ -237,17 +237,18 @@ export function DeskView({
 
   if (!desk.ok) {
     return (
-      <section className="bg-ink text-text">
-        <div className="mx-auto w-full max-w-[1200px] px-6 py-24">
-          <h1 className="text-[30px] leading-[1.1] font-medium tracking-[-0.03em]">
+      <section className="bg-porcelain">
+        <div className="mx-auto w-full max-w-[1224px] px-6 pt-16 pb-24 md:px-8 md:pt-24">
+          <p className="eyebrow">Desk</p>
+          <h1 className="mt-5 text-[36px] leading-[1.08] tracking-[-0.02em] md:text-h1">
             Chain data is unavailable right now.
           </h1>
-          <p className="mt-4 max-w-xl text-lead text-ebb">
+          <p className="mt-6 max-w-xl text-lead text-slate">
             Every figure on this page is read from Arc mainnet, so nothing is shown until the read
             works. Try again in a moment.
           </p>
-          <div className="mt-8">
-            <PillLink href={`/view/${desk.address}`} variant="light">
+          <div className="mt-10">
+            <PillLink href={`/view/${desk.address}`}>
               Try again
             </PillLink>
           </div>
@@ -269,23 +270,23 @@ export function DeskView({
   const openSince = drawTimes.length ? Math.min(...drawTimes) : null;
 
   return (
-    <section className="bg-ink text-text">
-      <div className="mx-auto w-full max-w-[1200px] px-6 pt-10 pb-36 sm:pb-24 md:pt-14 md:pb-32">
+    <section className="bg-porcelain">
+      <div className="mx-auto w-full max-w-[1224px] px-6 pt-10 pb-36 sm:pb-24 md:px-8 md:pt-14 md:pb-32">
         <header className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <span className="eyebrow">{label}</span>
-              <span className="inline-flex items-center gap-1.5 rounded-pill border border-line px-2.5 py-1 text-caption text-ebb">
-                <span className="h-1.5 w-1.5 rounded-pill bg-tide" aria-hidden="true" />
+              <span className="inline-flex items-center gap-1.5 rounded-pill bg-cloud px-3 py-1 text-caption text-ink">
+                <span className="h-1.5 w-1.5 bg-violet" aria-hidden="true" />
                 Arc mainnet
               </span>
             </div>
-            <h1 className="num mt-3 flex flex-wrap items-center gap-x-4 gap-y-3 text-[24px] leading-[1.15] font-medium tracking-[-0.02em] md:text-[30px]">
+            <h1 className="num mt-4 flex flex-wrap items-center gap-x-4 gap-y-3 text-[28px] leading-[1.15] md:text-[40px]">
               <a
                 href={explorerAddress(desk.address)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-badge hover:text-ebb"
+                className="rounded-input hover:text-violet"
               >
                 {shortHash(desk.address)}
               </a>
@@ -297,7 +298,7 @@ export function DeskView({
           {primary && <div className="shrink-0">{primary}</div>}
         </header>
 
-        <p className="mt-5 max-w-2xl text-small text-muted">
+        <p className="mt-5 max-w-2xl text-small text-slate">
           {mode === "desk"
             ? "Every figure is read from Arc mainnet. Your wallet signs every step"
             : "Read-only view. Every figure is read from Arc mainnet"}
@@ -307,8 +308,12 @@ export function DeskView({
         {notices.map((n) => (
           <p
             key={n.text}
-            className={`card mt-4 px-4 py-3 text-small ${
-              n.tone === "urgent" ? "text-urgent" : n.tone === "warn" ? "text-warn" : "text-ebb"
+            className={`mt-4 flex items-start gap-3 rounded-cell px-5 py-4 text-body ${
+              n.tone === "urgent"
+                ? "bg-urgent/10 text-urgent-ink"
+                : n.tone === "warn"
+                  ? "bg-warn/10 text-warn"
+                  : "bg-cloud text-graphite"
             }`}
           >
             {n.text}
@@ -319,7 +324,7 @@ export function DeskView({
                   href={n.link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-badge underline underline-offset-4"
+                  className="rounded-input underline underline-offset-4"
                 >
                   {n.link.label}
                 </a>
@@ -329,42 +334,42 @@ export function DeskView({
         ))}
 
         {!p && (
-          <p className="card mt-4 px-4 py-3 text-small text-warn">
+          <p className="mt-4 rounded-cell bg-warn/10 px-5 py-4 text-body text-warn">
             Borrow service unreachable. Showing chain data only.
           </p>
         )}
 
         <div className="mt-8 grid gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
           <section className="card flex flex-col overflow-hidden">
-            <div className="flex flex-1 flex-col justify-center p-6 md:p-8">
+            <div className="flex flex-1 flex-col justify-center p-6 md:p-10">
               <h2 className="eyebrow">Available to draw</h2>
               <p className="mt-4 flex flex-wrap items-baseline gap-x-3">
-                <span className="num text-[36px] leading-none font-medium tracking-[-0.03em] md:text-[44px]">
+                <span className="num text-[44px] leading-none text-ink md:text-[56px]">
                   {p ? formatUsdc(p.lineUsdc, 2) : "Unavailable"}
                 </span>
-                {p && <span className="text-lead text-muted">USDC</span>}
+                {p && <span className="text-lead text-slate">USDC</span>}
               </p>
               {p && (
                 <div className="mt-8">
                   <div
-                    className="h-2 overflow-hidden rounded-pill bg-raised"
+                    className="h-2 overflow-hidden rounded-pill bg-mist"
                     role="img"
                     aria-label={`${used.toFixed(0)} percent of the credit line is borrowed`}
                   >
-                    <div className="h-full rounded-pill bg-tide" style={{ width: `${Math.max(used, used > 0 ? 2 : 0)}%` }} />
+                    <div className="h-full rounded-pill bg-violet" style={{ width: `${Math.max(used, used > 0 ? 2 : 0)}%` }} />
                   </div>
-                  <div className="mt-3 flex justify-between text-caption text-muted">
+                  <div className="mt-3 flex justify-between text-caption text-slate">
                     <span>
-                      Borrowed <span className="num text-ebb">{formatUsdc(p.debtUsdc, 2)}</span>
+                      Borrowed <span className="num text-graphite">{formatUsdc(p.debtUsdc, 2)}</span>
                     </span>
                     <span>
-                      Available <span className="num text-ebb">{formatUsdc(p.lineUsdc, 2)}</span>
+                      Available <span className="num text-graphite">{formatUsdc(p.lineUsdc, 2)}</span>
                     </span>
                   </div>
                 </div>
               )}
             </div>
-            <dl className="mt-auto grid divide-y divide-line border-t border-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+            <dl className="mt-auto grid divide-y divide-mist border-t border-mist sm:grid-cols-3 sm:divide-x sm:divide-y-0">
               <Stat label="Collateral posted" value={formatFixed(desk.collateralCirBtc, 8)} unit="cirBTC" />
               <Stat
                 label="Borrowed now"
@@ -390,7 +395,7 @@ export function DeskView({
           ) : (
             <section className="card p-6">
               <h2 className="eyebrow">Loan health</h2>
-              <p className="mt-4 text-small text-muted">Loan data unavailable.</p>
+              <p className="mt-4 text-small text-slate">Loan data unavailable.</p>
             </section>
           )}
         </div>
@@ -399,7 +404,7 @@ export function DeskView({
           {mode === "desk" && history === "ready" && rows.length === 0 && Number(desk.collateralCirBtc) === 0 && (
             <GetStarted walletCirBtc={p?.walletCirBtc ?? null} canSettle={!!p} />
           )}
-          <Panel title="Tide line" aside={<span className="text-caption text-muted">USDC borrowed over time</span>}>
+          <Panel title="Tide line" aside={<span className="text-caption text-slate">USDC borrowed over time</span>}>
             {history === "ready" ? (
               <TideLine settlements={desk.settlements} />
             ) : history === "loading" ? (
@@ -415,7 +420,7 @@ export function DeskView({
               history === "ready" && rows.length > 0 ? (
                 <span className="flex items-center gap-3">
                   <ExportCsv rows={rows} name={shortHash(desk.address).replace("…", "-")} />
-                  <span className="num rounded-pill bg-raised px-2.5 py-1 text-caption text-ebb">{rows.length}</span>
+                  <span className="num rounded-pill bg-cloud px-2.5 py-1 text-caption text-graphite">{rows.length}</span>
                 </span>
               ) : undefined
             }
@@ -433,14 +438,14 @@ export function DeskView({
         </div>
 
         {history === "ready" && desk.truncated && (
-          <p className="mt-4 text-small text-muted">
+          <p className="mt-4 text-small text-slate">
             Older settlements are not loaded. This view reads the most recent stretch of Arc mainnet.
           </p>
         )}
 
-        <p className="mt-10 text-small text-muted">
+        <p className="mt-10 text-small text-slate">
           Read from Arc mainnet at block <span className="num">{desk.blockNumber.toString()}</span>.{" "}
-          <Link href="/proof" className="rounded-badge text-ebb underline underline-offset-4">
+          <Link href="/proof" className="rounded-input text-graphite underline underline-offset-4">
             See the mainnet proof
           </Link>
         </p>

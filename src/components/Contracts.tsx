@@ -5,7 +5,8 @@ import {
   DEMO_DESK_ADDRESS,
   explorerAddress,
 } from "@/lib/chain";
-import { PillLink } from "./PillLink";
+import { CopyAddress } from "./CopyAddress";
+import { ExternalGlyph, PillLink } from "./PillLink";
 
 const ROWS = [
   {
@@ -48,62 +49,67 @@ const ROWS = [
 
 export function Contracts() {
   return (
-    <section className="on-light bg-paper text-ink">
-      <div className="mx-auto w-full max-w-[1200px] px-6 pt-16 pb-24 md:pt-24 md:pb-32">
-        <h1 className="text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-[44px]">
-          Contracts and addresses
-        </h1>
-        <p className="mt-4 max-w-2xl text-lead text-body">
+    <section className="bg-porcelain">
+      <div className="mx-auto w-full max-w-[1224px] px-6 pt-16 pb-24 md:px-8 md:pt-24 md:pb-36">
+        <p className="eyebrow">Contracts and addresses</p>
+        <h1 className="mt-5 max-w-[20ch] text-[36px] leading-[1.08] tracking-[-0.02em] md:text-h1">
           Everything Tidrel touches on Arc mainnet.
+        </h1>
+        <p className="mt-6 max-w-2xl text-lead text-slate">
+          Each address opens on the Arc mainnet explorer. Tidrel adds one contract of its own.
         </p>
 
-        <ul className="mt-14 divide-y divide-ink/10 border-y border-ink/10">
+        <ul className="mt-14 border-t border-mist">
           {ROWS.map((r) => (
             <li
               key={r.name}
-              className="grid gap-3 py-7 md:grid-cols-[minmax(0,3fr)_minmax(0,5fr)_minmax(0,5fr)] md:gap-10 md:py-8"
+              className="grid gap-4 border-b border-mist py-8 md:grid-cols-[minmax(0,3fr)_minmax(0,5fr)_minmax(0,5fr)] md:gap-10"
             >
-              <h2 className="text-h3 font-medium tracking-[-0.02em] text-ink">{r.name}</h2>
-              <p className="text-body text-body">{r.role}</p>
+              <h2 className="flex items-center gap-3 text-h4 font-medium">
+                {r.name === "TidrelSettler" && <span className="h-2.5 w-2.5 bg-violet" aria-hidden="true" />}
+                {r.name}
+              </h2>
+              <p className="text-body text-slate">{r.role}</p>
               <div className="flex flex-col items-start gap-3">
                 <a
                   href={explorerAddress(r.address)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-badge font-mono text-[13px] break-all text-tide-deep sm:text-small underline decoration-tide-deep/40 underline-offset-4 hover:decoration-tide-deep"
+                  className="inline-flex items-start gap-1.5 rounded-input font-mono text-[13px] break-all text-violet underline decoration-violet/30 underline-offset-4 hover:decoration-violet sm:text-small"
                 >
                   {r.address}
+                  <ExternalGlyph className="mt-1" />
                 </a>
-                {"source" in r && (
-                  <a
-                    href={r.source}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-badge text-small font-medium text-ink underline decoration-ink/30 underline-offset-4 hover:decoration-ink"
-                  >
-                    Verified source on Sourcify
-                  </a>
-                )}
+                <div className="flex flex-wrap gap-2">
+                  <CopyAddress value={r.address} />
+                  {"source" in r && (
+                    <PillLink href={r.source} variant="secondary" size="sm" className="!h-9">
+                      Verified source on Sourcify
+                    </PillLink>
+                  )}
+                </div>
               </div>
             </li>
           ))}
         </ul>
 
-        <div className="mt-20 rounded-[24px] bg-tide-wash p-6 md:p-10">
-          <h2 className="text-h2 font-medium tracking-[-0.024em]">The lending market</h2>
-          <p className="mt-4 max-w-2xl text-body text-body">
-            Loans use the cirBTC and USDC market on Morpho Blue. Its identifier is:
-          </p>
-          <p className="mt-4 rounded-badge border border-ink/10 bg-paper px-4 py-3 font-mono text-small break-all text-ink">
-            {CIRBTC_USDC_MARKET_ID}
-          </p>
+        <div className="mt-16 rounded-card bg-cloud p-6 md:p-12">
+          <p className="eyebrow">The lending market</p>
+          <h2 className="mt-4 text-[28px] leading-[1.15] tracking-[-0.015em] md:text-h3">
+            Loans use the cirBTC and USDC market on Morpho Blue.
+          </h2>
+          <p className="mt-4 text-body text-slate">Its market identifier:</p>
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <p className="num rounded-cell border border-mist bg-porcelain px-4 py-3 text-small break-all text-ink">
+              {CIRBTC_USDC_MARKET_ID}
+            </p>
+            <CopyAddress value={CIRBTC_USDC_MARKET_ID} what="market identifier" />
+          </div>
         </div>
 
         <div className="mt-12 flex flex-col gap-3 sm:flex-row">
-          <PillLink href="/safety" variant="ink">
-            Read the safety rules
-          </PillLink>
-          <PillLink href="/proof" variant="soft">
+          <PillLink href="/safety">Read the safety rules</PillLink>
+          <PillLink href="/proof" variant="secondary">
             See the mainnet proof
           </PillLink>
         </div>

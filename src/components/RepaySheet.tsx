@@ -30,15 +30,15 @@ type Props = {
 };
 
 const field =
-  "w-full rounded-badge border border-line bg-ink px-3.5 py-3 text-[16px] text-text transition-colors placeholder:text-muted hover:border-muted/60 focus:border-tide focus:outline-none focus:ring-2 focus:ring-tide/25 disabled:opacity-60";
+  "w-full rounded-cell border border-mist bg-porcelain px-3.5 py-3 text-[16px] text-ink transition-colors placeholder:text-slate hover:border-ash/60 focus:border-violet focus:outline-none focus:ring-2 focus:ring-violet/25 disabled:opacity-60";
 const primary =
-  "inline-flex w-full items-center justify-center rounded-pill bg-tide px-5 py-3 text-[14px] font-medium text-ink transition-colors hover:brightness-95 disabled:opacity-50";
+  "inline-flex h-12 w-full items-center justify-center rounded-pill bg-violet px-6 text-[16px] font-medium text-porcelain transition-colors hover:bg-violet-deep disabled:cursor-not-allowed disabled:opacity-40";
 
 function Line({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-4 py-2">
-      <dt className="text-small text-ebb">{label}</dt>
-      <dd className="num text-right text-small text-text">{value}</dd>
+      <dt className="text-small text-graphite">{label}</dt>
+      <dd className="num text-right text-small text-ink">{value}</dd>
     </div>
   );
 }
@@ -147,7 +147,7 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
         onClose();
       }}
       onCancel={(e) => busy && e.preventDefault()}
-      className="card m-auto max-h-[100svh] w-full max-w-[100vw] overflow-y-auto rounded-none p-0 text-text sm:max-h-[92svh] sm:w-[min(94vw,520px)] sm:rounded-card"
+      className="card m-auto max-h-[100svh] w-full max-w-[100vw] overflow-y-auto rounded-none p-0 text-ink sm:max-h-[92svh] sm:w-[min(94vw,520px)] sm:rounded-card"
     >
       <div className="p-6 sm:p-8">
         <div className="flex items-center justify-between gap-4">
@@ -159,7 +159,7 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
             disabled={busy}
             onClick={onClose}
             aria-label="Close"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-pill text-ebb hover:text-text disabled:opacity-40"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-pill text-graphite hover:text-ink disabled:opacity-40"
           >
             <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <path d="M5 5l10 10M15 5L5 15" />
@@ -169,36 +169,36 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
 
         {done ? (
           <div className="mt-8" role="status">
-            <span className="flex h-12 w-12 items-center justify-center rounded-pill bg-tide/15 text-tide" aria-hidden="true">
+            <span className="flex h-12 w-12 items-center justify-center rounded-pill bg-violet-tint text-violet" aria-hidden="true">
               <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 10.5l4 4 8-9" />
               </svg>
             </span>
-            <p className="mt-4 text-[22px] leading-tight font-medium tracking-[-0.01em] text-text">Repaid</p>
+            <p className="mt-4 text-[22px] leading-tight font-medium tracking-[-0.01em] text-ink">Repaid</p>
             {done.openSeconds !== null && (
-              <p className="mt-2 text-[16px] text-ebb">
+              <p className="mt-2 text-[16px] text-graphite">
                 Open <span className="num">{formatDuration(done.openSeconds)}</span>, cost{" "}
                 <span className="num">{formatUsdc(done.interest, 6)} USDC</span>.
               </p>
             )}
             {done.outcome.dust && (
-              <p className="mt-3 text-small text-ebb">
+              <p className="mt-3 text-small text-graphite">
                 A sliver of debt, <span className="num">{formatFixed(done.outcome.remainingDebtUsdc, 6)} USDC</span>, is left that a repay
                 cannot clear. Your collateral stays posted.
               </p>
             )}
-            <p className="mt-5 rounded-badge border border-line bg-ink/60 px-4 py-3 text-small">
+            <p className="mt-5 rounded-cell border border-mist bg-cloud px-4 py-3 text-small">
               <a
                 href={explorerTx(done.outcome.txHash)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-badge text-tide underline decoration-tide/40 underline-offset-4 hover:decoration-tide"
+                className="rounded-input text-violet underline decoration-violet/40 underline-offset-4 hover:decoration-violet"
               >
                 See the repay on Arc mainnet
               </a>
             </p>
             <div className="mt-8">
-              <button type="button" onClick={onClose} className="w-full rounded-pill border border-line bg-panel px-5 py-3 text-[14px] font-medium text-text transition-colors hover:bg-raised">
+              <button type="button" onClick={onClose} className="h-12 w-full rounded-pill bg-cloud px-6 text-[16px] font-medium text-ink transition-colors hover:bg-mist">
                 Done
               </button>
             </div>
@@ -211,12 +211,12 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
               if (canRepay) void repay();
             }}
           >
-            <dl className="divide-y divide-line rounded-badge border border-line bg-ink/60 px-4">
+            <dl className="divide-y divide-mist rounded-cell border border-mist bg-cloud px-4">
               <Line label="Borrowed now" value={position ? `${formatUsdc(position.debtUsdc, 2)} USDC` : "Reading"} />
               <Line label="In your wallet" value={position ? `${formatUsdc(position.walletUsdc, 2)} USDC` : "Reading"} />
             </dl>
 
-            <label htmlFor="repay-amount" className="mt-6 block text-small font-medium text-ebb">
+            <label htmlFor="repay-amount" className="mt-6 block text-small font-medium text-graphite">
               Amount to repay
             </label>
             <input
@@ -229,11 +229,11 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
               autoComplete="off"
               className={`${field} num mt-2`}
             />
-            <p className="mt-2 text-caption text-muted">
+            <p className="mt-2 text-caption text-slate">
               Leave it empty to repay the smaller of your USDC and the debt. Your collateral stays posted.
             </p>
 
-            <dl className="mt-6 divide-y divide-line rounded-badge border border-line bg-ink/60 px-4">
+            <dl className="mt-6 divide-y divide-mist rounded-cell border border-mist bg-cloud px-4">
               {plan && !plan.refusal ? (
                 <>
                   <Line label="Repaying" value={`${formatUsdc(plan.repayUsdc, 2)} USDC`} />
@@ -246,7 +246,7 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
                   )}
                 </>
               ) : (
-                <p className="py-4 text-small text-muted">
+                <p className="py-4 text-small text-slate">
                   {positionError
                     ? "Could not read your loan from Arc mainnet. Try again in a moment."
                     : !position

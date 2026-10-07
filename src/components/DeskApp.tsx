@@ -22,7 +22,8 @@ import {
 import { shortHash } from "@/lib/format";
 import { AppBar } from "./AppBar";
 import { DeskView } from "./DeskView";
-import { PillLink } from "./PillLink";
+import Image from "next/image";
+import { PillLink, pillClass } from "./PillLink";
 import { ArrivalToast } from "./ArrivalToast";
 import { CollateralSheet } from "./CollateralSheet";
 import { RepaySheet } from "./RepaySheet";
@@ -36,9 +37,6 @@ type Result =
 
 const READ_TIMEOUT_MS = 45_000;
 
-const btn =
-  "inline-flex items-center justify-center rounded-pill px-5 py-3 text-[14px] font-medium whitespace-nowrap transition-colors duration-150 disabled:opacity-60";
-
 function Gate({
   title,
   body,
@@ -51,20 +49,18 @@ function Gate({
   children?: React.ReactNode;
 }) {
   return (
-    <section className="flex min-h-[calc(100svh-4rem)] items-center justify-center bg-ink text-text">
-      <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center px-6 py-16 text-center">
-        <span className="inline-flex items-center gap-2 rounded-pill border border-line px-3 py-1.5 text-caption text-ebb">
-          <span className="h-1.5 w-1.5 rounded-pill bg-tide" aria-hidden="true" />
-          Arc mainnet
-        </span>
-        <h1 className="mt-6 max-w-[18ch] text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-[40px]">
-          {title}
-        </h1>
-        <p className="mt-5 max-w-xl text-lead text-ebb">{body}</p>
-        <div className="mt-10 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row">
-          {children}
+    <section className="bg-porcelain">
+      <div className="mx-auto grid w-full max-w-[1224px] gap-10 px-6 py-10 md:px-8 lg:min-h-[calc(100svh-5rem)] lg:grid-cols-2 lg:items-center lg:gap-16">
+        <div className="relative h-[200px] overflow-hidden rounded-card sm:h-[280px] lg:h-full lg:min-h-[560px]">
+          <Image src="/images/gate.webp" alt="" fill priority sizes="(min-width: 1024px) 600px, 100vw" className="object-cover" />
         </div>
-        {note}
+        <div className="max-w-xl pb-10 lg:pb-0">
+          <p className="eyebrow">Arc mainnet</p>
+          <h1 className="mt-5 text-[36px] leading-[1.08] tracking-[-0.02em] md:text-[48px]">{title}</h1>
+          <p className="mt-6 text-lead text-slate">{body}</p>
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row">{children}</div>
+          {note}
+        </div>
       </div>
     </section>
   );
@@ -297,26 +293,31 @@ export function DeskApp() {
     // Give a remembered wallet a moment to announce itself before showing the gate.
     content =
       !mounted || (!waited && lastWallet()) ? (
-        <div className="min-h-[60vh]" aria-busy="true" />
+        <Gate
+          title="Reconnecting to your wallet."
+          body="Tidrel is checking the wallet you used last time. Nothing is signed and nothing moves."
+        >
+          <p role="status" className="text-small text-slate">Waiting for the wallet to answer.</p>
+        </Gate>
       ) : (
         <Gate
           title="Connect a wallet to open your desk."
           body="Tidrel runs on Arc mainnet. Your wallet signs every step, and Tidrel never holds your funds or your keys."
           note={errorLine}
         >
-          <button type="button" onClick={() => setPickerOpen(true)} className={`${btn} bg-tide text-ink hover:brightness-95`}>
+          <button type="button" onClick={() => setPickerOpen(true)} className={pillClass("primary")}>
             Connect wallet
           </button>
-          <PillLink href={`/view/${DEMO_DESK_ADDRESS}`} variant="dark">
+          <PillLink href={`/view/${DEMO_DESK_ADDRESS}`} variant="secondary">
             View the demo desk
           </PillLink>
         </Gate>
       );
   } else if (!view) {
     content = (
-      <section className="bg-ink" aria-busy="true">
-        <div className="mx-auto w-full max-w-[1200px] px-6 pt-14">
-          <p role="status" className="text-small text-muted">Reading your desk from Arc mainnet.</p>
+      <section className="bg-porcelain" aria-busy="true">
+        <div className="mx-auto w-full max-w-[1224px] px-6 pt-14 md:px-8">
+          <p role="status" className="text-small text-slate">Reading your desk from Arc mainnet.</p>
           <div className="skeleton mt-5 h-10 w-64" />
           <div className="mt-10 grid gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
             <div className="skeleton h-72" />
@@ -339,11 +340,11 @@ export function DeskApp() {
         note={errorLine}
       >
         {wrongChain && (
-          <button type="button" disabled={busy} onClick={onSwitch} className={`${btn} bg-tide text-ink hover:brightness-95`}>
+          <button type="button" disabled={busy} onClick={onSwitch} className={pillClass("primary")}>
             Switch to Arc mainnet
           </button>
         )}
-        <button type="button" onClick={disconnect} className={`${btn} bg-panel text-text hover:bg-line`}>
+        <button type="button" onClick={disconnect} className={pillClass("secondary")}>
           Use another wallet
         </button>
       </Gate>
@@ -351,10 +352,10 @@ export function DeskApp() {
   } else if (!view.desk) {
     content = (
       <Gate title="Chain data is unavailable right now." body="Every figure on this page is read from Arc mainnet, so nothing is shown until the read works. Try again in a moment.">
-        <button type="button" onClick={() => { setResult(null); setRefreshTick((n) => n + 1); }} className={`${btn} bg-paper text-ink hover:bg-paper/90`}>
+        <button type="button" onClick={() => { setResult(null); setRefreshTick((n) => n + 1); }} className={pillClass("primary")}>
           Try again
         </button>
-        <button type="button" onClick={disconnect} className={`${btn} bg-panel text-text hover:bg-line`}>
+        <button type="button" onClick={disconnect} className={pillClass("secondary")}>
           Disconnect
         </button>
       </Gate>
@@ -371,13 +372,13 @@ export function DeskApp() {
           notices={deskNotices(view.desk, view.history === "ready")}
           primary={
             okDesk && (
-            <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-ink/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:static sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+            <div className="fixed inset-x-0 bottom-0 z-30 border-t border-mist bg-porcelain px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:border-0 sm:bg-transparent sm:p-0">
               <div className="flex gap-3">
                 {okDesk?.position && (
                   <button
                     type="button"
                     onClick={() => setCollateralOpen(true)}
-                    className={`${btn} border border-line bg-panel text-text hover:bg-raised sm:w-auto`}
+                    className={pillClass("secondary")}
                   >
                     Collateral
                   </button>
@@ -386,7 +387,7 @@ export function DeskApp() {
                   <button
                     type="button"
                     onClick={() => openRepay()}
-                    className={`${btn} border border-line bg-panel text-text hover:bg-raised sm:w-auto`}
+                    className={pillClass("secondary")}
                   >
                     Repay
                   </button>
@@ -395,13 +396,13 @@ export function DeskApp() {
                   type="button"
                   onClick={() => setSettleOpen(true)}
                   disabled={drawsDown}
-                  className={`${btn} flex-1 bg-tide text-ink hover:brightness-95 sm:flex-none`}
+                  className={pillClass("primary", "md", "flex-1 sm:flex-none")}
                 >
                   Settle a trade
                 </button>
               </div>
               {drawsDown && (
-                <p className="mt-2 text-caption text-muted sm:mt-3 sm:max-w-xs sm:text-small md:text-right">
+                <p className="mt-2 text-caption text-slate sm:mt-3 sm:max-w-xs sm:text-small md:text-right">
                   Settling needs the Borrow service, which is unreachable. Chain data is still shown.
                 </p>
               )}
@@ -458,14 +459,14 @@ export function DeskApp() {
       <AppBar>
         {session && (
           <>
-            <span className="hidden items-center gap-2 rounded-pill border border-line bg-panel px-3.5 py-2 text-small whitespace-nowrap text-ebb sm:inline-flex">
-              <span className="h-2 w-2 rounded-pill bg-tide" aria-hidden="true" />
+            <span className="hidden h-10 items-center gap-2 rounded-pill border border-mist px-4 text-small whitespace-nowrap text-ink sm:inline-flex">
+              <span className="h-2 w-2 rounded-pill bg-violet" aria-hidden="true" />
               <span className="num">{shortHash(session.address)}</span>
             </span>
             <button
               type="button"
               onClick={disconnect}
-              className="rounded-pill bg-panel px-4 py-2 text-small font-medium text-ebb transition-colors hover:bg-line hover:text-text"
+              className={pillClass("secondary", "sm")}
             >
               Disconnect
             </button>
