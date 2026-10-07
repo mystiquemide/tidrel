@@ -19,8 +19,7 @@ export function Hero() {
         className="-z-10 object-cover"
       />
       <div className="mx-auto w-full max-w-[1224px] px-6 pt-32 pb-14 md:px-8 md:pb-20">
-        <p className="eyebrow text-porcelain/75">Settlement credit on Arc mainnet</p>
-        <h1 className="mt-5 text-[44px] leading-[1.05] tracking-[-0.02em] text-porcelain sm:text-[56px] md:text-display">
+        <h1 className="text-[44px] leading-[1.05] tracking-[-0.02em] text-porcelain sm:text-[56px] md:text-display">
           <span className="block">Settle in USDC.</span>
           <span className="block">Keep your bitcoin.</span>
         </h1>
