@@ -35,14 +35,14 @@ describe('runSettlement', () => {
     const d = base()
     d.draw.mockRejectedValue(Object.assign(new Error('x'), { code: 4001 }))
     const out = await runSettlement({ plan: plan('1.2'), ...d })
-    expect(out).toEqual({ kind: 'failed', error: 'You cancelled in your wallet.' })
+    expect(out).toEqual({ kind: 'failed', error: 'You cancelled in your wallet. Nothing was sent.' })
     expect(d.payout).not.toHaveBeenCalled()
   })
   it('reports drawn, not settled when the payout fails after a draw', async () => {
     const d = base()
     d.payout.mockRejectedValue(new Error('reverted'))
     const out = await runSettlement({ plan: plan('1.2'), ...d })
-    expect(out).toEqual({ kind: 'drawn-not-settled', drawTx: '0xdraw', error: 'reverted' })
+    expect(out).toEqual({ kind: 'drawn-not-settled', drawTx: '0xdraw', error: 'The transaction did not go through. Check your wallet, then try again.' })
   })
   it('retries only the payout and never draws twice', async () => {
     const d = base()
@@ -54,17 +54,21 @@ describe('runSettlement', () => {
   it('says a payout failure with no draw is plainly failed', async () => {
     const d = base()
     d.payout.mockRejectedValue(new Error('nope'))
-    expect(await runSettlement({ plan: plan('0'), ...d })).toEqual({ kind: 'failed', error: 'nope' })
+    expect(await runSettlement({ plan: plan('0'), ...d })).toEqual({ kind: 'failed', error: 'The transaction did not go through. Check your wallet, then try again.' })
   })
 })
 
 describe('describeError', () => {
   it('recognises a wallet rejection by code or text', () => {
-    expect(describeError({ code: 4001 })).toBe('You cancelled in your wallet.')
-    expect(describeError(new Error('User rejected the request.'))).toBe('You cancelled in your wallet.')
+    expect(describeError({ code: 4001 })).toBe('You cancelled in your wallet. Nothing was sent.')
+    expect(describeError(new Error('User rejected the request.'))).toBe('You cancelled in your wallet. Nothing was sent.')
   })
-  it('keeps one short line of anything else', () => {
-    expect(describeError(new Error('boom\nstack'))).toBe('boom')
-    expect(describeError(undefined)).toBe('Something went wrong.')
+  it('shows Tidrel messages as written and hides raw node errors', () => {
+    expect(describeError(new Error('Your wallet disconnected. Reconnect it and try again.'))).toBe(
+      'Your wallet disconnected. Reconnect it and try again.',
+    )
+    expect(describeError(new Error('insufficient funds for gas'))).toContain('does not have enough')
+    expect(describeError(new Error('boom\nstack'))).toBe('The transaction did not go through. Check your wallet, then try again.')
+    expect(describeError(undefined)).toBe('The transaction did not go through. Check your wallet, then try again.')
   })
 })

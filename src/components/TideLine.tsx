@@ -20,7 +20,7 @@ export function TideLine({ settlements }: { settlements: Settlement[] }) {
   if (pts.length < 2) {
     return (
       <p className="px-6 py-12 text-center text-small text-slate">
-        Your first draw and repay will appear here.
+        The tide line appears after the first draw and repay.
       </p>
     );
   }

@@ -116,12 +116,12 @@ export async function planCollateral(
     return refuse('INVALID', `Enter an amount above zero with up to ${CIRBTC_DECIMALS} decimals.`)
   }
   if (input.mode === 'add' && amount > parseUnits(position.walletCirBtc, CIRBTC_DECIMALS)) {
-    return refuse('NO_CIRBTC', `This wallet holds ${position.walletCirBtc} cirBTC.`, {
+    return refuse('NO_CIRBTC', `This wallet holds ${position.walletCirBtc} cirBTC. Enter that much or less.`, {
       amountCirBtc: cir(amount),
     })
   }
   if (input.mode === 'withdraw' && amount > parseUnits(position.collateralCirBtc, CIRBTC_DECIMALS)) {
-    return refuse('EXCEEDS_POSTED', `Only ${position.collateralCirBtc} cirBTC is posted.`, {
+    return refuse('EXCEEDS_POSTED', `Only ${position.collateralCirBtc} cirBTC is posted. Enter that much or less.`, {
       amountCirBtc: cir(amount),
     })
   }
@@ -140,14 +140,14 @@ export async function planCollateral(
     if (parseUnits(q.bundledRepaymentUsdc, USDC_DECIMALS) > parseUnits(position.walletUsdc, USDC_DECIMALS)) {
       return refuse(
         'NO_USDC',
-        `This withdrawal may repay up to ${q.bundledRepaymentUsdc} USDC and the wallet holds ${position.walletUsdc}.`,
+        `This withdrawal may need to repay up to ${q.bundledRepaymentUsdc} USDC, and the wallet holds ${position.walletUsdc}. Add USDC or withdraw less.`,
         filled,
       )
     }
     if (q.resultingHealthFactor !== null && q.resultingHealthFactor < MIN_HEALTH) {
       return refuse(
         'HEALTH',
-        `This takes health to ${q.resultingHealthFactor.toFixed(2)}. Withdraw less or repay first.`,
+        `This would take loan health to ${q.resultingHealthFactor.toFixed(2)}, below the ${MIN_HEALTH.toFixed(2)} floor. Withdraw less, or repay first.`,
         filled,
       )
     }
@@ -160,7 +160,7 @@ const inflight = new Map<string, Promise<{ txHash: string }>>()
 /** One collateral move per plan. A repeated call for the same plan joins the first. */
 export function executeCollateral(plan: CollateralPlan, deps: ExecuteCollateralDeps) {
   if (plan.refusal) {
-    throw new CollateralRefusalError(plan.refusal, plan.detail ?? 'Plan was refused.')
+    throw new CollateralRefusalError(plan.refusal, plan.detail ?? 'Tidrel could not plan this change. Try again in a moment.')
   }
   const existing = inflight.get(plan.idempotencyKey)
   if (existing) return existing
@@ -207,7 +207,7 @@ type Adapter = Parameters<ReturnType<typeof getKit>['borrow']['addCollateral']>[
 export function kitCollateralDeps(adapter: Adapter, wallet: Address): ExecuteCollateralDeps {
   return {
     run: async ({ mode, loanId, amountCirBtc, idempotencyKey }) => {
-      if (!loanId) throw new Error('No open loan to move collateral on.')
+      if (!loanId) throw new Error('There is no open loan to move collateral on. Refresh the desk and try again.')
       const from = { adapter, chain: BORROW_CHAIN, address: wallet }
       const result =
         mode === 'add'
@@ -219,7 +219,7 @@ export function kitCollateralDeps(adapter: Adapter, wallet: Address): ExecuteCol
               idempotencyKey,
             })
       if (result.status === 'submitted') {
-        throw new Error('The transaction was submitted but is not confirmed yet.')
+        throw new Error('Your transaction was sent but has not confirmed yet. Check your wallet activity before trying again.')
       }
       return { txHash: result.txHash }
     },
@@ -239,7 +239,7 @@ export function directCollateralDeps(args: {
   return {
     run: async ({ mode, amountCirBtc }) => {
       const account = walletClient.account
-      if (!account) throw new Error('No account connected.')
+      if (!account) throw new Error('Your wallet disconnected. Reconnect it and try again.')
       const assets = parseUnits(amountCirBtc, CIRBTC_DECIMALS)
       const [loanToken, collateralToken, oracle, irm, lltv] = await publicClient.readContract({
         address: ADDRESSES.morpho,
@@ -266,7 +266,7 @@ export function directCollateralDeps(args: {
             args: [ADDRESSES.morpho, assets],
           })
           const r = await publicClient.waitForTransactionReceipt({ hash: approve })
-          if (r.status !== 'success') throw new Error(`The approval ${approve} reverted.`)
+          if (r.status !== 'success') throw new Error('The cirBTC approval did not go through. Nothing moved. Try again.')
         }
         const { request } = await publicClient.simulateContract({
           account,
@@ -277,7 +277,7 @@ export function directCollateralDeps(args: {
         })
         const hash = await walletClient.writeContract(request)
         const receipt = await publicClient.waitForTransactionReceipt({ hash })
-        if (receipt.status !== 'success') throw new Error(`The transaction ${hash} reverted.`)
+        if (receipt.status !== 'success') throw new Error('The transaction did not go through. Nothing moved. Try again.')
         return { txHash: hash }
       }
 
@@ -290,7 +290,7 @@ export function directCollateralDeps(args: {
       })
       const hash = await walletClient.writeContract(request)
       const receipt = await publicClient.waitForTransactionReceipt({ hash })
-      if (receipt.status !== 'success') throw new Error(`The transaction ${hash} reverted.`)
+      if (receipt.status !== 'success') throw new Error('The transaction did not go through. Nothing moved. Try again.')
       return { txHash: hash }
     },
   }

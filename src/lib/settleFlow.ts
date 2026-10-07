@@ -15,10 +15,24 @@ export function describeError(e: unknown): string {
   const code = typeof e === 'object' && e !== null && 'code' in e ? Number((e as { code: unknown }).code) : undefined
   const msg = e instanceof Error ? e.message : ''
   if (code === USER_REJECTED || /user (rejected|denied)|rejected the request/i.test(msg)) {
-    return 'You cancelled in your wallet.'
+    return 'You cancelled in your wallet. Nothing was sent.'
   }
-  return msg ? msg.split('\n')[0].slice(0, 200) : 'Something went wrong.'
+  // Messages Tidrel writes itself are already plain language and say what to do.
+  if (e instanceof Error && TIDREL_MESSAGE.test(msg)) return msg
+  if (/insufficient funds|exceeds balance/i.test(msg)) {
+    return 'The wallet does not have enough to cover this and its network fee. Add funds and try again.'
+  }
+  if (/timeout|timed out|network|fetch failed|failed to fetch/i.test(msg)) {
+    return 'Arc mainnet did not respond in time. Check your wallet activity, then try again.'
+  }
+  // Anything else stays out of the interface: raw node errors are not readable and can
+  // leak internals. The full error goes to the console for whoever is debugging.
+  console.error('Tidrel: transaction failed', e)
+  return 'The transaction did not go through. Check your wallet, then try again.'
 }
+
+/** Errors Tidrel throws itself start with one of these, so they are shown as written. */
+const TIDREL_MESSAGE = /^(Your |The |This |There |Loan |Counterparty |Add |Enter |Shorten |Only )/
 
 /**
  * Runs one settlement: check the reference, draw if the wallet is short, then pay

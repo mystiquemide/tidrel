@@ -241,11 +241,11 @@ export function DeskView({
         <div className="mx-auto w-full max-w-[1224px] px-6 pt-16 pb-24 md:px-8 md:pt-24">
           <p className="eyebrow">Desk</p>
           <h1 className="mt-5 text-[36px] leading-[1.08] tracking-[-0.02em] md:text-h1">
-            Chain data is unavailable right now.
+            Arc mainnet is not responding right now.
           </h1>
           <p className="mt-6 max-w-xl text-lead text-slate">
-            Every figure on this page is read from Arc mainnet, so nothing is shown until the read
-            works. Try again in a moment.
+            Every figure on this desk is read live from the chain, so nothing is shown until it
+            answers. Funds are not affected. Try again in a moment.
           </p>
           <div className="mt-10">
             <PillLink href={`/view/${desk.address}`}>
@@ -336,7 +336,7 @@ export function DeskView({
 
         {!p && (
           <p className="mt-4 rounded-cell bg-warn/10 px-5 py-4 text-body text-warn">
-            Borrow service unreachable. Showing chain data only.
+            Circle&apos;s Borrow service is not responding, so draws are paused. Everything below is read straight from the chain.
           </p>
         )}
 
@@ -396,7 +396,7 @@ export function DeskView({
           ) : (
             <section className="card p-6">
               <h2 className="eyebrow">Loan health</h2>
-              <p className="mt-4 text-small text-slate">Loan data unavailable.</p>
+              <p className="mt-4 text-small text-slate">Loan health appears once Circle&apos;s Borrow service responds.</p>
             </section>
           )}
         </div>
@@ -411,7 +411,7 @@ export function DeskView({
             ) : history === "loading" ? (
               <HistorySkeleton />
             ) : (
-              <PanelNote>Settlements could not be read right now. Reload to try again.</PanelNote>
+              <PanelNote>Settlements did not load from Arc mainnet. Reload the page to try again.</PanelNote>
             )}
           </Panel>
 
@@ -429,11 +429,11 @@ export function DeskView({
             {history === "loading" ? (
               <HistorySkeleton />
             ) : history === "failed" ? (
-              <PanelNote>Settlements could not be read right now. Reload to try again.</PanelNote>
+              <PanelNote>Settlements did not load from Arc mainnet. Reload the page to try again.</PanelNote>
             ) : rows.length > 0 ? (
               <SettlementsTable rows={rows} />
             ) : (
-              <PanelNote>No settlements found for this address.</PanelNote>
+              <PanelNote>No Tidrel settlements from this address yet. Settled trades appear here with a receipt for each.</PanelNote>
             )}
           </Panel>
         </div>

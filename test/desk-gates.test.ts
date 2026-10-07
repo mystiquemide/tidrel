@@ -27,7 +27,7 @@ describe('deskNotices', () => {
   it('tells a wallet with no cirBTC and no loan what Tidrel borrows against', () => {
     const n = deskNotices(desk())
     expect(n).toHaveLength(1)
-    expect(n[0].text).toBe('This wallet holds no cirBTC. Tidrel borrows against cirBTC.')
+    expect(n[0].text).toBe('This wallet holds no cirBTC yet. Tidrel lends USDC against cirBTC, so add some to start.')
     expect(n[0].link?.href).toContain('circle.com/cirbtc')
   })
   it('says a wallet holding cirBTC with no history has no loan yet', () => {
@@ -40,13 +40,18 @@ describe('deskNotices', () => {
   })
   it('warns on a risky band and goes red when urgent', () => {
     const warn = deskNotices(desk({ position: position({ debtUsdc: '1.2', band: 'WARN', healthFactor: 1.3, liquidationPriceUsd: '71000' }), collateral: '0.1' }))
-    expect(warn[0]).toMatchObject({ tone: 'warn', text: 'Health 1.30. Liquidation near $71,000.' })
+    expect(warn[0]).toMatchObject({
+      tone: 'warn',
+      text: 'Loan health is 1.30. Liquidation starts near $71,000. Repay or add collateral to stay clear of it.',
+    })
     const urgent = deskNotices(desk({ position: position({ debtUsdc: '1.2', band: 'URGENT', healthFactor: 1.1 }), collateral: '0.1' }))
     expect(urgent[0].tone).toBe('urgent')
   })
   it('reports a draw whose payout never went out', () => {
     const n = deskNotices(desk({ position: position({ debtUsdc: '1.2' }), collateral: '0.1', settlements: [{ state: 'drawn-not-settled', drawnUsdc: '1.2' }] }))
-    expect(n.map((x) => x.text)).toContain('1.20 USDC drawn, payout not sent.')
+    expect(n.map((x) => x.text)).toContain(
+      '1.20 USDC was drawn but the payout was not sent. Settle the trade again to pay from the USDC now in your wallet, or repay the draw.',
+    )
   })
   it('says nothing when the chain read failed or the Borrow service is down', () => {
     expect(deskNotices({ ok: false, address: A, reason: 'chain' })).toEqual([])

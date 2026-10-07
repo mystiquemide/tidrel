@@ -294,16 +294,16 @@ export function CollateralSheet({ open, address, provider, onClose, onChanged }:
               ) : (
                 <p className="py-4 text-small text-slate">
                   {positionError
-                    ? "Could not read your loan from Arc mainnet. Try again in a moment."
+                    ? "Your loan did not load from Arc mainnet. Try again in a moment."
                     : !position
                       ? "Reading your loan."
                       : !typed
                         ? "Enter an amount to see the effect on your loan."
                         : current?.error
-                          ? "Could not price this. Try again in a moment."
+                          ? "Circle's Borrow service did not return a quote. Try again in a moment."
                           : !current
                             ? "Reading what this will do."
-                            : "Fix the line below to see the effect."}
+                            : "Check the amount above to see the effect."}
                 </p>
               )}
             </dl>

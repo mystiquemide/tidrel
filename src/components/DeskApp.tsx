@@ -111,7 +111,7 @@ export function DeskApp() {
       setError(
         code === 4001
           ? "The connection was cancelled. Pick a wallet to try again."
-          : "The wallet did not connect. Try again.",
+          : "Your wallet did not respond. Unlock it, then pick it again.",
       );
     } finally {
       setBusy(false);
@@ -264,7 +264,7 @@ export function DeskApp() {
     try {
       await switchToArc(session.wallet.provider);
     } catch {
-      setError("The wallet did not switch to Arc mainnet. Switch networks in the wallet and try again.");
+      setError("Your wallet stayed on its current network. Switch to Arc mainnet in the wallet, then try again.");
     } finally {
       setBusy(false);
     }
@@ -351,7 +351,7 @@ export function DeskApp() {
     );
   } else if (!view.desk) {
     content = (
-      <Gate title="Chain data is unavailable right now." body="Every figure on this page is read from Arc mainnet, so nothing is shown until the read works. Try again in a moment.">
+      <Gate title="Arc mainnet is not responding right now." body="Every figure on your desk is read live from the chain, so nothing is shown until it answers. Your funds are not affected. Try again in a moment.">
         <button type="button" onClick={() => { setResult(null); setRefreshTick((n) => n + 1); }} className={pillClass("primary")}>
           Try again
         </button>

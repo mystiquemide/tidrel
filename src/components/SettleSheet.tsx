@@ -470,20 +470,20 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
               ) : (
                 <p className="py-4 text-small text-slate">
                   {positionError
-                    ? "Could not read your position from Arc mainnet. Try again in a moment."
+                    ? "Your position did not load from Arc mainnet. Try again in a moment."
                     : !ready
                       ? "Add a reference and who to pay to see the cost."
                       : planning || !position
                         ? "Reading what this will cost."
                         : current?.error
-                          ? "Could not price this draw. Try again in a moment."
-                          : "Fix the line below to see the cost."}
+                          ? "Circle's Borrow service did not return a quote. Try again in a moment."
+                          : "Check the line marked below to see the cost."}
                 </p>
               )}
             </dl>
 
             {plan?.mergedDuplicates && !plan.refusal && (
-              <p className="mt-3 text-caption text-slate">Duplicate recipients were added together.</p>
+              <p className="mt-3 text-caption text-slate">Repeated addresses were combined into one payment each.</p>
             )}
             {plan?.refusal && (
               <p role="alert" className="mt-4 text-small text-warn">

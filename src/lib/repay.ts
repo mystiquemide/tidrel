@@ -86,11 +86,11 @@ export async function planRepay(
     detail,
   })
 
-  if (!position.loanId) return refuse('NO_LOAN', 'No loan is open for this wallet.')
+  if (!position.loanId) return refuse('NO_LOAN', 'There is no open loan on this wallet, so there is nothing to repay.')
   const debt = parseUnits(position.debtUsdc, USDC_DECIMALS)
-  if (debt === 0n) return refuse('NOTHING_TO_REPAY', 'There is no debt to repay.')
+  if (debt === 0n) return refuse('NOTHING_TO_REPAY', 'This loan is fully repaid.')
   const wallet = parseUnits(position.walletUsdc, USDC_DECIMALS)
-  if (wallet === 0n) return refuse('NO_USDC', 'This wallet holds no USDC to repay with.')
+  if (wallet === 0n) return refuse('NO_USDC', "This wallet has no USDC yet. Repay once the trade's USDC arrives.")
 
   let want = debt < wallet ? debt : wallet
   if (input.amountUsdc !== undefined) {
@@ -98,9 +98,9 @@ export async function planRepay(
     try {
       typed = parseUnits(input.amountUsdc.trim(), USDC_DECIMALS)
     } catch {
-      return refuse('INVALID', 'Repay amount is not a number.')
+      return refuse('INVALID', 'Enter the amount in USDC as a number.')
     }
-    if (typed <= 0n) return refuse('INVALID', 'Repay amount must be above zero.')
+    if (typed <= 0n) return refuse('INVALID', 'Enter an amount above zero, or leave it empty to repay what you can.')
     want = typed < want ? typed : want
   }
 
@@ -122,7 +122,7 @@ const inflight = new Map<string, Promise<RepayOutcome>>()
 /** One repay per plan. A repeated call for the same plan joins the first. */
 export function executeRepay(plan: RepayPlan, deps: ExecuteRepayDeps) {
   if (plan.refusal || !plan.loanId) {
-    throw new RepayRefusalError(plan.refusal ?? 'NO_LOAN', plan.detail ?? 'Plan was refused.')
+    throw new RepayRefusalError(plan.refusal ?? 'NO_LOAN', plan.detail ?? 'Tidrel could not plan this repay. Try again in a moment.')
   }
   const existing = inflight.get(plan.idempotencyKey)
   if (existing) return existing
@@ -169,7 +169,7 @@ export function kitRepayDeps(adapter: Adapter, wallet: Address): ExecuteRepayDep
         idempotencyKey,
       })
       if (result.status === 'submitted') {
-        throw new Error('Repay was submitted but is not confirmed yet.')
+        throw new Error('Your repay was sent but has not confirmed yet. Check your wallet activity before repaying again.')
       }
       return {
         txHash: result.txHash,

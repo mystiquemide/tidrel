@@ -79,16 +79,16 @@ function parseLegs(inputs: LegInput[]) {
   let mergedDuplicates = false
   for (const [i, leg] of inputs.entries()) {
     if (!isAddress(leg.to, { strict: false })) {
-      throw new SettleRefusal('INVALID', `Recipient ${i + 1} is not a valid address.`)
+      throw new SettleRefusal('INVALID', `Counterparty ${i + 1}: that is not an Arc address. It starts with 0x and has 40 more characters.`)
     }
     let amount: bigint
     try {
       amount = parseUnits(leg.amountUsdc.trim(), USDC_DECIMALS)
     } catch {
-      throw new SettleRefusal('INVALID', `Amount for recipient ${i + 1} is not a number.`)
+      throw new SettleRefusal('INVALID', `Counterparty ${i + 1}: enter the amount in USDC as a number.`)
     }
     if (amount <= 0n) {
-      throw new SettleRefusal('INVALID', `Amount for recipient ${i + 1} must be above zero.`)
+      throw new SettleRefusal('INVALID', `Counterparty ${i + 1}: enter an amount above zero.`)
     }
     const to = getAddress(leg.to.toLowerCase())
     if (merged.has(to)) mergedDuplicates = true
@@ -128,11 +128,11 @@ export async function planSettlement(
 
   let parsed: ReturnType<typeof parseLegs>
   try {
-    if (!reference) throw new SettleRefusal('INVALID', 'Reference is required.')
+    if (!reference) throw new SettleRefusal('INVALID', 'Add a trade reference, so this payout can be matched to its trade.')
     if (referenceBytes(reference) > MAX_REFERENCE_BYTES) {
-      throw new SettleRefusal('INVALID', `Reference must be ${MAX_REFERENCE_BYTES} bytes or fewer.`)
+      throw new SettleRefusal('INVALID', `Shorten the reference to ${MAX_REFERENCE_BYTES} characters or fewer.`)
     }
-    if (input.legs.length === 0) throw new SettleRefusal('INVALID', 'Add at least one recipient.')
+    if (input.legs.length === 0) throw new SettleRefusal('INVALID', 'Add at least one counterparty to pay.')
     parsed = parseLegs(input.legs)
   } catch (e) {
     if (e instanceof SettleRefusal) return refuse(e.refusal, e.message)
@@ -151,7 +151,7 @@ export async function planSettlement(
 
   const dup = await deps.findReference(reference, position.wallet)
   if (dup) {
-    return refuse('DUPLICATE_REF', `Reference already used in tx ${dup}.`, {
+    return refuse('DUPLICATE_REF', 'This wallet already settled a trade with this reference. Use a new reference for this trade.', {
       ...filled,
       duplicateTx: dup,
     })
@@ -160,13 +160,13 @@ export async function planSettlement(
   if (draw === 0n) return { ...base, ...filled }
 
   if (!position.hasCollateral) {
-    return refuse('NO_COLLATERAL', 'Post cirBTC before drawing.', filled)
+    return refuse('NO_COLLATERAL', 'This wallet has no cirBTC to borrow against. Add cirBTC, then try again.', filled)
   }
   const liquidity = parseUnits(position.marketLiquidityUsdc, USDC_DECIMALS)
   if (draw > liquidity) {
     return refuse(
       'LIQUIDITY',
-      `The market has ${usdc(liquidity)} USDC available. Reduce the amount.`,
+      `The market can lend ${usdc(liquidity)} USDC right now. Lower the total, or pay more from your wallet.`,
       filled,
     )
   }
@@ -180,14 +180,14 @@ export async function planSettlement(
   if (hf !== null && hf < MIN_HEALTH) {
     return refuse(
       'HEALTH',
-      `This draw takes health to ${hf.toFixed(2)}. Reduce the amount or post more cirBTC.`,
+      `This draw would take loan health to ${hf.toFixed(2)}, below the ${MIN_HEALTH.toFixed(2)} floor. Lower the amount or add more cirBTC.`,
       { ...filled, resultingHealth: hf, collateralToPostCirBtc: toPost },
     )
   }
   if (toPost && parseUnits(toPost, CIRBTC_DECIMALS) > parseUnits(position.walletCirBtc, CIRBTC_DECIMALS)) {
     return refuse(
       'NO_COLLATERAL',
-      `This draw needs ${toPost} cirBTC posted and the wallet holds ${position.walletCirBtc}.`,
+      `This draw needs ${toPost} cirBTC as collateral, and the wallet holds ${position.walletCirBtc}. Add cirBTC or lower the amount.`,
       { ...filled, resultingHealth: hf, collateralToPostCirBtc: toPost },
     )
   }
@@ -213,7 +213,7 @@ export function executeDraw(
   deps: DrawDeps,
 ) {
   if (plan.refusal) {
-    throw new SettleRefusal(plan.refusal, plan.detail ?? 'Plan was refused.')
+    throw new SettleRefusal(plan.refusal, plan.detail ?? 'Tidrel could not plan this settlement. Try again in a moment.')
   }
   const existing = inflight.get(plan.idempotencyKey)
   if (existing) return existing
@@ -222,7 +222,7 @@ export function executeDraw(
     const draw = parseUnits(plan.drawUsdc, USDC_DECIMALS)
     const liquidity = parseUnits(await deps.getLiquidityUsdc(), USDC_DECIMALS)
     if (draw > liquidity) {
-      throw new SettleRefusal('LIQUIDITY', `The market now has ${usdc(liquidity)} USDC available.`)
+      throw new SettleRefusal('LIQUIDITY', `The market's available USDC fell to ${usdc(liquidity)} before you signed. Nothing was sent. Lower the total and try again.`)
     }
     const quote = await deps.quoteDraw({
       wallet: position.wallet,
@@ -231,7 +231,7 @@ export function executeDraw(
     })
     const hf = quote.resultingHealthFactor
     if (hf !== null && hf < MIN_HEALTH) {
-      throw new SettleRefusal('HEALTH', `Health moved to ${hf.toFixed(2)} before signing.`)
+      throw new SettleRefusal('HEALTH', `Loan health would fall to ${hf.toFixed(2)}, below the ${MIN_HEALTH.toFixed(2)} floor, after the market moved. Nothing was sent. Lower the amount or add collateral.`)
     }
     return deps.borrow({
       loanId: position.loanId,
@@ -252,10 +252,10 @@ export async function executePayouts(args: {
 }): Promise<Hash> {
   const { plan, walletClient, publicClient } = args
   if (plan.refusal) {
-    throw new SettleRefusal(plan.refusal, plan.detail ?? 'Plan was refused.')
+    throw new SettleRefusal(plan.refusal, plan.detail ?? 'Tidrel could not plan this settlement. Try again in a moment.')
   }
   const account = walletClient.account
-  if (!account) throw new SettleRefusal('INVALID', 'No account connected.')
+  if (!account) throw new SettleRefusal('INVALID', 'Your wallet disconnected. Reconnect it and try again.')
 
   const legs: PayoutLeg[] = plan.legs.map((l) => ({
     to: l.to,
@@ -275,7 +275,7 @@ export async function executePayouts(args: {
   } catch (e) {
     // Another tab or device may have used this reference since the plan was made.
     if (await referenceTaken(publicClient, account.address, plan.reference)) {
-      throw new SettleRefusal('DUPLICATE_REF', 'This reference was already settled by this wallet.')
+      throw new SettleRefusal('DUPLICATE_REF', 'This wallet already settled a trade with this reference. Use a new reference for this trade.')
     }
     throw e
   }

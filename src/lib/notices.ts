@@ -20,7 +20,7 @@ export function deskNotices(desk: Desk, historyReady = true): Notice[] {
   if (!posted && !holds && !open) {
     out.push({
       tone: 'info',
-      text: 'This wallet holds no cirBTC. Tidrel borrows against cirBTC.',
+      text: 'This wallet holds no cirBTC yet. Tidrel lends USDC against cirBTC, so add some to start.',
       link: { href: 'https://www.circle.com/cirbtc', label: 'About cirBTC' },
     })
   } else if (historyReady && !open && desk.settlements.length === 0) {
@@ -32,10 +32,12 @@ export function deskNotices(desk: Desk, historyReady = true): Notice[] {
 
   if (open && p.band && p.healthFactor !== null) {
     const hf = p.healthFactor.toFixed(2)
-    const near = p.liquidationPriceUsd ? ` Liquidation near $${formatUsdc(p.liquidationPriceUsd, 0)}.` : ''
-    if (p.band === 'WARN') out.push({ tone: 'warn', text: `Health ${hf}.${near}` })
+    const near = p.liquidationPriceUsd ? ` Liquidation starts near $${formatUsdc(p.liquidationPriceUsd, 0)}.` : ''
+    if (p.band === 'WARN') {
+      out.push({ tone: 'warn', text: `Loan health is ${hf}.${near} Repay or add collateral to stay clear of it.` })
+    }
     if (p.band === 'URGENT' || p.band === 'IMMINENT' || p.band === 'LIQUIDATABLE') {
-      out.push({ tone: 'urgent', text: `Health ${hf}.${near}` })
+      out.push({ tone: 'urgent', text: `Loan health is ${hf}, close to liquidation.${near} Repay or add collateral now.` })
     }
   }
 
@@ -43,7 +45,7 @@ export function deskNotices(desk: Desk, historyReady = true): Notice[] {
   if (open && stranded) {
     out.push({
       tone: 'warn',
-      text: `${formatUsdc(stranded.drawnUsdc, 2)} USDC drawn, payout not sent.`,
+      text: `${formatUsdc(stranded.drawnUsdc, 2)} USDC was drawn but the payout was not sent. Settle the trade again to pay from the USDC now in your wallet, or repay the draw.`,
     })
   }
   return out
