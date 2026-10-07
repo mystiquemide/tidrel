@@ -32,7 +32,7 @@ type Props = {
 const field =
   "w-full rounded-badge border border-line bg-ink px-3.5 py-3 text-[16px] text-text transition-colors placeholder:text-muted hover:border-muted/60 focus:border-tide focus:outline-none focus:ring-2 focus:ring-tide/25 disabled:opacity-60";
 const primary =
-  "inline-flex w-full items-center justify-center rounded-pill bg-tide px-6 py-3.5 text-[15px] font-medium text-ink transition-colors hover:brightness-95 disabled:opacity-50";
+  "inline-flex w-full items-center justify-center rounded-pill bg-tide px-5 py-3 text-[14px] font-medium text-ink transition-colors hover:brightness-95 disabled:opacity-50";
 
 function Line({ label, value }: { label: string; value: string }) {
   return (
@@ -151,7 +151,7 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
     >
       <div className="p-6 sm:p-8">
         <div className="flex items-center justify-between gap-4">
-          <h2 id="repay-title" className="text-h3 font-[550] tracking-[-0.02em]">
+          <h2 id="repay-title" className="text-h3 font-medium tracking-[-0.02em]">
             Repay
           </h2>
           <button
@@ -198,7 +198,7 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
               </a>
             </p>
             <div className="mt-8">
-              <button type="button" onClick={onClose} className="w-full rounded-pill border border-line bg-panel px-6 py-3.5 text-[15px] font-medium text-text transition-colors hover:bg-raised">
+              <button type="button" onClick={onClose} className="w-full rounded-pill border border-line bg-panel px-5 py-3 text-[14px] font-medium text-text transition-colors hover:bg-raised">
                 Done
               </button>
             </div>

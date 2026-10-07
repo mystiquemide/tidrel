@@ -27,14 +27,14 @@ export function ArrivalToast({
         <button
           type="button"
           onClick={onRepay}
-          className="inline-flex flex-1 items-center justify-center rounded-pill bg-tide px-5 py-3 text-[15px] font-medium text-ink hover:brightness-95"
+          className="inline-flex flex-1 items-center justify-center rounded-pill bg-tide px-5 py-3 text-[14px] font-medium text-ink hover:brightness-95"
         >
           Repay
         </button>
         <button
           type="button"
           onClick={onDismiss}
-          className="inline-flex items-center justify-center rounded-pill bg-ink px-5 py-3 text-[15px] font-medium text-ebb hover:bg-line hover:text-text"
+          className="inline-flex items-center justify-center rounded-pill bg-ink px-5 py-3 text-[14px] font-medium text-ebb hover:bg-line hover:text-text"
         >
           Not now
         </button>

@@ -4,7 +4,7 @@ export function FinalCta() {
   return (
     <section className="border-t border-line bg-ink text-text">
       <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center px-6 py-24 text-center md:py-32">
-        <h2 className="max-w-3xl text-balance text-[40px] leading-[1.05] font-[550] tracking-[-0.03em] md:text-[56px]">
+        <h2 className="max-w-3xl text-balance text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-[40px]">
           Pay the trade now. Keep your bitcoin.
         </h2>
         <p className="mt-5 max-w-xl text-lead text-ebb">

@@ -48,7 +48,7 @@ export async function SafetyRules() {
   return (
     <section className="bg-ink text-text">
       <div className="mx-auto w-full max-w-[1200px] px-6 pt-16 pb-24 md:pt-24 md:pb-32">
-        <h1 className="text-[40px] leading-[1.05] font-[550] tracking-[-0.03em] md:text-display">
+        <h1 className="text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-[44px]">
           Safety rules
         </h1>
         <p className="mt-4 max-w-2xl text-lead text-ebb">
@@ -79,7 +79,7 @@ export async function SafetyRules() {
           ))}
         </ul>
 
-        <h2 className="mt-20 text-h2 font-[550] tracking-[-0.024em]">Limits to know</h2>
+        <h2 className="mt-20 text-h2 font-medium tracking-[-0.024em]">Limits to know</h2>
         <ul className="mt-8 divide-y divide-line border-y border-line">
           {LIMITS.map((l) => (
             <li key={l} className="py-5 text-body text-ebb">

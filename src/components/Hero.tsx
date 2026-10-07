@@ -20,7 +20,7 @@ export function Hero() {
           Settlement credit on Arc mainnet
         </span>
 
-        <h1 className="mt-8 text-[44px] leading-[1.02] font-[550] tracking-[-0.03em] sm:text-[56px] md:text-display">
+        <h1 className="mt-8 text-[34px] leading-[1.08] font-medium tracking-[-0.03em] sm:text-[44px] md:text-display">
           <span className="block">Settle in USDC.</span>
           <span className="block">Keep your bitcoin.</span>
         </h1>

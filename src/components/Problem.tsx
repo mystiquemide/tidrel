@@ -21,7 +21,7 @@ export function Problem() {
       <div className="mx-auto w-full max-w-[1200px] px-6 py-24 md:py-32">
         <div className="max-w-2xl">
           <p className="eyebrow">The problem</p>
-          <h2 className="mt-4 text-[40px] leading-[1.05] font-[550] tracking-[-0.03em] md:text-h2">
+          <h2 className="mt-4 text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-h2">
             The USDC leg of a trade ties up capital for longer than the trade needs it.
           </h2>
         </div>
@@ -38,7 +38,7 @@ export function Problem() {
 
           <div className="card flex flex-col border-tide/50 p-6 md:p-8">
             <p className="eyebrow text-tide">With Tidrel</p>
-            <h3 className="mt-4 text-[28px] leading-[1.15] font-[550] tracking-[-0.02em] md:text-[32px]">
+            <h3 className="mt-4 text-[22px] leading-[1.2] font-medium tracking-[-0.02em] md:text-[26px]">
               Borrow the exact USDC for exactly as long as the trade takes to settle.
             </h3>
             <p className="mt-4 text-small text-ebb">

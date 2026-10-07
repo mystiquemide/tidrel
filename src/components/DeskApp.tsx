@@ -36,7 +36,7 @@ type Result =
 const READ_TIMEOUT_MS = 45_000;
 
 const btn =
-  "inline-flex items-center justify-center rounded-pill px-6 py-3.5 text-[15px] font-medium whitespace-nowrap transition-colors duration-150 disabled:opacity-60";
+  "inline-flex items-center justify-center rounded-pill px-5 py-3 text-[14px] font-medium whitespace-nowrap transition-colors duration-150 disabled:opacity-60";
 
 function Gate({
   title,
@@ -56,7 +56,7 @@ function Gate({
           <span className="h-1.5 w-1.5 rounded-pill bg-tide" aria-hidden="true" />
           Arc mainnet
         </span>
-        <h1 className="mt-6 max-w-[18ch] text-[40px] leading-[1.05] font-[550] tracking-[-0.03em] md:text-display">
+        <h1 className="mt-6 max-w-[18ch] text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-[40px]">
           {title}
         </h1>
         <p className="mt-5 max-w-xl text-lead text-ebb">{body}</p>

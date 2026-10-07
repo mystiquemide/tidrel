@@ -36,7 +36,7 @@ type Props = {
 const field =
   "w-full rounded-badge border border-line bg-ink px-3.5 py-3 text-[16px] text-text transition-colors placeholder:text-muted hover:border-muted/60 focus:border-tide focus:outline-none focus:ring-2 focus:ring-tide/25 disabled:opacity-60";
 const secondary =
-  "inline-flex w-full items-center justify-center rounded-pill border border-line bg-panel px-6 py-3.5 text-[15px] font-medium text-text transition-colors hover:bg-raised disabled:opacity-50";
+  "inline-flex w-full items-center justify-center rounded-pill border border-line bg-panel px-5 py-3 text-[14px] font-medium text-text transition-colors hover:bg-raised disabled:opacity-50";
 
 const STEP_ORDER: Step[] = ["checking", "drawing", "paying"];
 
@@ -74,7 +74,7 @@ function Check() {
   );
 }
 const primary =
-  "inline-flex w-full items-center justify-center rounded-pill bg-tide px-6 py-3.5 text-[15px] font-medium text-ink transition-colors hover:brightness-95 disabled:opacity-50";
+  "inline-flex w-full items-center justify-center rounded-pill bg-tide px-5 py-3 text-[14px] font-medium text-ink transition-colors hover:brightness-95 disabled:opacity-50";
 
 function Line({ label, value, note }: { label: string; value: string; note?: string }) {
   return (
@@ -230,7 +230,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
       <div className="p-6 sm:p-8">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 id="settle-title" className="text-h3 font-[550] tracking-[-0.02em]">
+            <h2 id="settle-title" className="text-h3 font-medium tracking-[-0.02em]">
               Settle a trade
             </h2>
             <p className="mt-1 text-small text-muted">Draw only what the payout needs, then pay in one transaction.</p>

@@ -13,7 +13,7 @@ export function BuiltOn() {
   return (
     <section className="on-light bg-paper text-ink">
       <div className="mx-auto w-full max-w-[1200px] px-6 py-20 text-center md:py-24">
-        <h2 className="text-h2 font-[550] tracking-[-0.024em]">Built on</h2>
+        <h2 className="text-h2 font-medium tracking-[-0.024em]">Built on</h2>
         <p className="mx-auto mt-3 max-w-xl text-body text-body">
           Tidrel runs on these and adds one small contract of its own.
         </p>

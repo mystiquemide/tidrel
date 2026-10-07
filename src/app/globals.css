@@ -38,21 +38,21 @@
   --text-body: 16px;
   --text-body--line-height: 1.5;
   --text-body--letter-spacing: -0.011em;
-  --text-lead: 18px;
+  --text-lead: 17px;
   --text-lead--line-height: 1.4;
   --text-lead--letter-spacing: -0.016em;
-  --text-sub: 20px;
+  --text-sub: 18px;
   --text-sub--line-height: 1.3;
   --text-sub--letter-spacing: -0.016em;
-  --text-h3: 24px;
+  --text-h3: 20px;
   --text-h3--line-height: 1.25;
   --text-h3--letter-spacing: -0.02em;
-  --text-h2: 40px;
-  --text-h2--line-height: 1.1;
+  --text-h2: 32px;
+  --text-h2--line-height: 1.15;
   --text-h2--letter-spacing: -0.024em;
-  --text-display: 72px;
-  --text-display--line-height: 1;
-  --text-display--letter-spacing: -0.032em;
+  --text-display: 56px;
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.03em;
 }
 
 :root {

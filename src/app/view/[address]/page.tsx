@@ -40,7 +40,7 @@ export default async function ViewPage({ params }: Props) {
         ) : (
           <section className="bg-ink text-text">
             <div className="mx-auto w-full max-w-[1200px] px-6 py-24">
-              <h1 className="text-[40px] leading-[1.05] font-[550] tracking-[-0.03em]">
+              <h1 className="text-[30px] leading-[1.1] font-medium tracking-[-0.03em]">
                 That is not a valid address.
               </h1>
               <p className="mt-4 max-w-xl text-lead text-ebb">

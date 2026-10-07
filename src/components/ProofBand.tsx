@@ -20,7 +20,7 @@ export async function ProofBand() {
 
         {head && head.openSeconds !== null && head.interestUsdc !== null ? (
           <>
-            <h1 className="mt-8 max-w-[18ch] text-[40px] leading-[1.04] font-[550] tracking-[-0.03em] md:text-display">
+            <h1 className="mt-8 max-w-[18ch] text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-[44px]">
               A loan against bitcoin that existed for{" "}
               <span className="text-tide">
                 {formatDurationWords(head.openSeconds)}
@@ -49,7 +49,7 @@ export async function ProofBand() {
           </>
         ) : (
           <>
-            <h1 className="mt-8 max-w-[20ch] text-[40px] leading-[1.04] font-[550] tracking-[-0.03em] md:text-display">
+            <h1 className="mt-8 max-w-[20ch] text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-[44px]">
               {data.ok ? "First settlements land with the mainnet run." : "Chain data is unavailable right now."}
             </h1>
             <p className="mt-6 max-w-2xl text-lead text-ebb">

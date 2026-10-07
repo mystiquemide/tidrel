@@ -50,7 +50,7 @@ export function Contracts() {
   return (
     <section className="bg-ink text-text">
       <div className="mx-auto w-full max-w-[1200px] px-6 pt-16 pb-24 md:pt-24 md:pb-32">
-        <h1 className="text-[40px] leading-[1.05] font-[550] tracking-[-0.03em] md:text-display">
+        <h1 className="text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-[44px]">
           Contracts and addresses
         </h1>
         <p className="mt-4 max-w-2xl text-lead text-ebb">
@@ -89,7 +89,7 @@ export function Contracts() {
           ))}
         </ul>
 
-        <h2 className="mt-20 text-h2 font-[550] tracking-[-0.024em]">The lending market</h2>
+        <h2 className="mt-20 text-h2 font-medium tracking-[-0.024em]">The lending market</h2>
         <p className="mt-4 max-w-2xl text-body text-ebb">
           Loans use the cirBTC and USDC market on Morpho Blue. Its identifier is:
         </p>

@@ -24,7 +24,7 @@ export async function ProofCards() {
       <div className="mx-auto w-full max-w-[1200px] px-6 py-24 md:py-32">
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
-            <h2 className="text-[40px] leading-[1.05] font-[550] tracking-[-0.03em] md:text-h2">
+            <h2 className="text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-h2">
               Numbers from a real loan on Arc mainnet.
             </h2>
             <p className="mt-4 text-lead text-ebb">
@@ -43,7 +43,7 @@ export async function ProofCards() {
                 href="/proof"
                 className="card flex w-full flex-col justify-between p-6 transition-colors duration-150 hover:border-tide/50 md:p-8"
               >
-                <span className="text-[44px] leading-none font-[550] tracking-[-0.03em] text-tide md:text-[52px]">
+                <span className="text-[34px] leading-none font-medium tracking-[-0.03em] text-tide md:text-[40px]">
                   {c.value}
                 </span>
                 <span className="mt-6 text-small text-ebb">{c.label}</span>

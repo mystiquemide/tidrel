@@ -46,7 +46,7 @@ function Stat({ label, value, unit, note }: { label: string; value: string; unit
     <div className="min-w-0 px-6 py-5">
       <dt className="text-small text-muted">{label}</dt>
       <dd className="mt-2">
-        <span className="num text-[22px] leading-none font-medium tracking-[-0.01em] text-text">{value}</span>{" "}
+        <span className="num text-[20px] leading-none font-medium tracking-[-0.01em] text-text">{value}</span>{" "}
         <span className="text-small text-muted">{unit}</span>
         {note && <span className="mt-1.5 block text-caption text-muted">{note}</span>}
       </dd>
@@ -136,7 +136,7 @@ function HealthPanel({ p, last }: { p: Position; last: Settlement | null }) {
       {hf !== null && band ? (
         <>
           <div className="mt-4 flex items-baseline gap-3">
-            <span className="num text-[44px] leading-none font-medium tracking-[-0.03em]">{hf.toFixed(2)}</span>
+            <span className="num text-[36px] leading-none font-medium tracking-[-0.03em]">{hf.toFixed(2)}</span>
             <span className={`rounded-badge px-2.5 py-1 text-caption font-medium ${BAND_TONE[band]}`}>
               {BAND_LABEL[band]}
             </span>
@@ -221,7 +221,7 @@ export function DeskView({
     return (
       <section className="bg-ink text-text">
         <div className="mx-auto w-full max-w-[1200px] px-6 py-24">
-          <h1 className="text-[40px] leading-[1.05] font-[550] tracking-[-0.03em]">
+          <h1 className="text-[30px] leading-[1.1] font-medium tracking-[-0.03em]">
             Chain data is unavailable right now.
           </h1>
           <p className="mt-4 max-w-xl text-lead text-ebb">
@@ -258,7 +258,7 @@ export function DeskView({
                 Arc mainnet
               </span>
             </div>
-            <h1 className="num mt-3 flex flex-wrap items-center gap-x-4 gap-y-3 text-[32px] leading-[1.1] font-[550] tracking-[-0.02em] md:text-[40px]">
+            <h1 className="num mt-3 flex flex-wrap items-center gap-x-4 gap-y-3 text-[24px] leading-[1.15] font-medium tracking-[-0.02em] md:text-[30px]">
               <a
                 href={explorerAddress(desk.address)}
                 target="_blank"
@@ -317,7 +317,7 @@ export function DeskView({
             <div className="flex flex-1 flex-col justify-center p-6 md:p-8">
               <h2 className="eyebrow">Available to draw</h2>
               <p className="mt-4 flex flex-wrap items-baseline gap-x-3">
-                <span className="num text-[44px] leading-none font-medium tracking-[-0.03em] md:text-[56px]">
+                <span className="num text-[36px] leading-none font-medium tracking-[-0.03em] md:text-[44px]">
                   {p ? formatUsdc(p.lineUsdc, 2) : "Unavailable"}
                 </span>
                 {p && <span className="text-lead text-muted">USDC</span>}

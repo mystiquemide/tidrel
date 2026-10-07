@@ -9,7 +9,7 @@ export default function NotFound() {
       <NavBar tone="dark" />
       <main id="main" className="flex flex-1 bg-ink text-text">
         <div className="mx-auto flex w-full max-w-[1200px] flex-col items-start justify-center px-6 py-24">
-          <h1 className="text-[40px] leading-[1.05] font-[550] tracking-[-0.03em] md:text-display">
+          <h1 className="text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-[44px]">
             This page is not here.
           </h1>
           <p className="mt-4 max-w-xl text-lead text-ebb">
