@@ -1,12 +1,16 @@
-<img src="public/mark.svg" alt="" width="36" height="36" align="left">
+<div align="center">
+
+<img src="public/mark.svg" alt="Tidrel" width="56" height="56">
 
 # Tidrel
 
 Draw USDC against your cirBTC the moment a trade settles, and repay it the second USDC comes back.
 
-**Live on Arc mainnet:** [tidrel.vercel.app](https://tidrel.vercel.app) · **Repo:** [mystiquemide/tidrel](https://github.com/mystiquemide/tidrel) · **Builder:** [MystiqueMide](https://github.com/mystiquemide)
+**Live on Arc mainnet:** [tidrel.vercel.app](https://tidrel.vercel.app)
 
-<br clear="left">
+[Repo](https://github.com/mystiquemide/tidrel) · [Contracts](#contracts-and-addresses) · Built by [MystiqueMide](https://github.com/mystiquemide)
+
+</div>
 
 ## The problem
 
