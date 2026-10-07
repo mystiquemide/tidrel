@@ -248,7 +248,7 @@ export function DeskView({
 
   return (
     <section className="bg-ink text-text">
-      <div className="mx-auto w-full max-w-[1200px] px-6 pt-10 pb-24 md:pt-14 md:pb-32">
+      <div className="mx-auto w-full max-w-[1200px] px-6 pt-10 pb-36 sm:pb-24 md:pt-14 md:pb-32">
         <header className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">

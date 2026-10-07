@@ -369,13 +369,13 @@ export function DeskApp() {
           notices={deskNotices(view.desk, view.history === "ready")}
           primary={
             okDesk && (
-            <div>
-              <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-ink/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:static sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+              <div className="flex gap-3">
                 {debtOpen && (
                   <button
                     type="button"
                     onClick={() => openRepay()}
-                    className={`${btn} w-full border border-line bg-panel text-text hover:bg-raised sm:w-auto`}
+                    className={`${btn} border border-line bg-panel text-text hover:bg-raised sm:w-auto`}
                   >
                     Repay
                   </button>
@@ -384,13 +384,13 @@ export function DeskApp() {
                   type="button"
                   onClick={() => setSettleOpen(true)}
                   disabled={drawsDown}
-                  className={`${btn} w-full bg-tide text-ink hover:brightness-95 sm:w-auto`}
+                  className={`${btn} flex-1 bg-tide text-ink hover:brightness-95 sm:flex-none`}
                 >
                   Settle a trade
                 </button>
               </div>
               {drawsDown && (
-                <p className="mt-3 max-w-xs text-small text-muted md:text-right">
+                <p className="mt-2 text-caption text-muted sm:mt-3 sm:max-w-xs sm:text-small md:text-right">
                   Settling needs the Borrow service, which is unreachable. Chain data is still shown.
                 </p>
               )}

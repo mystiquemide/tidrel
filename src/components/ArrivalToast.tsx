@@ -17,7 +17,7 @@ export function ArrivalToast({
   return (
     <div
       role="status"
-      className="card fixed inset-x-4 bottom-4 z-40 p-5 text-text shadow-2xl shadow-black/50 sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-[380px]"
+      className="card fixed inset-x-4 bottom-24 z-40 p-5 text-text shadow-2xl shadow-black/50 sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-[380px]"
     >
       <p className="text-[16px] text-text">
         <span className="num">{formatUsdcTight(arrivedUsdc)} USDC</span> arrived. Repay{" "}
