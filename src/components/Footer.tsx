@@ -18,7 +18,7 @@ const GROUPS = [
       { label: "TidrelSettler", href: explorerAddress(ADDRESSES.settler) },
       { label: "Morpho Blue", href: explorerAddress(ADDRESSES.morpho) },
       { label: "cirBTC", href: explorerAddress(ADDRESSES.cirBtc) },
-      { label: "Arc explorer", href: EXPLORER_URL },
+      { label: "Arc mainnet explorer", href: EXPLORER_URL },
     ],
   },
   {
