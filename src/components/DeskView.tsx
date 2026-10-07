@@ -4,7 +4,9 @@ import type { Desk } from "@/lib/desk";
 import { isDemoDesk } from "@/lib/deskAddress";
 import type { Notice } from "@/lib/notices";
 import { formatFixed, formatUsdc, shortHash } from "@/lib/format";
-import type { Band } from "@/lib/position";
+import type { Band, Position } from "@/lib/position";
+import { MIN_HEALTH } from "@/lib/settle";
+import { CopyAddress } from "./CopyAddress";
 import { PillLink } from "./PillLink";
 import { SettlementsTable } from "./SettlementsTable";
 import { TideLine } from "./TideLine";
@@ -17,29 +19,126 @@ const BAND_TONE: Record<Band, string> = {
   LIQUIDATABLE: "bg-urgent/15 text-urgent",
 };
 
-function Cell({ label, value, unit, note }: { label: string; value: string; unit: string; note?: string }) {
+const BAND_FILL: Record<Band, string> = {
+  SAFE: "bg-tide",
+  WARN: "bg-warn",
+  URGENT: "bg-urgent",
+  IMMINENT: "bg-urgent",
+  LIQUIDATABLE: "bg-urgent",
+};
+
+const BAND_LABEL: Record<Band, string> = {
+  SAFE: "Safe",
+  WARN: "Watch",
+  URGENT: "Urgent",
+  IMMINENT: "Near liquidation",
+  LIQUIDATABLE: "Liquidatable",
+};
+
+// The gauge shows health from 1 up to this value. Above it the bar is simply full.
+const GAUGE_MIN = 1;
+const GAUGE_MAX = 2;
+const gaugePct = (hf: number) => Math.min(100, Math.max(0, ((hf - GAUGE_MIN) / (GAUGE_MAX - GAUGE_MIN)) * 100));
+
+function Stat({ label, value, unit, note }: { label: string; value: string; unit: string; note?: string }) {
   return (
-    <div className="rounded-card bg-panel p-6">
+    <div className="min-w-0 px-6 py-5">
       <dt className="text-small text-muted">{label}</dt>
-      <dd className="mt-3">
-        <span className="num text-[28px] leading-none font-medium tracking-[-0.02em] text-text">{value}</span>{" "}
+      <dd className="mt-2">
+        <span className="num text-[22px] leading-none font-medium tracking-[-0.01em] text-text">{value}</span>{" "}
         <span className="text-small text-muted">{unit}</span>
-        {note && <span className="mt-2 block text-caption text-muted">{note}</span>}
+        {note && <span className="mt-1.5 block text-caption text-muted">{note}</span>}
       </dd>
     </div>
   );
 }
 
-function HistoryNote({ state }: { state: "loading" | "failed" }) {
+function Panel({
+  title,
+  aside,
+  children,
+}: {
+  title: string;
+  aside?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
-    <p
-      role={state === "loading" ? "status" : undefined}
-      className="rounded-card bg-panel px-6 py-10 text-center text-small text-muted"
-    >
-      {state === "loading"
-        ? "Reading settlements from Arc mainnet."
-        : "Settlements could not be read right now. Reload to try again."}
-    </p>
+    <section className="card overflow-hidden">
+      <div className="flex items-center justify-between gap-4 border-b border-line px-6 py-4">
+        <h2 className="text-[17px] font-medium tracking-[-0.01em]">{title}</h2>
+        {aside}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function PanelNote({ children }: { children: React.ReactNode }) {
+  return <p className="px-6 py-12 text-center text-small text-muted">{children}</p>;
+}
+
+function HistorySkeleton() {
+  return (
+    <div role="status" aria-label="Reading settlements from Arc mainnet" className="px-6 py-6">
+      <div className="skeleton h-24 w-full" />
+      <div className="mt-6 flex flex-col gap-3">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="skeleton h-9 w-full" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HealthPanel({ p }: { p: Position }) {
+  const hf = p.healthFactor;
+  const band = p.band;
+  const floor = gaugePct(MIN_HEALTH);
+  return (
+    <section className="card flex flex-col p-6">
+      <h2 className="eyebrow">Loan health</h2>
+      {hf !== null && band ? (
+        <>
+          <div className="mt-4 flex items-baseline gap-3">
+            <span className="num text-[44px] leading-none font-medium tracking-[-0.03em]">{hf.toFixed(2)}</span>
+            <span className={`rounded-badge px-2.5 py-1 text-caption font-medium ${BAND_TONE[band]}`}>
+              {BAND_LABEL[band]}
+            </span>
+          </div>
+          <div className="relative mt-6 h-2 rounded-pill bg-raised" role="img" aria-label={`Health ${hf.toFixed(2)}, settling pauses below ${MIN_HEALTH.toFixed(2)}`}>
+            <div className={`h-full rounded-pill ${BAND_FILL[band]}`} style={{ width: `${gaugePct(hf)}%` }} />
+            <span
+              className="absolute -top-1 h-4 w-px bg-ebb/70"
+              style={{ left: `${floor}%` }}
+              aria-hidden="true"
+            />
+          </div>
+          <p className="mt-3 text-caption text-muted">
+            Settling pauses below <span className="num text-ebb">{MIN_HEALTH.toFixed(2)}</span>. Liquidation starts at 1.00.
+          </p>
+        </>
+      ) : (
+        <>
+          <p className="mt-4 text-[22px] leading-tight font-medium tracking-[-0.01em] text-ebb">No open loan</p>
+          <div className="mt-6 h-2 rounded-pill bg-raised" aria-hidden="true" />
+          <p className="mt-3 text-caption text-muted">
+            Health appears once a draw is open. Settling pauses below{" "}
+            <span className="num text-ebb">{MIN_HEALTH.toFixed(2)}</span>.
+          </p>
+        </>
+      )}
+      <div className="min-h-6 flex-1" aria-hidden="true" />
+      <dl className="grid grid-cols-2 gap-4 border-t border-line pt-5 text-small">
+        <div>
+          <dt className="text-caption text-muted">Market liquidity</dt>
+          <dd className="num mt-1 text-text">{formatUsdc(p.marketLiquidityUsdc, 2)} USDC</dd>
+        </div>
+        <div>
+          <dt className="text-caption text-muted">Borrow rate</dt>
+          <dd className="num mt-1 text-text">{(p.borrowApy * 100).toFixed(2)}% a year</dd>
+        </div>
+      </dl>
+    </section>
   );
 }
 
@@ -55,7 +154,7 @@ export function DeskView({
   /** "view" is the read-only page for any address. "desk" is a connected wallet's own. */
   mode?: "view" | "desk";
   notices?: Notice[];
-  /** The one main action of the screen. Absent in the read-only view. */
+  /** The main actions of the screen. Absent in the read-only view. */
   primary?: React.ReactNode;
   /** The settlement log reads slower than the loan. "loading" shows a placeholder, never an empty claim. */
   history?: "loading" | "ready" | "failed";
@@ -86,46 +185,51 @@ export function DeskView({
   const p = desk.position;
   const rows = [...desk.settlements].reverse();
   const open = p && p.debtUsdc !== "0";
+  const debt = p ? Number(p.debtUsdc) : 0;
+  const line = p ? Number(p.lineUsdc) : 0;
+  const used = debt + line > 0 ? (debt / (debt + line)) * 100 : 0;
+  const label = mode === "desk" ? "Your desk" : demo ? "Demo desk" : "Desk";
 
   return (
     <section className="bg-ink text-text">
-      <div className="mx-auto w-full max-w-[1200px] px-6 pt-12 pb-24 md:pt-16 md:pb-32">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-small text-muted">{mode === "desk" ? "Your desk" : demo ? "Demo desk" : "Desk"}</p>
-            <h1 className="num mt-1 text-[32px] leading-[1.1] font-[550] tracking-[-0.02em] md:text-[40px]">
+      <div className="mx-auto w-full max-w-[1200px] px-6 pt-10 pb-24 md:pt-14 md:pb-32">
+        <header className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="eyebrow">{label}</span>
+              <span className="inline-flex items-center gap-1.5 rounded-pill border border-line px-2.5 py-1 text-caption text-ebb">
+                <span className="h-1.5 w-1.5 rounded-pill bg-tide" aria-hidden="true" />
+                Arc mainnet
+              </span>
+            </div>
+            <h1 className="num mt-3 flex flex-wrap items-center gap-x-4 gap-y-3 text-[32px] leading-[1.1] font-[550] tracking-[-0.02em] md:text-[40px]">
               <a
                 href={explorerAddress(desk.address)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-badge underline decoration-muted/50 underline-offset-8 hover:decoration-text"
+                className="rounded-badge hover:text-ebb"
               >
                 {shortHash(desk.address)}
               </a>
+              <span className="font-sans text-base font-normal tracking-normal">
+                <CopyAddress value={desk.address} />
+              </span>
             </h1>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-          {p?.band && p.healthFactor !== null ? (
-            <span className={`inline-flex w-fit items-center gap-2 rounded-badge px-3 py-2 text-[14px] font-medium ${BAND_TONE[p.band]}`}>
-              Health <span className="num">{p.healthFactor.toFixed(2)}</span>
-            </span>
-          ) : (
-            <span className="inline-flex w-fit rounded-badge bg-panel px-3 py-2 text-[14px] font-medium text-ebb">
-              {p ? "No open loan" : "Loan data unavailable"}
-            </span>
-          )}
-          </div>
-        </div>
+          {primary && <div className="shrink-0">{primary}</div>}
+        </header>
 
-        <p className="mt-4 max-w-2xl text-small text-muted">
-          {mode === "desk" ? "Everything here is read from Arc mainnet. Your wallet signs every step" : "Read-only view. Everything here is read from Arc mainnet"}
+        <p className="mt-5 max-w-2xl text-small text-muted">
+          {mode === "desk"
+            ? "Every figure is read from Arc mainnet. Your wallet signs every step"
+            : "Read-only view. Every figure is read from Arc mainnet"}
           {demo ? `, from the wallet that ran the mainnet proof. Its counterparties are builder-controlled and the run was sized to a ${RUN_BUDGET_USDC} USDC budget` : ""}.
         </p>
 
         {notices.map((n) => (
           <p
             key={n.text}
-            className={`mt-4 rounded-badge bg-panel px-4 py-3 text-small ${
+            className={`card mt-4 px-4 py-3 text-small ${
               n.tone === "urgent" ? "text-urgent" : n.tone === "warn" ? "text-warn" : "text-ebb"
             }`}
           >
@@ -147,62 +251,98 @@ export function DeskView({
         ))}
 
         {!p && (
-          <p className="mt-6 rounded-badge bg-panel px-4 py-3 text-small text-warn">
+          <p className="card mt-4 px-4 py-3 text-small text-warn">
             Borrow service unreachable. Showing chain data only.
           </p>
         )}
 
-        {primary && <div className="mt-8">{primary}</div>}
+        <div className="mt-8 grid gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+          <section className="card flex flex-col overflow-hidden">
+            <div className="p-6 md:p-8">
+              <h2 className="eyebrow">Available to draw</h2>
+              <p className="mt-4 flex flex-wrap items-baseline gap-x-3">
+                <span className="num text-[44px] leading-none font-medium tracking-[-0.03em] md:text-[56px]">
+                  {p ? formatUsdc(p.lineUsdc, 2) : "Unavailable"}
+                </span>
+                {p && <span className="text-lead text-muted">USDC</span>}
+              </p>
+              {p && (
+                <div className="mt-8">
+                  <div
+                    className="h-2 overflow-hidden rounded-pill bg-raised"
+                    role="img"
+                    aria-label={`${used.toFixed(0)} percent of the credit line is borrowed`}
+                  >
+                    <div className="h-full rounded-pill bg-tide" style={{ width: `${Math.max(used, used > 0 ? 2 : 0)}%` }} />
+                  </div>
+                  <div className="mt-3 flex justify-between text-caption text-muted">
+                    <span>
+                      Borrowed <span className="num text-ebb">{formatUsdc(p.debtUsdc, 2)}</span>
+                    </span>
+                    <span>
+                      Available <span className="num text-ebb">{formatUsdc(p.lineUsdc, 2)}</span>
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+            <dl className="mt-auto grid divide-y divide-line border-t border-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+              <Stat label="Collateral posted" value={formatFixed(desk.collateralCirBtc, 8)} unit="cirBTC" />
+              <Stat
+                label="Borrowed now"
+                value={p ? formatUsdc(p.debtUsdc, 2) : "Unavailable"}
+                unit={p ? "USDC" : ""}
+              />
+              <Stat
+                label="Cost so far"
+                value={p ? formatUsdc(p.accruedInterestUsdc, 6) : "Unavailable"}
+                unit={p ? "USDC" : ""}
+                note={open ? "Interest on the open loan" : undefined}
+              />
+            </dl>
+          </section>
 
-        <dl className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Cell label="Collateral posted" value={formatFixed(desk.collateralCirBtc, 8)} unit="cirBTC" />
-          <Cell
-            label="Available to draw"
-            value={p ? formatUsdc(p.lineUsdc, 2) : "Unavailable"}
-            unit={p ? "USDC" : ""}
-          />
-          <Cell
-            label="Borrowed now"
-            value={p ? formatUsdc(p.debtUsdc, 2) : "Unavailable"}
-            unit={p ? "USDC" : ""}
-          />
-          <Cell
-            label="Cost so far"
-            value={p ? formatUsdc(p.accruedInterestUsdc, 6) : "Unavailable"}
-            unit={p ? "USDC" : ""}
-            note={open ? "Interest on the open loan" : undefined}
-          />
-        </dl>
-        {p && (
-          <p className="mt-4 text-small text-muted">
-            Market liquidity <span className="num text-ebb">{formatUsdc(p.marketLiquidityUsdc, 2)} USDC</span>.
-            Borrow rate <span className="num text-ebb">{(p.borrowApy * 100).toFixed(2)}%</span> a year.
-          </p>
-        )}
-
-        <h2 className="mt-16 text-h3 font-medium tracking-[-0.02em]">Tide line</h2>
-        <div className="mt-4">
-          {history === "ready" ? (
-            <TideLine settlements={desk.settlements} />
+          {p ? (
+            <HealthPanel p={p} />
           ) : (
-            <HistoryNote state={history} />
+            <section className="card p-6">
+              <h2 className="eyebrow">Loan health</h2>
+              <p className="mt-4 text-small text-muted">Loan data unavailable.</p>
+            </section>
           )}
         </div>
 
-        <h2 className="mt-16 text-h3 font-medium tracking-[-0.02em]">Settlements</h2>
-        {history !== "ready" ? (
-          <div className="mt-4">
-            <HistoryNote state={history} />
-          </div>
-        ) : rows.length > 0 ? (
-          <div className="mt-4">
-            <SettlementsTable rows={rows} />
-          </div>
-        ) : (
-          <p className="mt-4 rounded-card bg-panel px-6 py-10 text-center text-small text-muted">
-            No settlements found for this address.
-          </p>
-        )}
+        <div className="mt-4 flex flex-col gap-4">
+          <Panel title="Tide line" aside={<span className="text-caption text-muted">Principal outstanding</span>}>
+            {history === "ready" ? (
+              <TideLine settlements={desk.settlements} />
+            ) : history === "loading" ? (
+              <HistorySkeleton />
+            ) : (
+              <PanelNote>Settlements could not be read right now. Reload to try again.</PanelNote>
+            )}
+          </Panel>
+
+          <Panel
+            title="Settlements"
+            aside={
+              history === "ready" && rows.length > 0 ? (
+                <span className="num rounded-pill bg-raised px-2.5 py-1 text-caption text-ebb">{rows.length}</span>
+              ) : undefined
+            }
+          >
+            {history === "loading" ? (
+              <HistorySkeleton />
+            ) : history === "failed" ? (
+              <PanelNote>Settlements could not be read right now. Reload to try again.</PanelNote>
+            ) : rows.length > 0 ? (
+              <SettlementsTable rows={rows} />
+            ) : (
+              <PanelNote>No settlements found for this address.</PanelNote>
+            )}
+          </Panel>
+        </div>
+
         {history === "ready" && desk.truncated && (
           <p className="mt-4 text-small text-muted">
             Older settlements are not loaded. This view reads the most recent stretch of Arc mainnet.

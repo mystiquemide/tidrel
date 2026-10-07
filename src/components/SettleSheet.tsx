@@ -33,14 +33,46 @@ type Props = {
   onChanged: () => void;
 };
 
-const STEP_TEXT: Record<Step, (draw: string, legs: number) => string> = {
-  checking: () => "Checking the reference",
-  drawing: (draw) => `Drawing ${draw} USDC`,
-  paying: (_d, legs) => `Paying ${legs} ${legs === 1 ? "counterparty" : "counterparties"}`,
-};
-
 const field =
-  "w-full rounded-badge border border-line bg-ink px-3 py-3 text-[16px] text-text placeholder:text-muted focus:border-tide focus:outline-none";
+  "w-full rounded-badge border border-line bg-ink px-3.5 py-3 text-[16px] text-text transition-colors placeholder:text-muted hover:border-muted/60 focus:border-tide focus:outline-none focus:ring-2 focus:ring-tide/25 disabled:opacity-60";
+const secondary =
+  "inline-flex w-full items-center justify-center rounded-pill border border-line bg-panel px-6 py-3.5 text-[15px] font-medium text-text transition-colors hover:bg-raised disabled:opacity-50";
+
+const STEP_ORDER: Step[] = ["checking", "drawing", "paying"];
+
+function Progress({ step, skipDraw }: { step: Step; skipDraw: boolean }) {
+  const steps = STEP_ORDER.filter((s) => !(skipDraw && s !== "paying"));
+  const at = steps.indexOf(step);
+  return (
+    <ol className="mt-5 flex flex-col gap-3" role="status" aria-live="polite">
+      {steps.map((s, i) => (
+        <li key={s} className="flex items-center gap-3 text-small">
+          <span
+            className={`flex h-5 w-5 items-center justify-center rounded-pill text-[11px] font-medium ${
+              i < at ? "bg-tide text-ink" : i === at ? "border border-tide text-tide" : "border border-line text-muted"
+            }`}
+            aria-hidden="true"
+          >
+            {i < at ? "✓" : i + 1}
+          </span>
+          <span className={i === at ? "text-text" : i < at ? "text-ebb" : "text-muted"}>
+            {{ checking: "Check the reference", drawing: "Draw USDC", paying: "Pay counterparties" }[s]}
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function Check() {
+  return (
+    <span className="flex h-12 w-12 items-center justify-center rounded-pill bg-tide/15 text-tide" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 10.5l4 4 8-9" />
+      </svg>
+    </span>
+  );
+}
 const primary =
   "inline-flex w-full items-center justify-center rounded-pill bg-tide px-6 py-3.5 text-[15px] font-medium text-ink transition-colors hover:brightness-95 disabled:opacity-50";
 
@@ -184,9 +216,6 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
     setEpoch((n) => n + 1);
   }
 
-  const legsCount = plan?.legs.length ?? rows.length;
-  const working = step ? STEP_TEXT[step](plan?.drawUsdc ?? "0", legsCount) : null;
-
   return (
     <dialog
       ref={ref}
@@ -196,13 +225,16 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
         onClose();
       }}
       onCancel={(e) => busy && e.preventDefault()}
-      className="m-auto max-h-[100svh] w-full max-w-[100vw] overflow-y-auto bg-panel p-0 text-text backdrop:bg-ink/80 sm:max-h-[92svh] sm:w-[min(94vw,560px)] sm:rounded-card sm:border sm:border-line"
+      className="card m-auto max-h-[100svh] w-full max-w-[100vw] overflow-y-auto rounded-none p-0 text-text sm:max-h-[92svh] sm:w-[min(94vw,560px)] sm:rounded-card"
     >
       <div className="p-6 sm:p-8">
         <div className="flex items-center justify-between gap-4">
-          <h2 id="settle-title" className="text-h2 font-[550] tracking-[-0.024em]">
-            Settle a trade
-          </h2>
+          <div>
+            <h2 id="settle-title" className="text-h3 font-[550] tracking-[-0.02em]">
+              Settle a trade
+            </h2>
+            <p className="mt-1 text-small text-muted">Draw only what the payout needs, then pay in one transaction.</p>
+          </div>
           <button
             type="button"
             disabled={busy}
@@ -218,11 +250,12 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
 
         {outcome?.kind === "settled" ? (
           <div className="mt-8" role="status">
-            <p className="text-lead text-text">
-              Settled.{" "}
-              {outcome.drawTx && plan ? `${formatUsdc(plan.drawUsdc, 2)} USDC drawn.` : "Paid from your wallet, nothing drawn."}
+            <Check />
+            <p className="mt-4 text-[22px] leading-tight font-medium tracking-[-0.01em] text-text">Settled</p>
+            <p className="mt-2 text-[16px] text-ebb">
+              {outcome.drawTx && plan ? `${formatUsdc(plan.drawUsdc, 2)} USDC drawn and paid out.` : "Paid from your wallet, nothing drawn."}
             </p>
-            <p className="mt-4 flex flex-col gap-2 text-small">
+            <p className="mt-5 flex flex-col gap-2 rounded-badge border border-line bg-ink/60 px-4 py-3 text-small">
               {outcome.drawTx && <TxLink hash={outcome.drawTx}>See the draw on Arc mainnet</TxLink>}
               <TxLink hash={outcome.payoutTx}>See the payout on Arc mainnet</TxLink>
             </p>
@@ -230,7 +263,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
               <button type="button" onClick={reset} className={primary}>
                 Settle another trade
               </button>
-              <button type="button" onClick={onClose} className="rounded-pill bg-ink px-6 py-3.5 text-[15px] font-medium text-text hover:bg-line">
+              <button type="button" onClick={onClose} className={secondary}>
                 Done
               </button>
             </div>
@@ -248,11 +281,11 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
               <button type="button" disabled={busy} onClick={() => start({ drawTx: outcome.drawTx })} className={primary}>
                 Retry payout
               </button>
-              <button type="button" disabled={busy} onClick={onRepay} className="rounded-pill bg-ink px-6 py-3.5 text-[15px] font-medium text-text hover:bg-line disabled:opacity-50">
+              <button type="button" disabled={busy} onClick={onRepay} className={secondary}>
                 Repay now
               </button>
             </div>
-            {working && <p className="mt-4 text-small text-ebb" role="status">{working}</p>}
+            {step && <Progress step={step} skipDraw />}
           </div>
         ) : (
           <form
@@ -262,9 +295,14 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
               if (canSettle) void start();
             }}
           >
-            <label htmlFor="settle-ref" className="text-small text-ebb">
-              Reference
-            </label>
+            <div className="flex items-baseline justify-between">
+              <label htmlFor="settle-ref" className="text-small font-medium text-ebb">
+                Reference
+              </label>
+              <span className={`num text-caption ${refBytes > MAX_REFERENCE_BYTES ? "text-warn" : "text-muted"}`}>
+                {refBytes}/{MAX_REFERENCE_BYTES}
+              </span>
+            </div>
             <input
               id="settle-ref"
               value={reference}
@@ -280,7 +318,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
             </p>
 
             <fieldset className="mt-6" disabled={busy}>
-              <legend className="text-small text-ebb">Pay to</legend>
+              <legend className="text-small font-medium text-ebb">Pay to</legend>
               <ul className="mt-2 flex flex-col gap-3">
                 {rows.map((r, i) => (
                   <li key={r.id} className="grid grid-cols-[minmax(0,1fr)_92px_auto] items-center gap-2 sm:grid-cols-[minmax(0,1fr)_110px_auto]">
@@ -322,13 +360,13 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
               <button
                 type="button"
                 onClick={() => setRows((rs) => [...rs, { id: nextId.current++, to: "", amount: "" }])}
-                className="mt-3 rounded-badge py-1 text-small font-medium text-tide hover:underline"
+                className="mt-3 inline-flex items-center gap-1.5 rounded-pill border border-line px-3.5 py-2 text-small font-medium text-tide transition-colors hover:border-tide/60 hover:bg-raised"
               >
-                Add counterparty
+                + Add counterparty
               </button>
             </fieldset>
 
-            <dl className="mt-6 divide-y divide-line border-y border-line">
+            <dl className="mt-6 divide-y divide-line rounded-badge border border-line bg-ink/60 px-4">
               {plan && !plan.refusal ? (
                 <>
                   <Line label="Total" value={`${formatUsdc(plan.totalUsdc, 2)} USDC`} />
@@ -376,15 +414,11 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
                 {outcome.error} Nothing was sent.
               </p>
             )}
-            {working && (
-              <p role="status" className="mt-4 text-small text-ebb">
-                {working}
-              </p>
-            )}
+            {step && <Progress step={step} skipDraw={false} />}
 
             <div className="mt-6">
               <button type="submit" disabled={!canSettle} className={primary}>
-                {busy ? "Working" : plan && plan.drawUsdc !== "0" ? "Draw and settle" : "Settle"}
+                {busy ? "Confirm in your wallet" : plan && plan.drawUsdc !== "0" ? "Draw and settle" : "Settle"}
               </button>
             </div>
           </form>

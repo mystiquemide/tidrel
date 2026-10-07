@@ -30,7 +30,7 @@ type Props = {
 };
 
 const field =
-  "w-full rounded-badge border border-line bg-ink px-3 py-3 text-[16px] text-text placeholder:text-muted focus:border-tide focus:outline-none";
+  "w-full rounded-badge border border-line bg-ink px-3.5 py-3 text-[16px] text-text transition-colors placeholder:text-muted hover:border-muted/60 focus:border-tide focus:outline-none focus:ring-2 focus:ring-tide/25 disabled:opacity-60";
 const primary =
   "inline-flex w-full items-center justify-center rounded-pill bg-tide px-6 py-3.5 text-[15px] font-medium text-ink transition-colors hover:brightness-95 disabled:opacity-50";
 
@@ -147,11 +147,11 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
         onClose();
       }}
       onCancel={(e) => busy && e.preventDefault()}
-      className="m-auto max-h-[100svh] w-full max-w-[100vw] overflow-y-auto bg-panel p-0 text-text backdrop:bg-ink/80 sm:max-h-[92svh] sm:w-[min(94vw,520px)] sm:rounded-card sm:border sm:border-line"
+      className="card m-auto max-h-[100svh] w-full max-w-[100vw] overflow-y-auto rounded-none p-0 text-text sm:max-h-[92svh] sm:w-[min(94vw,520px)] sm:rounded-card"
     >
       <div className="p-6 sm:p-8">
         <div className="flex items-center justify-between gap-4">
-          <h2 id="repay-title" className="text-h2 font-[550] tracking-[-0.024em]">
+          <h2 id="repay-title" className="text-h3 font-[550] tracking-[-0.02em]">
             Repay
           </h2>
           <button
@@ -169,17 +169,25 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
 
         {done ? (
           <div className="mt-8" role="status">
-            <p className="text-lead text-text">
-              Repaid.
-              {done.openSeconds !== null && ` Open ${formatDuration(done.openSeconds)}, cost ${formatUsdc(done.interest, 6)} USDC.`}
-            </p>
+            <span className="flex h-12 w-12 items-center justify-center rounded-pill bg-tide/15 text-tide" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 10.5l4 4 8-9" />
+              </svg>
+            </span>
+            <p className="mt-4 text-[22px] leading-tight font-medium tracking-[-0.01em] text-text">Repaid</p>
+            {done.openSeconds !== null && (
+              <p className="mt-2 text-[16px] text-ebb">
+                Open <span className="num">{formatDuration(done.openSeconds)}</span>, cost{" "}
+                <span className="num">{formatUsdc(done.interest, 6)} USDC</span>.
+              </p>
+            )}
             {done.outcome.dust && (
               <p className="mt-3 text-small text-ebb">
                 A sliver of debt, <span className="num">{formatFixed(done.outcome.remainingDebtUsdc, 6)} USDC</span>, is left that a repay
                 cannot clear. Your collateral stays posted.
               </p>
             )}
-            <p className="mt-4 text-small">
+            <p className="mt-5 rounded-badge border border-line bg-ink/60 px-4 py-3 text-small">
               <a
                 href={explorerTx(done.outcome.txHash)}
                 target="_blank"
@@ -190,7 +198,7 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
               </a>
             </p>
             <div className="mt-8">
-              <button type="button" onClick={onClose} className="w-full rounded-pill bg-ink px-6 py-3.5 text-[15px] font-medium text-text hover:bg-line">
+              <button type="button" onClick={onClose} className="w-full rounded-pill border border-line bg-panel px-6 py-3.5 text-[15px] font-medium text-text transition-colors hover:bg-raised">
                 Done
               </button>
             </div>
@@ -203,12 +211,12 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
               if (canRepay) void repay();
             }}
           >
-            <dl className="divide-y divide-line border-y border-line">
+            <dl className="divide-y divide-line rounded-badge border border-line bg-ink/60 px-4">
               <Line label="Borrowed now" value={position ? `${formatUsdc(position.debtUsdc, 2)} USDC` : "Reading"} />
               <Line label="In your wallet" value={position ? `${formatUsdc(position.walletUsdc, 2)} USDC` : "Reading"} />
             </dl>
 
-            <label htmlFor="repay-amount" className="mt-6 block text-small text-ebb">
+            <label htmlFor="repay-amount" className="mt-6 block text-small font-medium text-ebb">
               Amount to repay
             </label>
             <input
@@ -225,7 +233,7 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
               Leave it empty to repay the smaller of your USDC and the debt. Your collateral stays posted.
             </p>
 
-            <dl className="mt-6 divide-y divide-line border-y border-line">
+            <dl className="mt-6 divide-y divide-line rounded-badge border border-line bg-ink/60 px-4">
               {plan && !plan.refusal ? (
                 <>
                   <Line label="Repaying" value={`${formatUsdc(plan.repayUsdc, 2)} USDC`} />

@@ -9,7 +9,7 @@ import { TidrelLockup } from "./TidrelMark";
  */
 export function AppBar({ children }: { children?: ReactNode }) {
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-ink text-text">
+    <header className="sticky top-0 z-50 border-b border-line bg-ink/85 text-text backdrop-blur-md">
       <nav
         aria-label="Desk"
         className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between gap-4 px-6"

@@ -10,11 +10,19 @@ const STATE_LABEL: Record<SettlementState, string> = {
 };
 
 const STATE_TONE: Record<SettlementState, string> = {
-  open: "text-tide",
-  repaid: "text-ebb",
-  "self-funded": "text-muted",
-  "drawn-not-settled": "text-warn",
+  open: "bg-tide/15 text-tide",
+  repaid: "bg-raised text-ebb",
+  "self-funded": "bg-raised text-muted",
+  "drawn-not-settled": "bg-warn/15 text-warn",
 };
+
+function StateBadge({ state }: { state: SettlementState }) {
+  return (
+    <span className={`inline-flex items-center rounded-pill px-2.5 py-1 text-caption font-medium whitespace-nowrap ${STATE_TONE[state]}`}>
+      {STATE_LABEL[state]}
+    </span>
+  );
+}
 
 function TxLink({ hash, children }: { hash: string | null; children: React.ReactNode }) {
   if (!hash) return <>{children}</>;
@@ -47,7 +55,7 @@ export function SettlementsTable({ rows }: { rows: Settlement[] }) {
               <thead>
                 <tr className="border-b border-line text-caption text-muted">
                   {["Reference", "Counterparties", "Drawn", "Open for", "Cost", "State"].map((h) => (
-                    <th key={h} scope="col" className="py-3 pr-4 font-medium">
+                    <th key={h} scope="col" className="px-6 py-3 font-medium first:pl-6">
                       {h}
                     </th>
                   ))}
@@ -57,39 +65,37 @@ export function SettlementsTable({ rows }: { rows: Settlement[] }) {
                 {rows.map((s) => {
                   const c = cells(s);
                   return (
-                    <tr key={`${s.drawTxHash}-${s.txHash}`} className="border-b border-line">
-                      <td className="num py-4 pr-4 text-text">
+                    <tr key={`${s.drawTxHash}-${s.txHash}`} className="border-b border-line transition-colors last:border-b-0 hover:bg-raised/60">
+                      <td className="num px-6 py-4 text-text">
                         <TxLink hash={s.txHash}>{c.ref}</TxLink>
                       </td>
-                      <td className="num py-4 pr-4">{c.legs}</td>
-                      <td className="num py-4 pr-4">
+                      <td className="num px-6 py-4">{c.legs}</td>
+                      <td className="num px-6 py-4">
                         <TxLink hash={s.drawTxHash}>{c.drawn}</TxLink>
                       </td>
-                      <td className="num py-4 pr-4">
+                      <td className="num px-6 py-4">
                         <TxLink hash={s.repayTxHash}>{c.open}</TxLink>
                       </td>
-                      <td className="num py-4 pr-4">
+                      <td className="num px-6 py-4">
                         <TxLink hash={s.repayTxHash}>{c.cost}</TxLink>
                       </td>
-                      <td className={`py-4 font-medium ${STATE_TONE[s.state]}`}>{STATE_LABEL[s.state]}</td>
+                      <td className="px-6 py-4"><StateBadge state={s.state} /></td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
 
-            <ul className="divide-y divide-line border-y border-line md:hidden">
+            <ul className="divide-y divide-line md:hidden">
               {rows.map((s) => {
                 const c = cells(s);
                 return (
-                  <li key={`${s.drawTxHash}-${s.txHash}`} className="py-5">
+                  <li key={`${s.drawTxHash}-${s.txHash}`} className="px-6 py-5">
                     <div className="flex items-baseline justify-between gap-4">
                       <span className="num text-body text-text">
                         <TxLink hash={s.txHash}>{c.ref}</TxLink>
                       </span>
-                      <span className={`text-small font-medium ${STATE_TONE[s.state]}`}>
-                        {STATE_LABEL[s.state]}
-                      </span>
+                      <StateBadge state={s.state} />
                     </div>
                     <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-small">
                       {[

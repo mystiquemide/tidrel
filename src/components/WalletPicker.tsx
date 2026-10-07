@@ -34,7 +34,7 @@ export function WalletPicker({
       onClick={(e) => {
         if (e.target === ref.current) onClose();
       }}
-      className="m-auto w-[min(92vw,420px)] rounded-card border border-line bg-panel p-0 text-text backdrop:bg-ink/80"
+      className="card m-auto w-[min(92vw,420px)] p-0 text-text"
     >
       <div className="p-6">
         <div className="flex items-center justify-between gap-4">
@@ -61,7 +61,7 @@ export function WalletPicker({
                   type="button"
                   disabled={busy}
                   onClick={() => onPick(w)}
-                  className="flex w-full items-center gap-3 rounded-badge bg-ink px-4 py-3 text-left text-[16px] font-medium text-text hover:bg-line disabled:opacity-60"
+                  className="flex w-full items-center gap-3 rounded-badge border border-line bg-ink px-4 py-3.5 text-left text-[16px] font-medium text-text transition-colors hover:border-tide/60 hover:bg-raised disabled:opacity-60"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={w.icon} alt="" width={28} height={28} className="rounded-badge" />
@@ -82,7 +82,7 @@ export function WalletPicker({
                     href={l.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex w-full items-center justify-between rounded-badge bg-ink px-4 py-3 text-[16px] font-medium text-text hover:bg-line"
+                    className="flex w-full items-center justify-between rounded-badge border border-line bg-ink px-4 py-3.5 text-[16px] font-medium text-text transition-colors hover:border-tide/60 hover:bg-raised"
                   >
                     Install {l.name}
                   </a>

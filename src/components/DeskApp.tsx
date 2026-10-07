@@ -50,9 +50,13 @@ function Gate({
   children?: React.ReactNode;
 }) {
   return (
-    <section className="flex min-h-[calc(100svh-4rem)] items-center justify-center bg-ink text-text">
+    <section className="gate-glow flex min-h-[calc(100svh-4rem)] items-center justify-center bg-ink text-text">
       <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center px-6 py-16 text-center">
-        <h1 className="max-w-[18ch] text-[40px] leading-[1.05] font-[550] tracking-[-0.03em] md:text-display">
+        <span className="inline-flex items-center gap-2 rounded-pill border border-line px-3 py-1.5 text-caption text-ebb">
+          <span className="h-1.5 w-1.5 rounded-pill bg-tide" aria-hidden="true" />
+          Arc mainnet
+        </span>
+        <h1 className="mt-6 max-w-[18ch] text-[40px] leading-[1.05] font-[550] tracking-[-0.03em] md:text-display">
           {title}
         </h1>
         <p className="mt-5 max-w-xl text-lead text-ebb">{body}</p>
@@ -308,8 +312,16 @@ export function DeskApp() {
       );
   } else if (!view) {
     content = (
-      <section className="flex min-h-[calc(100svh-4rem)] items-center justify-center" aria-busy="true">
-        <p className="text-lead text-ebb">Reading your desk from Arc mainnet.</p>
+      <section className="bg-ink" aria-busy="true">
+        <div className="mx-auto w-full max-w-[1200px] px-6 pt-14">
+          <p role="status" className="text-small text-muted">Reading your desk from Arc mainnet.</p>
+          <div className="skeleton mt-5 h-10 w-64" />
+          <div className="mt-10 grid gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+            <div className="skeleton h-72" />
+            <div className="skeleton h-72" />
+          </div>
+          <div className="skeleton mt-4 h-52" />
+        </div>
       </section>
     );
   } else if (view.kind === "blocked") {
@@ -359,6 +371,15 @@ export function DeskApp() {
             okDesk && (
             <div>
               <div className="flex flex-col gap-3 sm:flex-row">
+                {debtOpen && (
+                  <button
+                    type="button"
+                    onClick={() => openRepay()}
+                    className={`${btn} w-full border border-line bg-panel text-text hover:bg-raised sm:w-auto`}
+                  >
+                    Repay
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => setSettleOpen(true)}
@@ -367,18 +388,9 @@ export function DeskApp() {
                 >
                   Settle a trade
                 </button>
-                {debtOpen && (
-                  <button
-                    type="button"
-                    onClick={() => openRepay()}
-                    className={`${btn} w-full bg-panel text-text hover:bg-line sm:w-auto`}
-                  >
-                    Repay
-                  </button>
-                )}
               </div>
               {drawsDown && (
-                <p className="mt-3 text-small text-muted">
+                <p className="mt-3 max-w-xs text-small text-muted md:text-right">
                   Settling needs the Borrow service, which is unreachable. Chain data is still shown.
                 </p>
               )}
@@ -426,14 +438,14 @@ export function DeskApp() {
       <AppBar>
         {session && (
           <>
-            <span className="hidden items-center gap-2 rounded-badge bg-panel px-3 py-2 text-small whitespace-nowrap text-ebb sm:inline-flex">
+            <span className="hidden items-center gap-2 rounded-pill border border-line bg-panel px-3.5 py-2 text-small whitespace-nowrap text-ebb sm:inline-flex">
               <span className="h-2 w-2 rounded-pill bg-tide" aria-hidden="true" />
               <span className="num">{shortHash(session.address)}</span>
             </span>
             <button
               type="button"
               onClick={disconnect}
-              className="rounded-pill bg-panel px-4 py-2 text-small font-medium text-ebb hover:bg-line hover:text-text"
+              className="rounded-pill bg-panel px-4 py-2 text-small font-medium text-ebb transition-colors hover:bg-line hover:text-text"
             >
               Disconnect
             </button>

@@ -1,6 +1,6 @@
 import type { Settlement } from "@/lib/history";
 import { tidePoints } from "@/lib/tide";
-import { formatDurationWords } from "@/lib/format";
+import { formatDurationWords, formatUsdc } from "@/lib/format";
 
 const W = 1000;
 const H = 120;
@@ -14,7 +14,7 @@ export function TideLine({ settlements }: { settlements: Settlement[] }) {
   const pts = tidePoints(settlements);
   if (pts.length < 2) {
     return (
-      <p className="rounded-card bg-panel px-6 py-10 text-center text-small text-muted">
+      <p className="px-6 py-12 text-center text-small text-muted">
         Your first draw and repay will appear here.
       </p>
     );
@@ -36,19 +36,30 @@ export function TideLine({ settlements }: { settlements: Settlement[] }) {
   });
 
   return (
-    <figure className="rounded-card bg-panel px-6 py-6">
+    <figure className="px-6 py-6">
       <svg
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
-        className="h-[120px] w-full text-tide"
+        className="h-[132px] w-full text-tide"
         role="img"
         aria-label={`Principal outstanding across ${pts.length} draws and repays across ${formatDurationWords(span)}`}
       >
-        <line x1={PAD} x2={W - PAD} y1={y(0)} y2={y(0)} stroke="currentColor" strokeOpacity="0.2" vectorEffect="non-scaling-stroke" />
+        <defs>
+          <linearGradient id="tide-fill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stopColor="currentColor" stopOpacity="0.22" />
+            <stop offset="1" stopColor="currentColor" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        {[0.25, 0.5, 0.75].map((f) => (
+          <line key={f} x1={PAD} x2={W - PAD} y1={H * f} y2={H * f} stroke="currentColor" strokeOpacity="0.07" strokeDasharray="2 6" vectorEffect="non-scaling-stroke" />
+        ))}
+        <line x1={PAD} x2={W - PAD} y1={y(0)} y2={y(0)} stroke="currentColor" strokeOpacity="0.25" vectorEffect="non-scaling-stroke" />
+        <path d={`${d} L ${x(pts.length - 1)} ${y(0)} Z`} fill="url(#tide-fill)" />
         <path d={d} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
       </svg>
-      <figcaption className="mt-3 text-caption text-muted">
-        Principal outstanding, one step per draw or repay.
+      <figcaption className="mt-3 flex justify-between text-caption text-muted">
+        <span>One step per draw or repay</span>
+        <span>Peak <span className="num text-ebb">{formatUsdc(String(max), 2)}</span> USDC</span>
       </figcaption>
     </figure>
   );
