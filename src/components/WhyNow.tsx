@@ -32,15 +32,20 @@ export function WhyNow() {
         </h2>
 
         <div className="mt-12 grid overflow-hidden rounded-card border border-mist lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
-          <figure style={{ "--i": 3 } as CSSProperties} className="rv-scale relative flex min-h-[420px] flex-col justify-end bg-cloud p-4 md:p-6">
+          <figure
+            style={{ "--i": 3 } as CSSProperties}
+            className="rv-scale flex flex-col justify-between gap-6 bg-violet-tint p-4 sm:p-6 md:p-8"
+          >
+            {/* A real capture of the mainnet proof page, made by scripts/capture.mts. */}
             <Image
-              src="/images/city.webp"
-              alt="Glass towers and curved balconies in a financial district."
-              fill
-              sizes="(min-width: 1024px) 680px, 100vw"
-              className="object-cover"
+              src="/screens/proof.png"
+              alt="The Tidrel mainnet proof page: a loan against bitcoin that existed for seconds, with the USDC drawn, the interest paid and the counterparties paid in one transaction."
+              width={1560}
+              height={1126}
+              sizes="(min-width: 1024px) 620px, 100vw"
+              className="h-auto w-full"
             />
-            <div className="relative rounded-panel bg-porcelain p-6 md:p-8">
+            <div className="rounded-panel bg-porcelain p-6 md:p-8">
               <blockquote className="text-h4 leading-[1.35] text-ink">&ldquo;{lead.quote}&rdquo;</blockquote>
               <figcaption className="mt-5">
                 <SourceLink s={lead} />

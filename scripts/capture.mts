@@ -4,6 +4,7 @@
 //   public/screens/draw.png     the desk's "Available to draw" panel
 //   public/screens/settle.png   the newest payout's receipt
 //   public/screens/repay.png    the tide line of every draw and repay
+//   public/screens/proof.png    the mainnet proof headline and its four figures
 // Usage: next start -p 3000 &  then  CHROMIUM_PATH=/path/to/chromium npx tsx scripts/capture.mts [baseUrl]
 import { mkdirSync } from 'node:fs'
 import { chromium, type Page } from 'playwright-core'
@@ -63,5 +64,12 @@ const receipt = await screens.locator('a[href^="/receipt/"]').first().getAttribu
 if (!receipt) throw new Error('No receipt link on the demo desk.')
 await screens.goto(`${base}${receipt}`, { waitUntil: 'networkidle' })
 await shoot(screens, ['main p.eyebrow', 'main .card'], 'public/screens/settle.png', 12)
+
+// The proof page's headline loan and its figures, once the entrance has played.
+await screens.goto(`${base}/proof`, { waitUntil: 'networkidle' })
+await screens.waitForTimeout(1500)
+// Its explorer buttons would read as clickable inside a still image, so they are left out.
+await screens.addStyleTag({ content: 'main h1 + p + div { display: none !important; }' })
+await shoot(screens, ['main h1', 'main dl'], 'public/screens/proof.png', 12)
 
 await browser.close()
