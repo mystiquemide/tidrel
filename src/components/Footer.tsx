@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ADDRESSES, EXPLORER_URL, explorerAddress } from "@/lib/chain";
-import { ExternalGlyph } from "./PillLink";
 import { TidrelLockup } from "./TidrelMark";
 
 const GROUPS = [
@@ -58,7 +57,6 @@ export function Footer() {
                     ) : (
                       <a href={l.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
                         {l.label}
-                        <ExternalGlyph className="text-smoke" />
                       </a>
                     )}
                   </li>
