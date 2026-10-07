@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Dev tooling would otherwise write agent rule files into the repo root.
+  // Keeps the dev server from writing extra rule files into the repo root.
   agentRules: false,
   async headers() {
     return [
