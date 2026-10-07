@@ -16,8 +16,8 @@ export default function SafetyPage() {
   return (
     <>
       <SkipLink />
-      <NavBar tone="dark" />
-      <main id="main" className="flex-1">
+      <NavBar tone="light" />
+      <main id="main" className="flex-1 bg-paper">
         <SafetyRules />
       </main>
     </>

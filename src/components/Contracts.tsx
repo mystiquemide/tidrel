@@ -48,29 +48,29 @@ const ROWS = [
 
 export function Contracts() {
   return (
-    <section className="bg-ink text-text">
+    <section className="on-light bg-paper text-ink">
       <div className="mx-auto w-full max-w-[1200px] px-6 pt-16 pb-24 md:pt-24 md:pb-32">
         <h1 className="text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-[44px]">
           Contracts and addresses
         </h1>
-        <p className="mt-4 max-w-2xl text-lead text-ebb">
+        <p className="mt-4 max-w-2xl text-lead text-body">
           Everything Tidrel touches on Arc mainnet.
         </p>
 
-        <ul className="mt-14 divide-y divide-line border-y border-line">
+        <ul className="mt-14 divide-y divide-ink/10 border-y border-ink/10">
           {ROWS.map((r) => (
             <li
               key={r.name}
               className="grid gap-3 py-7 md:grid-cols-[minmax(0,3fr)_minmax(0,5fr)_minmax(0,5fr)] md:gap-10 md:py-8"
             >
-              <h2 className="text-h3 font-medium tracking-[-0.02em] text-text">{r.name}</h2>
-              <p className="text-body text-ebb">{r.role}</p>
+              <h2 className="text-h3 font-medium tracking-[-0.02em] text-ink">{r.name}</h2>
+              <p className="text-body text-body">{r.role}</p>
               <div className="flex flex-col items-start gap-3">
                 <a
                   href={explorerAddress(r.address)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-badge font-mono text-[13px] break-all text-tide sm:text-small underline decoration-tide/40 underline-offset-4 hover:decoration-tide"
+                  className="rounded-badge font-mono text-[13px] break-all text-tide-deep sm:text-small underline decoration-tide-deep/40 underline-offset-4 hover:decoration-tide-deep"
                 >
                   {r.address}
                 </a>
@@ -79,7 +79,7 @@ export function Contracts() {
                     href={r.source}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-badge text-small font-medium text-ebb underline decoration-muted/50 underline-offset-4 hover:text-text"
+                    className="rounded-badge text-small font-medium text-ink underline decoration-ink/30 underline-offset-4 hover:decoration-ink"
                   >
                     Verified source on Sourcify
                   </a>
@@ -89,19 +89,21 @@ export function Contracts() {
           ))}
         </ul>
 
-        <h2 className="mt-20 text-h2 font-medium tracking-[-0.024em]">The lending market</h2>
-        <p className="mt-4 max-w-2xl text-body text-ebb">
-          Loans use the cirBTC and USDC market on Morpho Blue. Its identifier is:
-        </p>
-        <p className="mt-3 rounded-badge bg-panel px-4 py-3 font-mono text-small break-all text-text">
-          {CIRBTC_USDC_MARKET_ID}
-        </p>
+        <div className="mt-20 rounded-[24px] bg-tide-wash p-6 md:p-10">
+          <h2 className="text-h2 font-medium tracking-[-0.024em]">The lending market</h2>
+          <p className="mt-4 max-w-2xl text-body text-body">
+            Loans use the cirBTC and USDC market on Morpho Blue. Its identifier is:
+          </p>
+          <p className="mt-4 rounded-badge border border-ink/10 bg-paper px-4 py-3 font-mono text-small break-all text-ink">
+            {CIRBTC_USDC_MARKET_ID}
+          </p>
+        </div>
 
         <div className="mt-12 flex flex-col gap-3 sm:flex-row">
-          <PillLink href="/safety" variant="light">
+          <PillLink href="/safety" variant="ink">
             Read the safety rules
           </PillLink>
-          <PillLink href="/proof" variant="dark">
+          <PillLink href="/proof" variant="soft">
             See the mainnet proof
           </PillLink>
         </div>

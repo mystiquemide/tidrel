@@ -46,30 +46,30 @@ export async function SafetyRules() {
   ];
 
   return (
-    <section className="bg-ink text-text">
+    <section className="on-light bg-paper text-ink">
       <div className="mx-auto w-full max-w-[1200px] px-6 pt-16 pb-24 md:pt-24 md:pb-32">
         <h1 className="text-[30px] leading-[1.1] font-medium tracking-[-0.03em] md:text-[44px]">
           Safety rules
         </h1>
-        <p className="mt-4 max-w-2xl text-lead text-ebb">
+        <p className="mt-4 max-w-2xl text-lead text-body">
           What the code enforces before anything is signed, and what Tidrel cannot do.
         </p>
 
-        <ul className="mt-14 divide-y divide-line border-y border-line">
+        <ul className="mt-14 divide-y divide-ink/10 border-y border-ink/10">
           {rules.map((r) => (
             <li
               key={r.title}
               className="grid gap-4 py-8 md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] md:gap-12 md:py-10"
             >
-              <h2 className="text-h3 font-medium tracking-[-0.02em] text-text">{r.title}</h2>
+              <h2 className="text-h3 font-medium tracking-[-0.02em] text-ink">{r.title}</h2>
               <div>
-                <p className="text-body text-ebb">{r.body}</p>
+                <p className="text-body text-body">{r.body}</p>
                 {r.link && (
                   <a
                     href={r.link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-4 inline-block rounded-badge text-small font-medium text-tide underline decoration-tide/40 underline-offset-4 hover:decoration-tide"
+                    className="mt-4 inline-block rounded-badge text-small font-medium text-tide-deep underline decoration-tide-deep/40 underline-offset-4 hover:decoration-tide-deep"
                   >
                     {r.link.label}
                   </a>
@@ -79,20 +79,22 @@ export async function SafetyRules() {
           ))}
         </ul>
 
-        <h2 className="mt-20 text-h2 font-medium tracking-[-0.024em]">Limits to know</h2>
-        <ul className="mt-8 divide-y divide-line border-y border-line">
-          {LIMITS.map((l) => (
-            <li key={l} className="py-5 text-body text-ebb">
-              {l}
-            </li>
-          ))}
-        </ul>
+        <div className="mt-20 rounded-[24px] bg-ink px-6 py-10 text-text md:px-10 md:py-12">
+          <h2 className="text-h2 font-medium tracking-[-0.024em]">Limits to know</h2>
+          <ul className="mt-8 divide-y divide-line border-y border-line">
+            {LIMITS.map((l) => (
+              <li key={l} className="py-5 text-body text-ebb">
+                {l}
+              </li>
+            ))}
+          </ul>
+        </div>
 
         <div className="mt-12 flex flex-col gap-3 sm:flex-row">
-          <PillLink href="/proof" variant="light">
+          <PillLink href="/proof" variant="ink">
             See the mainnet proof
           </PillLink>
-          <PillLink href="/contracts" variant="dark">
+          <PillLink href="/contracts" variant="soft">
             See the contracts
           </PillLink>
         </div>

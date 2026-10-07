@@ -14,8 +14,8 @@ export default function ContractsPage() {
   return (
     <>
       <SkipLink />
-      <NavBar tone="dark" />
-      <main id="main" className="flex-1">
+      <NavBar tone="light" />
+      <main id="main" className="flex-1 bg-paper">
         <Contracts />
       </main>
     </>
