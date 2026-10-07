@@ -78,6 +78,41 @@ function PanelNote({ children }: { children: React.ReactNode }) {
   return <p className="px-6 py-12 text-center text-small text-muted">{children}</p>;
 }
 
+function GetStarted({ walletCirBtc, canSettle }: { walletCirBtc: string | null; canSettle: boolean }) {
+  const steps = [
+    {
+      title: "Hold cirBTC",
+      body:
+        walletCirBtc !== null && Number(walletCirBtc) > 0
+          ? `This wallet holds ${formatFixed(walletCirBtc, 8)} cirBTC. Tidrel posts what a draw needs.`
+          : "cirBTC is the collateral. Tidrel posts only what each draw needs, from this wallet.",
+    },
+    { title: "Settle a trade", body: "Add a reference and who to pay. Tidrel draws only the USDC you are short, then pays everyone in one transaction." },
+    { title: "Repay when USDC lands", body: "Repay in one tap. Your collateral stays posted for the next trade." },
+  ];
+  return (
+    <section className="card p-6 md:p-8" aria-labelledby="get-started">
+      <h2 id="get-started" className="text-[17px] font-medium tracking-[-0.01em]">
+        Start your first settlement
+      </h2>
+      <ol className="mt-5 grid gap-6 md:grid-cols-3">
+        {steps.map((st, i) => (
+          <li key={st.title} className="flex gap-4">
+            <span className="num flex h-7 w-7 shrink-0 items-center justify-center rounded-pill border border-line text-caption text-ebb">
+              {i + 1}
+            </span>
+            <div>
+              <p className="text-small font-medium text-text">{st.title}</p>
+              <p className="mt-1 text-small text-muted">{st.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      {!canSettle && <p className="mt-5 text-caption text-muted">Settling opens once the Borrow service is reachable.</p>}
+    </section>
+  );
+}
+
 function HistorySkeleton() {
   return (
     <div role="status" aria-label="Reading settlements from Arc mainnet" className="px-6 py-6">
@@ -334,7 +369,10 @@ export function DeskView({
         </div>
 
         <div className="mt-4 flex flex-col gap-4">
-          <Panel title="Tide line" aside={<span className="text-caption text-muted">Principal outstanding</span>}>
+          {mode === "desk" && history === "ready" && rows.length === 0 && Number(desk.collateralCirBtc) === 0 && (
+            <GetStarted walletCirBtc={p?.walletCirBtc ?? null} canSettle={!!p} />
+          )}
+          <Panel title="Tide line" aside={<span className="text-caption text-muted">USDC borrowed over time</span>}>
             {history === "ready" ? (
               <TideLine settlements={desk.settlements} />
             ) : history === "loading" ? (
