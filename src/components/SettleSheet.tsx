@@ -5,7 +5,7 @@ import { createWalletClient, custom, type Address, type EIP1193Provider } from "
 import { settlerAbi } from "@/lib/abis";
 import { ADDRESSES, arcChain, explorerTx } from "@/lib/chain";
 import { publicClient } from "@/lib/client";
-import { formatUsdc } from "@/lib/format";
+import { formatUsdc, formatUsdcTight } from "@/lib/format";
 import { findReference, type Settlement } from "@/lib/history";
 import { kitDrawDeps, quoteDraw } from "@/lib/draw";
 import { browserAdapter } from "@/lib/kit";
@@ -321,7 +321,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
               <legend className="text-small font-medium text-ebb">Pay to</legend>
               <ul className="mt-2 flex flex-col gap-3">
                 {rows.map((r, i) => (
-                  <li key={r.id} className="grid grid-cols-[minmax(0,1fr)_92px_auto] items-center gap-2 sm:grid-cols-[minmax(0,1fr)_110px_auto]">
+                  <li key={r.id} className="grid grid-cols-[minmax(0,1fr)_112px_auto] items-center gap-2 sm:grid-cols-[minmax(0,1fr)_132px_auto]">
                     <input
                       aria-label={`Recipient ${i + 1} address`}
                       value={r.to}
@@ -369,18 +369,34 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
             <dl className="mt-6 divide-y divide-line rounded-badge border border-line bg-ink/60 px-4">
               {plan && !plan.refusal ? (
                 <>
-                  <Line label="Total" value={`${formatUsdc(plan.totalUsdc, 2)} USDC`} />
+                  <p className="py-3 text-small text-ebb">
+                    Your wallet pays{" "}
+                    <span className="num text-text">{formatUsdcTight(plan.totalUsdc)} USDC</span> to{" "}
+                    {plan.legs.length} {plan.legs.length === 1 ? "counterparty" : "counterparties"}
+                    {plan.drawUsdc !== "0" ? (
+                      <>
+                        , after Tidrel draws <span className="num text-text">{formatUsdcTight(plan.drawUsdc)} USDC</span> against your cirBTC
+                      </>
+                    ) : null}
+                    .
+                  </p>
                   <Line
                     label="From your wallet"
-                    value={`${formatUsdc(String(Math.max(0, Number(plan.totalUsdc) - Number(plan.drawUsdc))), 2)} USDC`}
+                    value={`${formatUsdcTight(String(Math.max(0, Number(plan.totalUsdc) - Number(plan.drawUsdc))))} USDC`}
                   />
                   <Line
                     label="Tidrel draws"
-                    value={`${formatUsdc(plan.drawUsdc, 2)} USDC`}
+                    value={`${formatUsdcTight(plan.drawUsdc)} USDC`}
                     note={position && plan.drawUsdc !== "0" ? `at ${(position.borrowApy * 100).toFixed(2)}% a year` : undefined}
                   />
                   {plan.collateralToPostCirBtc && Number(plan.collateralToPostCirBtc) > 0 && (
                     <Line label="Collateral posted now" value={`${plan.collateralToPostCirBtc} cirBTC`} />
+                  )}
+                  {position && (
+                    <Line
+                      label="USDC left in your wallet"
+                      value={`${formatUsdcTight(String(Math.max(0, Number(position.walletUsdc) - Number(plan.totalUsdc))))} USDC`}
+                    />
                   )}
                   {plan.resultingHealth !== null && (
                     <Line label="Health after" value={plan.resultingHealth.toFixed(2)} />

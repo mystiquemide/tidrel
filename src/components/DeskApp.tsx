@@ -50,7 +50,7 @@ function Gate({
   children?: React.ReactNode;
 }) {
   return (
-    <section className="gate-glow flex min-h-[calc(100svh-4rem)] items-center justify-center bg-ink text-text">
+    <section className="flex min-h-[calc(100svh-4rem)] items-center justify-center bg-ink text-text">
       <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center px-6 py-16 text-center">
         <span className="inline-flex items-center gap-2 rounded-pill border border-line px-3 py-1.5 text-caption text-ebb">
           <span className="h-1.5 w-1.5 rounded-pill bg-tide" aria-hidden="true" />

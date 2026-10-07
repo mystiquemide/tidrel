@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { explorerAddress, RUN_BUDGET_USDC } from "@/lib/chain";
+import { explorerAddress, explorerTx, RUN_BUDGET_USDC } from "@/lib/chain";
 import type { Desk } from "@/lib/desk";
 import { isDemoDesk } from "@/lib/deskAddress";
 import type { Notice } from "@/lib/notices";
-import { formatFixed, formatUsdc, shortHash } from "@/lib/format";
+import { formatDuration, formatFixed, formatUsdc, shortHash } from "@/lib/format";
+import type { Settlement } from "@/lib/history";
 import type { Band, Position } from "@/lib/position";
 import { MIN_HEALTH } from "@/lib/settle";
 import { CopyAddress } from "./CopyAddress";
@@ -90,7 +91,7 @@ function HistorySkeleton() {
   );
 }
 
-function HealthPanel({ p }: { p: Position }) {
+function HealthPanel({ p, last }: { p: Position; last: Settlement | null }) {
   const hf = p.healthFactor;
   const band = p.band;
   const floor = gaugePct(MIN_HEALTH);
@@ -125,6 +126,26 @@ function HealthPanel({ p }: { p: Position }) {
             Health appears once a draw is open. Settling pauses below{" "}
             <span className="num text-ebb">{MIN_HEALTH.toFixed(2)}</span>.
           </p>
+          {last && (
+            <div className="mt-6 rounded-badge border border-line bg-ink/60 px-4 py-3">
+              <p className="eyebrow">Last cycle</p>
+              <p className="mt-2 flex items-baseline justify-between gap-3 text-small">
+                <span className="num text-text">{last.reference ?? "No payout"}</span>
+                <a
+                  href={explorerTx(last.repayTxHash ?? last.txHash ?? "")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="num rounded-badge text-tide underline decoration-tide/40 underline-offset-4 hover:decoration-tide"
+                >
+                  {last.openSeconds !== null ? formatDuration(last.openSeconds) : "Open"}
+                </a>
+              </p>
+              <p className="mt-1 text-caption text-muted">
+                Drew <span className="num text-ebb">{formatUsdc(last.drawnUsdc, 2)}</span> USDC, repaid at a cost of{" "}
+                <span className="num text-ebb">{formatUsdc(last.interestUsdc ?? "0", 6)}</span> USDC
+              </p>
+            </div>
+          )}
         </>
       )}
       <div className="min-h-6 flex-1" aria-hidden="true" />
@@ -258,7 +279,7 @@ export function DeskView({
 
         <div className="mt-8 grid gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
           <section className="card flex flex-col overflow-hidden">
-            <div className="p-6 md:p-8">
+            <div className="flex flex-1 flex-col justify-center p-6 md:p-8">
               <h2 className="eyebrow">Available to draw</h2>
               <p className="mt-4 flex flex-wrap items-baseline gap-x-3">
                 <span className="num text-[44px] leading-none font-medium tracking-[-0.03em] md:text-[56px]">
@@ -303,7 +324,7 @@ export function DeskView({
           </section>
 
           {p ? (
-            <HealthPanel p={p} />
+            <HealthPanel p={p} last={history === "ready" ? (rows.find((r) => r.state === "repaid" && r.repayTxHash) ?? null) : null} />
           ) : (
             <section className="card p-6">
               <h2 className="eyebrow">Loan health</h2>

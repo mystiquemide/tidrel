@@ -44,17 +44,11 @@ export function TideLine({ settlements }: { settlements: Settlement[] }) {
         role="img"
         aria-label={`Principal outstanding across ${pts.length} draws and repays across ${formatDurationWords(span)}`}
       >
-        <defs>
-          <linearGradient id="tide-fill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0" stopColor="currentColor" stopOpacity="0.22" />
-            <stop offset="1" stopColor="currentColor" stopOpacity="0" />
-          </linearGradient>
-        </defs>
         {[0.25, 0.5, 0.75].map((f) => (
           <line key={f} x1={PAD} x2={W - PAD} y1={H * f} y2={H * f} stroke="currentColor" strokeOpacity="0.07" strokeDasharray="2 6" vectorEffect="non-scaling-stroke" />
         ))}
         <line x1={PAD} x2={W - PAD} y1={y(0)} y2={y(0)} stroke="currentColor" strokeOpacity="0.25" vectorEffect="non-scaling-stroke" />
-        <path d={`${d} L ${x(pts.length - 1)} ${y(0)} Z`} fill="url(#tide-fill)" />
+        <path d={`${d} L ${x(pts.length - 1)} ${y(0)} Z`} fill="currentColor" fillOpacity="0.1" />
         <path d={d} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
       </svg>
       <figcaption className="mt-3 flex justify-between text-caption text-muted">
