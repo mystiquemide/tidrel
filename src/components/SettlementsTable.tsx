@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { explorerTx } from "@/lib/chain";
 import { formatDuration, formatUsdc } from "@/lib/format";
 import type { Settlement, SettlementState } from "@/lib/history";
@@ -40,6 +41,14 @@ function TxLink({ hash, children }: { hash: string | null; children: React.React
   );
 }
 
+function ReceiptLink({ hash }: { hash: string }) {
+  return (
+    <Link href={`/receipt/${hash}`} className="rounded-badge text-small font-medium text-tide hover:underline">
+      Receipt
+    </Link>
+  );
+}
+
 const cells = (s: Settlement) => ({
   ref: s.reference ?? (s.state === "drawn-not-settled" ? "Awaiting payout" : "No payout"),
   legs: s.legs ? String(s.legs) : "None",
@@ -56,9 +65,9 @@ export function SettlementsTable({ rows }: { rows: Settlement[] }) {
             <table className="hidden w-full border-collapse text-left text-small md:table">
               <thead>
                 <tr className="border-b border-line text-caption text-muted">
-                  {["Reference", "Counterparties", "Drawn", "Open for", "Cost", "State"].map((h) => (
-                    <th key={h} scope="col" className="px-6 py-3 font-medium first:pl-6">
-                      {h}
+                  {["Reference", "Counterparties", "Drawn", "Open for", "Cost", "State", ""].map((h) => (
+                    <th key={h || "receipt"} scope="col" className="px-6 py-3 font-medium first:pl-6">
+                      {h || <span className="sr-only">Receipt</span>}
                     </th>
                   ))}
                 </tr>
@@ -82,6 +91,7 @@ export function SettlementsTable({ rows }: { rows: Settlement[] }) {
                         <TxLink hash={s.repayTxHash}>{c.cost}</TxLink>
                       </td>
                       <td className="px-6 py-4"><StateBadge s={s} /></td>
+                      <td className="px-6 py-4 text-right">{s.txHash && <ReceiptLink hash={s.txHash} />}</td>
                     </tr>
                   );
                 })}
@@ -99,6 +109,11 @@ export function SettlementsTable({ rows }: { rows: Settlement[] }) {
                       </span>
                       <StateBadge s={s} />
                     </div>
+                    {s.txHash && (
+                      <p className="mt-3">
+                        <ReceiptLink hash={s.txHash} />
+                      </p>
+                    )}
                     <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-small">
                       {[
                         ["Counterparties", c.legs, null],

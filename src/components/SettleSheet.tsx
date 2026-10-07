@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createWalletClient, custom, type Address, type EIP1193Provider } from "viem";
 import { settlerAbi } from "@/lib/abis";
 import { ADDRESSES, arcChain, explorerTx } from "@/lib/chain";
@@ -18,6 +18,8 @@ import {
   type SettlementPlan,
 } from "@/lib/settle";
 import { MAX_REFERENCE_BYTES, referenceToBytes32 } from "@/lib/settler";
+import { rememberCounterparties, savedCounterparties } from "@/lib/addressBook";
+import { parseRecipients } from "@/lib/csv";
 import { runSettlement, type Outcome, type Step } from "@/lib/settleFlow";
 
 type Row = { id: number; to: string; amount: string };
@@ -114,6 +116,9 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
   const [planned, setPlanned] = useState<{ key: string; plan: SettlementPlan | null; error: boolean } | null>(null);
   const [step, setStep] = useState<Step | null>(null);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const [pasteText, setPasteText] = useState("");
+  const [pasteErrors, setPasteErrors] = useState<string[]>([]);
 
   useEffect(() => {
     const d = ref.current;
@@ -121,6 +126,21 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
     if (open && !d.open) d.showModal();
     if (!open && d.open) d.close();
   }, [open]);
+
+  // Re-read after a settlement so the payees just paid are offered next time.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const saved = useMemo(() => (open ? savedCounterparties() : []), [open, outcome]);
+
+  function applyPaste() {
+    const out = parseRecipients(pasteText);
+    setPasteErrors(out.errors);
+    if (out.rows.length === 0) return;
+    setRows(out.rows.map((r) => ({ id: nextId.current++, to: r.to, amount: r.amount })));
+    if (out.errors.length === 0) {
+      setPasteOpen(false);
+      setPasteText("");
+    }
+  }
 
   // Read the wallet's position fresh each time the sheet opens.
   useEffect(() => {
@@ -203,6 +223,9 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
     });
     setStep(null);
     setOutcome(result);
+    if (result.kind === "settled") {
+      rememberCounterparties(plan.legs.map((l) => l.to));
+    }
     if (result.kind === "settled" || result.kind === "drawn-not-settled") onChanged();
   }
 
@@ -326,6 +349,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
                       aria-label={`Recipient ${i + 1} address`}
                       value={r.to}
                       onChange={(e) => setRows((rs) => rs.map((x) => (x.id === r.id ? { ...x, to: e.target.value } : x)))}
+                      list="saved-counterparties"
                       placeholder="0x address"
                       autoComplete="off"
                       spellCheck={false}
@@ -364,6 +388,47 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
               >
                 + Add counterparty
               </button>
+              <button
+                type="button"
+                onClick={() => setPasteOpen((v) => !v)}
+                className="mt-3 ml-2 inline-flex items-center gap-1.5 rounded-pill border border-line px-3.5 py-2 text-small font-medium text-ebb transition-colors hover:border-muted hover:text-text"
+              >
+                {pasteOpen ? "Hide list" : "Paste a list"}
+              </button>
+              {pasteOpen && (
+                <div className="mt-3">
+                  <label htmlFor="paste-list" className="text-caption text-muted">
+                    One counterparty per line: an address, then an amount in USDC. This replaces the list above.
+                  </label>
+                  <textarea
+                    id="paste-list"
+                    value={pasteText}
+                    onChange={(e) => setPasteText(e.target.value)}
+                    rows={4}
+                    spellCheck={false}
+                    placeholder={"0x...,1.50\n0x...,2.25"}
+                    className={`${field} num mt-2 text-small`}
+                  />
+                  {pasteErrors.map((m) => (
+                    <p key={m} role="alert" className="mt-1 text-caption text-warn">
+                      {m}
+                    </p>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={applyPaste}
+                    disabled={!pasteText.trim()}
+                    className="mt-2 rounded-pill bg-panel px-4 py-2 text-small font-medium text-text transition-colors hover:bg-raised disabled:opacity-50"
+                  >
+                    Use this list
+                  </button>
+                </div>
+              )}
+              <datalist id="saved-counterparties">
+                {saved.map((a) => (
+                  <option key={a} value={a} />
+                ))}
+              </datalist>
             </fieldset>
 
             <dl className="mt-6 divide-y divide-line rounded-badge border border-line bg-ink/60 px-4">

@@ -8,6 +8,8 @@ import type { Settlement } from "@/lib/history";
 import type { Band, Position } from "@/lib/position";
 import { MIN_HEALTH } from "@/lib/settle";
 import { CopyAddress } from "./CopyAddress";
+import { ExportCsv } from "./ExportCsv";
+import { OpenClock } from "./OpenClock";
 import { PillLink } from "./PillLink";
 import { SettlementsTable } from "./SettlementsTable";
 import { TideLine } from "./TideLine";
@@ -126,7 +128,7 @@ function HistorySkeleton() {
   );
 }
 
-function HealthPanel({ p, last }: { p: Position; last: Settlement | null }) {
+function HealthPanel({ p, last, since, live }: { p: Position; last: Settlement | null; since: number | null; live: boolean }) {
   const hf = p.healthFactor;
   const band = p.band;
   const floor = gaugePct(MIN_HEALTH);
@@ -152,6 +154,22 @@ function HealthPanel({ p, last }: { p: Position; last: Settlement | null }) {
           <p className="mt-3 text-caption text-muted">
             Settling pauses below <span className="num text-ebb">{MIN_HEALTH.toFixed(2)}</span>. Liquidation starts at 1.00.
           </p>
+          <dl className="mt-5 grid grid-cols-2 gap-4 text-small">
+            {p.liquidationPriceUsd && (
+              <div>
+                <dt className="text-caption text-muted">Liquidation price</dt>
+                <dd className="num mt-1 text-text">{formatUsdc(p.liquidationPriceUsd, 2)} USD</dd>
+              </div>
+            )}
+            {live && since !== null && (
+              <div>
+                <dt className="text-caption text-muted">Open for</dt>
+                <dd className="mt-1 text-tide">
+                  <OpenClock since={since} />
+                </dd>
+              </div>
+            )}
+          </dl>
         </>
       ) : (
         <>
@@ -245,6 +263,10 @@ export function DeskView({
   const line = p ? Number(p.lineUsdc) : 0;
   const used = debt + line > 0 ? (debt / (debt + line)) * 100 : 0;
   const label = mode === "desk" ? "Your desk" : demo ? "Demo desk" : "Desk";
+  const drawTimes = desk.settlements
+    .filter((s) => (s.state === "open" || s.state === "drawn-not-settled") && s.drawAt !== null)
+    .map((s) => s.drawAt as number);
+  const openSince = drawTimes.length ? Math.min(...drawTimes) : null;
 
   return (
     <section className="bg-ink text-text">
@@ -359,7 +381,12 @@ export function DeskView({
           </section>
 
           {p ? (
-            <HealthPanel p={p} last={history === "ready" ? (rows.find((r) => r.state === "repaid" && r.repayTxHash) ?? null) : null} />
+            <HealthPanel
+              p={p}
+              last={history === "ready" ? (rows.find((r) => r.state === "repaid" && r.repayTxHash) ?? null) : null}
+              since={openSince}
+              live={mode === "desk" && !!open}
+            />
           ) : (
             <section className="card p-6">
               <h2 className="eyebrow">Loan health</h2>
@@ -386,7 +413,10 @@ export function DeskView({
             title="Settlements"
             aside={
               history === "ready" && rows.length > 0 ? (
-                <span className="num rounded-pill bg-raised px-2.5 py-1 text-caption text-ebb">{rows.length}</span>
+                <span className="flex items-center gap-3">
+                  <ExportCsv rows={rows} name={shortHash(desk.address).replace("…", "-")} />
+                  <span className="num rounded-pill bg-raised px-2.5 py-1 text-caption text-ebb">{rows.length}</span>
+                </span>
               ) : undefined
             }
           >
