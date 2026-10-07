@@ -36,12 +36,12 @@ export async function ProofCards() {
           </PillLink>
         </div>
 
-        <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {cards.map((c) => (
             <li key={c.label} className="flex">
               <Link
                 href="/proof"
-                className="flex w-full flex-col justify-between rounded-card bg-panel p-6 transition-colors duration-150 hover:bg-line md:p-8"
+                className="card flex w-full flex-col justify-between p-6 transition-colors duration-150 hover:border-tide/50 md:p-8"
               >
                 <span className="text-[44px] leading-none font-[550] tracking-[-0.03em] text-tide md:text-[52px]">
                   {c.value}

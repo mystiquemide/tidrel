@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { HowItWorks } from "@/components/HowItWorks";
 import { NavBar } from "@/components/NavBar";
+import { Problem } from "@/components/Problem";
 import { ProofCards } from "@/components/ProofCards";
 import { ScrollOnLoad } from "@/components/ScrollOnLoad";
 import { SkipLink } from "@/components/SkipLink";
@@ -19,6 +20,7 @@ export default function Home() {
       <ScrollOnLoad />
       <main id="main" className="flex-1">
         <Hero />
+        <Problem />
         <HowItWorks />
         <ProofCards />
         <BuiltOn />

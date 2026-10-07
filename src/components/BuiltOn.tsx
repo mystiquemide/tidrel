@@ -33,6 +33,7 @@ export function BuiltOn() {
                   width={p.w}
                   height={p.h}
                   unoptimized
+                  loading="eager"
                   style={{ height: p.height, width: "auto" }}
                 />
               </a>

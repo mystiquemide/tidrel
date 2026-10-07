@@ -39,20 +39,23 @@ export function Hero() {
           </PillLink>
         </div>
 
-        <p className="mt-12 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-small text-body">
-          <span className="font-medium text-ink">Live on Arc mainnet</span>
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-2 text-small">
+          <span className="inline-flex items-center gap-2 pr-2 font-medium text-ink">
+            <span className="h-2 w-2 rounded-pill bg-tide-deep" aria-hidden="true" />
+            Live on Arc mainnet
+          </span>
           {PROOF_LINKS.map((l) => (
             <a
               key={l.label}
               href={l.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block rounded-badge py-1 text-tide-deep underline decoration-tide-deep/40 underline-offset-4 hover:decoration-tide-deep"
+              className="inline-block rounded-pill border border-ink/15 bg-paper/60 px-3.5 py-1.5 text-ink transition-colors hover:border-tide-deep hover:text-tide-deep"
             >
               {l.label}
             </a>
           ))}
-        </p>
+        </div>
       </div>
 
       {/* A real capture of the demo desk, read from Arc mainnet by the built app. It is
@@ -67,15 +70,16 @@ export function Hero() {
               tidrel.vercel.app/view/{shortHash(DEMO_DESK_ADDRESS)}
             </span>
           </div>
-          <div className="max-h-[300px] overflow-hidden sm:max-h-[460px] md:max-h-[560px]">
+          <div className="max-h-[380px] overflow-hidden sm:max-h-[460px] md:max-h-[560px]">
             <Image
               src="/captures/desk.png"
               alt="The Tidrel desk for the demo wallet: collateral posted, available to draw, borrowed now, cost so far, and the tide line of its mainnet draws and repays."
               width={2560}
               height={1622}
               priority
+              unoptimized
               sizes="(min-width: 1148px) 1100px, 100vw"
-              className="block h-auto w-full"
+              className="block h-auto w-[230%] max-w-none sm:w-full sm:max-w-full"
             />
           </div>
         </div>

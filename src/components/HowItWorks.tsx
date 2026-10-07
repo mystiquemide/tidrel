@@ -44,7 +44,7 @@ export async function HowItWorks() {
   };
 
   return (
-    <section id="how-it-works" className="scroll-mt-16 bg-ink text-text focus:outline-none">
+    <section id="how-it-works" className="scroll-mt-16 border-t border-line bg-ink text-text focus:outline-none">
       <div className="mx-auto w-full max-w-[1200px] px-6 py-24 md:py-32">
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
@@ -60,15 +60,20 @@ export async function HowItWorks() {
           </PillLink>
         </div>
 
-        <ol className="mt-12 grid gap-6 md:grid-cols-3">
-          {STEPS.map((step) => {
+        <ol className="mt-12 grid gap-4 md:grid-cols-3">
+          {STEPS.map((step, i) => {
             const hash = hashes[step.link];
             return (
               <li
                 key={step.label}
-                className="flex flex-col rounded-card bg-panel p-6 md:p-8"
+                className="card flex flex-col p-6 md:p-8"
               >
-                <p className="text-[14px] font-medium text-tide">{step.label}</p>
+                <p className="flex items-center gap-3 text-[14px] font-medium text-tide">
+                  <span className="num flex h-7 w-7 items-center justify-center rounded-pill border border-tide/40 text-caption">
+                    {i + 1}
+                  </span>
+                  {step.label}
+                </p>
                 <h3 className="mt-3 text-sub font-medium text-text">{step.title}</h3>
                 <p className="mt-3 text-small text-ebb">{step.body}</p>
                 <div className="mt-auto pt-8">
