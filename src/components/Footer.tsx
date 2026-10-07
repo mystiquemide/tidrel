@@ -28,16 +28,6 @@ const GROUPS = [
   },
 ] as const;
 
-// Every photograph on the site, with a link to its page on Unsplash.
-const PHOTOS = [
-  { by: "Alex Gruber", href: "https://unsplash.com/photos/purple-curtain-in-close-up-photography-kDXMFY6phik" },
-  { by: "Alexander X.", href: "https://unsplash.com/photos/purple-fabric-drapes-in-a-soft-abstract-pattern-OoR2CLJnSws" },
-  { by: "Traxer", href: "https://unsplash.com/photos/a-bitcoin-sitting-on-top-of-a-black-surface-Y2P9q_IQlSU" },
-  { by: "Timelab", href: "https://unsplash.com/photos/shipping-port-with-containers-and-cranes-sWOvgOOFk1g" },
-  { by: "Alexey Marchenko", href: "https://unsplash.com/photos/an-aerial-view-of-the-ocean-with-waves-1l3bVHDWkpU" },
-  { by: "Enes Gundogdu", href: "https://unsplash.com/photos/modern-glass-skyscrapers-with-reflective-surfaces-z0jI8BA1Vmc" },
-] as const;
-
 const linkClass =
   "inline-flex items-center gap-1.5 rounded-input py-1 text-body text-graphite underline-offset-4 hover:text-ink hover:underline";
 
@@ -77,29 +67,13 @@ export function Footer() {
             </nav>
           ))}
         </div>
-        <div className="mt-14 flex flex-col gap-3 border-t border-mist pt-6 text-small text-slate">
+        <div className="mt-14 border-t border-mist pt-6 text-small text-slate">
           <p>
             Tidrel moves real USDC on Arc mainnet. Read the{" "}
             <Link href="/safety" className="rounded-input text-ink underline underline-offset-4">
               safety rules
             </Link>{" "}
             before you use it.
-          </p>
-          <p>
-            Photographs on Unsplash by{" "}
-            {PHOTOS.map((p, i) => (
-              <span key={p.by}>
-                <a
-                  href={p.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-input underline decoration-ash underline-offset-4 hover:text-ink"
-                >
-                  {p.by}
-                </a>
-                {i < PHOTOS.length - 2 ? ", " : i === PHOTOS.length - 2 ? " and " : "."}
-              </span>
-            ))}
           </p>
         </div>
       </div>

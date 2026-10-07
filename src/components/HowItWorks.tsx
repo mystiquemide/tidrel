@@ -1,56 +1,60 @@
 import Image from "next/image";
 import { explorerTx } from "@/lib/chain";
-import { formatDurationWords, formatUsdc, formatUsdcTight, shortHash } from "@/lib/format";
 import { getDemoCycles, headlineCycle } from "@/lib/landing";
-import { getReceipt } from "@/lib/receipt";
-import { MiniTide } from "./MiniTide";
 import { PillLink } from "./PillLink";
 
 type LinkKey = "draw" | "payout" | "repay";
 
+// Each screen is a real capture of the built app, read from Arc mainnet by
+// scripts/capture.mts. Nothing in them is drawn or edited by hand.
 const STEPS: {
+  n: string;
   title: string;
   body: string;
-  image: string;
-  alt: string;
+  screen: { src: string; w: number; h: number; alt: string };
   link: LinkKey;
   linkLabel: string;
 }[] = [
   {
-    title: "Draw",
-    body: "Exact USDC against cirBTC. Tidrel draws only the shortfall a trade needs, and your bitcoin stays posted as collateral.",
-    image: "/images/draw.webp",
-    alt: "A gold bitcoin resting on dark stones.",
+    n: "01",
+    title: "Draw exact USDC against cirBTC.",
+    body: "Your desk shows what you can draw right now. Tidrel draws only the shortfall a trade needs, and your bitcoin stays posted as collateral.",
+    screen: {
+      src: "/screens/draw.png",
+      w: 1520,
+      h: 680,
+      alt: "The demo desk on Arc mainnet: USDC available to draw, cirBTC collateral posted, borrowed now and cost so far.",
+    },
     link: "draw",
-    linkLabel: "See the draw",
+    linkLabel: "See a draw",
   },
   {
-    title: "Settle",
-    body: "Every counterparty is paid together in one Arc mainnet transaction, each payment tagged with your trade reference.",
-    image: "/images/settle.webp",
-    alt: "A container port at dusk, cranes over rows of stacked containers.",
+    n: "02",
+    title: "Pay every counterparty in one transaction.",
+    body: "Each payment carries your trade reference on chain, and every settlement gets a receipt you can share.",
+    screen: {
+      src: "/screens/settle.png",
+      w: 1560,
+      h: 904,
+      alt: "A settlement receipt from Arc mainnet: the trade reference, the total paid and each counterparty with its amount.",
+    },
     link: "payout",
-    linkLabel: "See the payout",
+    linkLabel: "See a payout",
   },
   {
-    title: "Repay",
-    body: "The debt stays open for seconds, not days. When USDC comes back, one signature closes it.",
-    image: "/images/tide.webp",
-    alt: "A wave breaking on black sand, seen from above.",
+    n: "03",
+    title: "Repay the moment USDC comes back.",
+    body: "The debt stays open for seconds, not days. One signature closes it, and the tide line shows every draw and repay.",
+    screen: {
+      src: "/screens/repay.png",
+      w: 1520,
+      h: 666,
+      alt: "The tide line of the demo desk: one crest per loan, rising at each draw and falling back at each repay.",
+    },
     link: "repay",
-    linkLabel: "See the repay",
+    linkLabel: "See a repay",
   },
 ];
-
-/** A small panel over each photograph with one figure from the newest repaid cycle. */
-function Chip({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-cell bg-porcelain/95 px-5 py-4 shadow-float">
-      <p className="eyebrow">{label}</p>
-      <p className="num mt-1.5 text-[22px] leading-tight text-ink">{value}</p>
-    </div>
-  );
-}
 
 export async function HowItWorks() {
   const data = await getDemoCycles();
@@ -59,36 +63,6 @@ export async function HowItWorks() {
     draw: head?.drawTxHash ?? null,
     payout: head?.txHash ?? null,
     repay: head?.repayTxHash ?? null,
-  };
-  // Each panel shows only what was read from chain for the newest repaid cycle.
-  const receipt = head?.txHash ? await getReceipt(head.txHash) : null;
-  const panels: Record<LinkKey, React.ReactNode> = {
-    draw: head ? <Chip label="Drawn" value={`${formatUsdc(head.drawnUsdc, 2)} USDC`} /> : null,
-    payout:
-      receipt && receipt.ok ? (
-        <div className="w-full rounded-cell bg-porcelain/95 px-5 py-4 shadow-float">
-          <p className="eyebrow">Receipt {receipt.payout.reference}</p>
-          <ul className="mt-2 divide-y divide-mist">
-            {receipt.payout.legs.slice(0, 3).map((l, i) => (
-              <li key={`${l.to}-${i}`} className="num flex justify-between gap-4 py-1.5 text-small text-ink">
-                <span>{shortHash(l.to)}</span>
-                <span>{formatUsdcTight(l.amountUsdc)} USDC</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : head ? (
-        <Chip label="Paid in one transaction" value={`${head.legs} counterparties`} />
-      ) : null,
-    repay:
-      head && head.openSeconds !== null && data.ok ? (
-        <div className="w-full rounded-cell bg-porcelain/95 px-5 py-4 shadow-float">
-          <p className="eyebrow">Loan open for {formatDurationWords(head.openSeconds)}</p>
-          <div className="mt-2">
-            <MiniTide settlements={data.settlements} />
-          </div>
-        </div>
-      ) : null,
   };
 
   return (
@@ -110,31 +84,38 @@ export async function HowItWorks() {
           </PillLink>
         </div>
 
-        <ol className="mt-12 grid gap-10 md:grid-cols-3 md:gap-4">
-          {STEPS.map((step) => {
+        <ol className="mt-14 flex flex-col gap-16 md:gap-24">
+          {STEPS.map((step, i) => {
             const hash = hashes[step.link];
-            const panel = panels[step.link];
             return (
-              <li key={step.title} className="flex flex-col">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-panel bg-cloud">
-                  <Image
-                    src={step.image}
-                    alt={step.alt}
-                    fill
-                    sizes="(min-width: 768px) 400px, 100vw"
-                    className="object-cover"
-                  />
-                  {panel && <div className="absolute inset-x-4 bottom-4 flex">{panel}</div>}
-                </div>
-                <h3 className="mt-6 text-h4 font-medium text-ink">{step.title}</h3>
-                <p className="mt-2 text-body text-slate">{step.body}</p>
-                {hash && (
-                  <div className="mt-auto pt-6">
-                    <PillLink href={explorerTx(hash)} variant="secondary" size="sm">
+              <li
+                key={step.n}
+                className={`grid items-center gap-8 lg:gap-16 ${
+                  i % 2 === 1 ? "lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]" : "lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"
+                }`}
+              >
+                <div className={i % 2 === 1 ? "lg:order-2" : undefined}>
+                  <p className="num text-small text-violet">{step.n}</p>
+                  <h3 className="mt-3 text-[26px] leading-[1.15] tracking-[-0.01em] text-ink md:text-h3">
+                    {step.title}
+                  </h3>
+                  <p className="mt-4 max-w-md text-body text-slate">{step.body}</p>
+                  {hash && (
+                    <PillLink href={explorerTx(hash)} variant="secondary" size="sm" className="mt-8">
                       {step.linkLabel}
                     </PillLink>
-                  </div>
-                )}
+                  )}
+                </div>
+                <figure className={`rounded-card bg-violet-tint p-4 sm:p-6 md:p-8 ${i % 2 === 1 ? "lg:order-1" : ""}`}>
+                  <Image
+                    src={step.screen.src}
+                    alt={step.screen.alt}
+                    width={step.screen.w}
+                    height={step.screen.h}
+                    sizes="(min-width: 1024px) 680px, 100vw"
+                    className="h-auto w-full"
+                  />
+                </figure>
               </li>
             );
           })}
