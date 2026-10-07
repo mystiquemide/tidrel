@@ -14,7 +14,8 @@ export async function ProofCards() {
   if (!head || head.openSeconds === null || head.interestUsdc === null) return null;
 
   const repaid = data.settlements.filter(
-    (s) => s.state === "repaid" && s.drawTxHash && s.openSeconds !== null,
+    // Full cycles only: a draw, a payout to counterparties, and a repay.
+    (s) => s.state === "repaid" && s.drawTxHash && s.txHash && s.openSeconds !== null,
   );
   const times = repaid.map((s) => s.openSeconds as number);
   const shortest = Math.min(...times);
@@ -54,7 +55,7 @@ export async function ProofCards() {
             </div>
             <div className="flex flex-col justify-between gap-6 p-8 md:p-10">
               <dt className="eyebrow">
-                {repaid.length} {repaid.length === 1 ? "cycle" : "cycles"} repaid
+                {repaid.length} {repaid.length === 1 ? "settlement" : "settlements"} drawn, paid and repaid
               </dt>
               <dd className="text-[24px] leading-tight text-ink md:text-[28px]">
                 {shortest === longest

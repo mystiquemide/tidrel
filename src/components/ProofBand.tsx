@@ -59,12 +59,12 @@ export async function ProofBand() {
         ) : (
           <>
             <h1 className="mt-5 max-w-[20ch] text-[36px] leading-[1.08] tracking-[-0.02em] md:text-h1">
-              {data.ok ? "First settlements land with the mainnet run." : "Chain data is unavailable right now."}
+              {data.ok ? "First settlements land with the mainnet run." : "Arc mainnet is not responding right now."}
             </h1>
             <p className="mt-6 max-w-2xl text-lead text-slate">
               {data.ok
                 ? "Every figure on this page is read from Arc mainnet. There is nothing to show until a draw has been repaid."
-                : "Every figure on this page is read from Arc mainnet, so nothing is shown until the read works. Try again in a moment."}
+                : "Every figure here is read live from the chain, so nothing is shown until it answers. Try again in a moment."}
             </p>
             {!data.ok && (
               <div className="mt-10">
@@ -75,7 +75,7 @@ export async function ProofBand() {
         )}
 
         {rows.length > 0 && (
-          <div className="mt-16">
+          <div id="cycles" className="mt-16 scroll-mt-24">
             <div className="flex items-baseline justify-between gap-4">
               <h2 className="text-h4 font-medium">Every cycle of the run</h2>
               <span className="num rounded-pill bg-cloud px-3 py-1 text-small text-ink">{rows.length}</span>

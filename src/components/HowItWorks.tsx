@@ -1,7 +1,9 @@
 import Image from "next/image";
 import { explorerTx } from "@/lib/chain";
-import { formatDurationWords, formatUsdc } from "@/lib/format";
+import { formatDurationWords, formatUsdc, formatUsdcTight, shortHash } from "@/lib/format";
 import { getDemoCycles, headlineCycle } from "@/lib/landing";
+import { getReceipt } from "@/lib/receipt";
+import { MiniTide } from "./MiniTide";
 import { PillLink } from "./PillLink";
 
 type LinkKey = "draw" | "payout" | "repay";
@@ -58,14 +60,35 @@ export async function HowItWorks() {
     payout: head?.txHash ?? null,
     repay: head?.repayTxHash ?? null,
   };
-  // Each chip shows only when its figure was read from chain.
-  const chips: Record<LinkKey, { label: string; value: string } | null> = {
-    draw: head ? { label: "Drawn", value: `${formatUsdc(head.drawnUsdc, 2)} USDC` } : null,
-    payout: head ? { label: "Paid in one transaction", value: `${head.legs} counterparties` } : null,
+  // Each panel shows only what was read from chain for the newest repaid cycle.
+  const receipt = head?.txHash ? await getReceipt(head.txHash) : null;
+  const panels: Record<LinkKey, React.ReactNode> = {
+    draw: head ? <Chip label="Drawn" value={`${formatUsdc(head.drawnUsdc, 2)} USDC`} /> : null,
+    payout:
+      receipt && receipt.ok ? (
+        <div className="w-full rounded-cell bg-porcelain/95 px-5 py-4 shadow-float">
+          <p className="eyebrow">Receipt {receipt.payout.reference}</p>
+          <ul className="mt-2 divide-y divide-mist">
+            {receipt.payout.legs.slice(0, 3).map((l, i) => (
+              <li key={`${l.to}-${i}`} className="num flex justify-between gap-4 py-1.5 text-small text-ink">
+                <span>{shortHash(l.to)}</span>
+                <span>{formatUsdcTight(l.amountUsdc)} USDC</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : head ? (
+        <Chip label="Paid in one transaction" value={`${head.legs} counterparties`} />
+      ) : null,
     repay:
-      head && head.openSeconds !== null
-        ? { label: "Loan open for", value: formatDurationWords(head.openSeconds) }
-        : null,
+      head && head.openSeconds !== null && data.ok ? (
+        <div className="w-full rounded-cell bg-porcelain/95 px-5 py-4 shadow-float">
+          <p className="eyebrow">Loan open for {formatDurationWords(head.openSeconds)}</p>
+          <div className="mt-2">
+            <MiniTide settlements={data.settlements} />
+          </div>
+        </div>
+      ) : null,
   };
 
   return (
@@ -90,7 +113,7 @@ export async function HowItWorks() {
         <ol className="mt-12 grid gap-10 md:grid-cols-3 md:gap-4">
           {STEPS.map((step) => {
             const hash = hashes[step.link];
-            const chip = chips[step.link];
+            const panel = panels[step.link];
             return (
               <li key={step.title} className="flex flex-col">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-panel bg-cloud">
@@ -101,11 +124,7 @@ export async function HowItWorks() {
                     sizes="(min-width: 768px) 400px, 100vw"
                     className="object-cover"
                   />
-                  {chip && (
-                    <div className="absolute bottom-4 left-4">
-                      <Chip {...chip} />
-                    </div>
-                  )}
+                  {panel && <div className="absolute inset-x-4 bottom-4 flex">{panel}</div>}
                 </div>
                 <h3 className="mt-6 text-h4 font-medium text-ink">{step.title}</h3>
                 <p className="mt-2 text-body text-slate">{step.body}</p>

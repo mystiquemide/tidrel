@@ -41,6 +41,19 @@ function TxLink({ hash, children }: { hash: string | null; children: React.React
   );
 }
 
+/** The trade reference opens its receipt, which in turn links every transaction. */
+function RefLink({ hash, children }: { hash: string | null; children: React.ReactNode }) {
+  if (!hash) return <>{children}</>;
+  return (
+    <Link
+      href={`/receipt/${hash}`}
+      className="rounded-input underline decoration-ash underline-offset-4 hover:decoration-ink"
+    >
+      {children}
+    </Link>
+  );
+}
+
 function ReceiptLink({ hash }: { hash: string }) {
   return (
     <Link href={`/receipt/${hash}`} className="inline-flex items-center gap-1 rounded-input text-small font-medium text-violet hover:underline">
@@ -78,7 +91,7 @@ export function SettlementsTable({ rows }: { rows: Settlement[] }) {
                   return (
                     <tr key={`${s.drawTxHash}-${s.txHash}`} className="border-b border-mist text-graphite transition-colors last:border-b-0 hover:bg-cloud">
                       <td className="num px-6 py-4 text-ink">
-                        <TxLink hash={s.txHash}>{c.ref}</TxLink>
+                        <RefLink hash={s.txHash}>{c.ref}</RefLink>
                       </td>
                       <td className="num px-6 py-4">{c.legs}</td>
                       <td className="num px-6 py-4">
@@ -105,14 +118,17 @@ export function SettlementsTable({ rows }: { rows: Settlement[] }) {
                   <li key={`${s.drawTxHash}-${s.txHash}`} className="px-6 py-5">
                     <div className="flex items-baseline justify-between gap-4">
                       <span className="num text-body text-ink">
-                        <TxLink hash={s.txHash}>{c.ref}</TxLink>
+                        <RefLink hash={s.txHash}>{c.ref}</RefLink>
                       </span>
                       <StateBadge s={s} />
                     </div>
                     {s.txHash && (
-                      <p className="mt-3">
-                        <ReceiptLink hash={s.txHash} />
-                      </p>
+                      <Link
+                        href={`/receipt/${s.txHash}`}
+                        className="mt-4 inline-flex h-10 items-center rounded-pill bg-cloud px-5 text-small font-medium text-ink hover:bg-mist"
+                      >
+                        View receipt
+                      </Link>
                     )}
                     <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-small">
                       {[
