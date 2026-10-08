@@ -92,8 +92,10 @@ export function buildPosition(args: {
 }): Position {
   const { loan } = args
   const debtUsdc = loan?.borrowed?.amount ?? '0'
+  // The caller prices the line on posted plus wallet cirBTC, because a draw posts what it
+  // needs from the wallet. It passes no max borrow when there is no cirBTC at all.
   const line =
-    args.postedCirBtc > 0n && args.maxBorrow
+    args.maxBorrow
       ? lineAtGuard({
           maxBorrowUsdc: args.maxBorrow.amount,
           maxBorrowHealth: args.maxBorrow.health,
@@ -173,12 +175,16 @@ export async function readPosition(wallet: Address): Promise<Position> {
     ])
 
   const postedCirBtc = morpho[2]
+  // What can be drawn depends on the cirBTC already posted plus the cirBTC in the wallet,
+  // since the first draw posts what it needs. Pricing only the posted part showed 0.00
+  // available to a wallet that held cirBTC but had not drawn yet.
+  const collateralForLine = postedCirBtc + walletCirBtc
   const maxBorrow =
-    postedCirBtc > 0n
+    collateralForLine > 0n
       ? await kit.borrow.getMaxBorrow({
           chain: BORROW_CHAIN,
           marketId: CIRBTC_USDC_MARKET_ID,
-          collateralAmount: formatUnits(postedCirBtc, CIRBTC_DECIMALS),
+          collateralAmount: formatUnits(collateralForLine, CIRBTC_DECIMALS),
         })
       : null
 

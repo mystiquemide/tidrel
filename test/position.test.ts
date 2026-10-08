@@ -102,6 +102,19 @@ describe('buildPosition', () => {
     })
   })
 
+  it('shows a line for a wallet that holds cirBTC but has not posted any yet', () => {
+    const p = buildPosition({
+      ...base,
+      loan: null,
+      postedCirBtc: 0n,
+      walletCirBtc: 3_900n,
+      maxBorrow: { amount: '2.3', health: 1.236088 },
+    })
+    expect(p.collateralCirBtc).toBe('0')
+    expect(hasCollateral(p)).toBe(true)
+    expect(Number(p.lineUsdc)).toBeGreaterThan(2)
+  })
+
   it('keeps the PENDING flag so the UI can say it is updating', () => {
     const p = buildPosition({
       ...base,
