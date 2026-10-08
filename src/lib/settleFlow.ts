@@ -15,10 +15,21 @@ export function describeError(e: unknown): string {
   const code = typeof e === 'object' && e !== null && 'code' in e ? Number((e as { code: unknown }).code) : undefined
   const msg = e instanceof Error ? e.message : ''
   if (code === USER_REJECTED || /user (rejected|denied)|rejected the request/i.test(msg)) {
-    return 'You cancelled in your wallet. Nothing was sent.'
+    return 'You cancelled in your wallet. Nothing was sent. If you try again straight away, Circle may ask you to wait a few minutes first.'
   }
   // Messages Tidrel writes itself are already plain language and say what to do.
   if (e instanceof Error && TIDREL_MESSAGE.test(msg)) return msg
+  // Circle's service keeps an earlier attempt to open a loan alive for a while, even one that was
+  // cancelled or failed in the wallet, and refuses a second open until it expires.
+  if (/BORROW_LOAN_ALREADY_EXISTS|earlier signed request to open this loan/i.test(msg)) {
+    const at = /retry after (\d{4}-\d\d-\d\dT[\d:.]+Z)/.exec(msg)?.[1]
+    const when = at ? new Date(at) : null
+    const time =
+      when && !Number.isNaN(when.getTime())
+        ? ` Try again after ${when.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}.`
+        : ' Try again in a few minutes.'
+    return `Circle's Borrow service is still holding your earlier attempt to open this loan. That happens after a cancelled or failed try, and it clears by itself. Nothing was sent.${time}`
+  }
   if (/insufficient funds|exceeds balance/i.test(msg)) {
     return 'The wallet does not have enough to cover this and its network fee. Add funds and try again.'
   }

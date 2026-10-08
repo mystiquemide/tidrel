@@ -35,7 +35,7 @@ describe('runSettlement', () => {
     const d = base()
     d.draw.mockRejectedValue(Object.assign(new Error('x'), { code: 4001 }))
     const out = await runSettlement({ plan: plan('1.2'), ...d })
-    expect(out).toEqual({ kind: 'failed', error: 'You cancelled in your wallet. Nothing was sent.' })
+    expect(out).toEqual({ kind: 'failed', error: expect.stringContaining('You cancelled in your wallet. Nothing was sent.') })
     expect(d.payout).not.toHaveBeenCalled()
   })
   it('reports drawn, not settled when the payout fails after a draw', async () => {
@@ -60,8 +60,19 @@ describe('runSettlement', () => {
 
 describe('describeError', () => {
   it('recognises a wallet rejection by code or text', () => {
-    expect(describeError({ code: 4001 })).toBe('You cancelled in your wallet. Nothing was sent.')
-    expect(describeError(new Error('User rejected the request.'))).toBe('You cancelled in your wallet. Nothing was sent.')
+    expect(describeError({ code: 4001 })).toContain('You cancelled in your wallet. Nothing was sent.')
+    expect(describeError(new Error('User rejected the request.'))).toContain('You cancelled in your wallet. Nothing was sent.')
+  })
+  it('explains Circle holding an earlier attempt to open the loan, with the time it clears', () => {
+    const e = new Error(
+      'BORROW_LOAN_ALREADY_EXISTS: An earlier signed request to open this loan is still live and has not expired. Wait for it to land or expire and retry after 2026-10-08T12:00:28Z; supplying loanId does not bypass it.',
+    )
+    const text = describeError(e)
+    expect(text).toContain('still holding your earlier attempt')
+    expect(text).toContain('Nothing was sent.')
+    expect(text).toMatch(/Try again after \d/)
+    expect(text).not.toContain('BORROW_LOAN_ALREADY_EXISTS')
+    expect(describeError(new Error('BORROW_LOAN_ALREADY_EXISTS: wait'))).toContain('Try again in a few minutes.')
   })
   it('shows Tidrel messages as written and keeps an unknown error to one short reason line', () => {
     expect(describeError(new Error('Your wallet disconnected. Reconnect it and try again.'))).toBe(
