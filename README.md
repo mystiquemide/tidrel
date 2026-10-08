@@ -14,6 +14,14 @@ Draw USDC against your cirBTC the moment a trade settles, and repay it the secon
 
 </div>
 
+## Check it in three minutes
+
+1. Watch the [2:22 demo](https://youtu.be/JPz2wk_3Eyc), a real settle and repay on Arc mainnet.
+2. Open the [live desk](https://tidrel.midelabs.xyz/view/0x100E8AF5Ba507641Bb87c7D3229B8d458b78ca04), no wallet needed. Every figure is read from the chain.
+3. Open the [proof page](https://tidrel.midelabs.xyz/proof) and click any transaction. Each cycle lists its draw, payout and repay.
+4. Read the contract: [TidrelSettler](https://explorer.arc.io/address/0xf041C51cA3E5F37D9F75C574AAe5aeBf42754957) is [verified on Sourcify](https://repo.sourcify.dev/5042/0xf041C51cA3E5F37D9F75C574AAe5aeBf42754957), 76 lines, no owner, no fee, no upgrade path.
+5. Try it yourself at [tidrel.midelabs.xyz/desk](https://tidrel.midelabs.xyz/desk) with a regular wallet on Arc, a little cirBTC and a few USDC for gas.
+
 ## The problem
 
 A desk settling a BTC trade in USDC has three options for the USDC leg today. It can hold idle USDC in advance, sell the BTC it wanted to keep, or ask a broker for a credit line, which comes with relationship terms and a credit process. Each one ties up capital for longer than the trade actually needs it.
