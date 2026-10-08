@@ -42,7 +42,7 @@ describe('executeDraw', () => {
     expect(a).toEqual(b)
     expect(d.borrow).toHaveBeenCalledWith({
       loanId: 'loan-1',
-      drawUsdc: '5.6',
+      drawUsdc: '5.65',
       idempotencyKey: p.idempotencyKey,
     })
   })

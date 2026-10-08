@@ -98,7 +98,7 @@ The value that moves is USDC and the thing that moves it is settlement, so Arc i
 
 256 Vitest tests and 8 Foundry tests, covering the parts that can lose money:
 
-- The planner: draws only the shortfall, refuses health below 1.20 and any draw above market liquidity, and refuses a reused reference.
+- The planner: draws only the shortfall plus a 0.05 USDC gas reserve that stays in the wallet, refuses health below 1.20 and any draw above market liquidity, and refuses a reused reference.
 - The contract: all-or-nothing payout, one-time references, a token that returns false, and no USDC left behind.
 - Failure handling: a draw that lands without its payout, a cancelled wallet prompt, and Circle's service lagging after a repay.
 - The page: every figure in the UI source must come from the chain, and the build fails if one is hardcoded.

@@ -9,7 +9,8 @@ import { formatUsdc, formatUsdcTight } from "@/lib/format";
 import { findReference, type Settlement } from "@/lib/history";
 import { kitDrawDeps, quoteDraw } from "@/lib/draw";
 import { browserAdapter } from "@/lib/kit";
-import { hasCollateral, readPosition, type Position } from "@/lib/position";
+import { hasCollateral, type Position } from "@/lib/position";
+import { readPositionOnServer } from "@/lib/positionRead";
 import {
   executeDraw,
   executePayouts,
@@ -112,7 +113,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
   const [reference, setReference] = useState("");
   const [rows, setRows] = useState<Row[]>([{ id: 1, to: "", amount: "" }]);
   const [position, setPosition] = useState<Position | null>(null);
-  const [positionError, setPositionError] = useState(false);
+  const [positionError, setPositionError] = useState<string | null>(null);
   const [planned, setPlanned] = useState<{ key: string; plan: SettlementPlan | null; error: boolean } | null>(null);
   const [step, setStep] = useState<Step | null>(null);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
@@ -146,9 +147,9 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
   useEffect(() => {
     if (!open) return;
     let live = true;
-    readPosition(address)
-      .then((p) => live && (setPosition(p), setPositionError(false)))
-      .catch(() => live && setPositionError(true));
+    readPositionOnServer(address)
+      .then((p) => live && (setPosition(p), setPositionError(null)))
+      .catch((e) => live && setPositionError(e instanceof Error ? e.message : "unknown reason"));
     return () => {
       live = false;
     };
@@ -238,6 +239,12 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
     setPosition(null);
     setEpoch((n) => n + 1);
   }
+  // A draw covers the shortfall plus a gas reserve, so the wallet keeps a little after paying.
+  const drawNow = plan ? Number(plan.drawUsdc) : 0;
+  const totalNow = plan ? Number(plan.totalUsdc) : 0;
+  const leftInWallet = position ? String(Math.max(0, Number((Number(position.walletUsdc) + drawNow - totalNow).toFixed(6)))) : "0";
+  const fromWallet = String(Math.max(0, Number((drawNow > 0 ? totalNow - drawNow + Number(leftInWallet) : totalNow).toFixed(6))));
+
 
   return (
     <dialog
@@ -445,10 +452,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
                     ) : null}
                     .
                   </p>
-                  <Line
-                    label="From your wallet"
-                    value={`${formatUsdcTight(String(Math.max(0, Number(plan.totalUsdc) - Number(plan.drawUsdc))))} USDC`}
-                  />
+                  <Line label="From your wallet" value={`${formatUsdcTight(fromWallet)} USDC`} />
                   <Line
                     label="Tidrel draws"
                     value={`${formatUsdcTight(plan.drawUsdc)} USDC`}
@@ -460,7 +464,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
                   {position && (
                     <Line
                       label="USDC left in your wallet"
-                      value={`${formatUsdcTight(String(Math.max(0, Number(position.walletUsdc) - Number(plan.totalUsdc))))} USDC`}
+                      value={`${formatUsdcTight(leftInWallet)} USDC`}
                     />
                   )}
                   {plan.resultingHealth !== null && (
@@ -470,7 +474,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
               ) : (
                 <p className="py-4 text-small text-slate">
                   {positionError
-                    ? "Your position did not load from Arc mainnet. Try again in a moment."
+                    ? `Your position did not load from Arc mainnet (${positionError}). Try again in a moment.`
                     : !ready
                       ? "Add a reference and who to pay to see the cost."
                       : planning || !position

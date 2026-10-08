@@ -16,7 +16,8 @@ import {
 } from "@/lib/collateral";
 import { formatFixed, formatUsdc } from "@/lib/format";
 import { browserAdapter } from "@/lib/kit";
-import { readPosition, type Position } from "@/lib/position";
+import { type Position } from "@/lib/position";
+import { readPositionOnServer } from "@/lib/positionRead";
 import { describeError } from "@/lib/settleFlow";
 
 type Props = {
@@ -66,7 +67,7 @@ export function CollateralSheet({ open, address, provider, onClose, onChanged }:
   const [mode, setMode] = useState<CollateralMode>("add");
   const [amount, setAmount] = useState("");
   const [position, setPosition] = useState<Position | null>(null);
-  const [positionError, setPositionError] = useState(false);
+  const [positionError, setPositionError] = useState<string | null>(null);
   const [planned, setPlanned] = useState<{ key: string; plan: CollateralPlan | null; error: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<{ mode: CollateralMode; txHash: string; amount: string } | null>(null);
@@ -83,13 +84,13 @@ export function CollateralSheet({ open, address, provider, onClose, onChanged }:
   useEffect(() => {
     if (!open) return;
     let live = true;
-    readPosition(address)
+    readPositionOnServer(address)
       .then((p) => {
         if (!live) return;
         setPosition(p);
-        setPositionError(false);
+        setPositionError(null);
       })
-      .catch(() => live && setPositionError(true));
+      .catch((e) => live && setPositionError(e instanceof Error ? e.message : "unknown reason"));
     return () => {
       live = false;
     };
@@ -294,7 +295,7 @@ export function CollateralSheet({ open, address, provider, onClose, onChanged }:
               ) : (
                 <p className="py-4 text-small text-slate">
                   {positionError
-                    ? "Your loan did not load from Arc mainnet. Try again in a moment."
+                    ? `Your loan did not load from Arc mainnet (${positionError}). Try again in a moment.`
                     : !position
                       ? "Reading your loan."
                       : !typed

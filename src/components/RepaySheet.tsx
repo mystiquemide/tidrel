@@ -6,7 +6,8 @@ import { explorerTx } from "@/lib/chain";
 import { browserAdapter } from "@/lib/kit";
 import { formatDuration, formatFixed, formatUsdc } from "@/lib/format";
 import type { Settlement } from "@/lib/history";
-import { readPosition, type Position } from "@/lib/position";
+import { type Position } from "@/lib/position";
+import { readPositionOnServer } from "@/lib/positionRead";
 import {
   executeRepay,
   kitRepayDeps,
@@ -47,7 +48,7 @@ function Line({ label, value }: { label: string; value: string }) {
 export function RepaySheet({ open, address, provider, settlements, suggestedUsdc, onClose, onChanged }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const [position, setPosition] = useState<Position | null>(null);
-  const [positionError, setPositionError] = useState(false);
+  const [positionError, setPositionError] = useState<string | null>(null);
   // The parent gives this sheet a new key per opening, so the suggestion seeds a fresh box.
   const [amount, setAmount] = useState(suggestedUsdc ?? "");
   const [planned, setPlanned] = useState<{ key: string; plan: RepayPlan | null; error: boolean } | null>(null);
@@ -67,13 +68,13 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
   useEffect(() => {
     if (!open) return;
     let live = true;
-    readPosition(address)
+    readPositionOnServer(address)
       .then((p) => {
         if (!live) return;
         setPosition(p);
-        setPositionError(false);
+        setPositionError(null);
       })
-      .catch(() => live && setPositionError(true));
+      .catch((e) => live && setPositionError(e instanceof Error ? e.message : "unknown reason"));
     return () => {
       live = false;
     };
@@ -248,7 +249,7 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
               ) : (
                 <p className="py-4 text-small text-slate">
                   {positionError
-                    ? "Your loan did not load from Arc mainnet. Try again in a moment."
+                    ? `Your loan did not load from Arc mainnet (${positionError}). Try again in a moment.`
                     : !position
                       ? "Reading your loan."
                       : current?.error

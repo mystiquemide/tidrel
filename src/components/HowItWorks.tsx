@@ -21,7 +21,7 @@ const STEPS: {
   {
     n: "01",
     title: "Draw exact USDC against cirBTC.",
-    body: "Your desk shows what you can draw right now. Tidrel draws only the shortfall a trade needs, and your bitcoin stays posted as collateral.",
+    body: "Your desk shows what you can draw right now. Tidrel draws only the shortfall a trade needs, plus a few cents for gas, and your bitcoin stays posted as collateral.",
     screen: {
       src: "/screens/draw.png",
       w: 1520,

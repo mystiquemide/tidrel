@@ -15,6 +15,12 @@ import { buildSettleCalls, MAX_REFERENCE_BYTES, referenceBytes, referenceToBytes
 
 export const MIN_HEALTH = 1.2
 export const SLIPPAGE_BPS = 50
+/**
+ * Gas on Arc is paid in USDC from the same wallet balance. A draw that covers only the
+ * shortfall leaves the wallet at exactly zero, so the draw's own gas leaves the payout a
+ * little short and it reverts. A draw therefore also covers this reserve, which stays in the wallet.
+ */
+export const GAS_RESERVE_USDC = '0.05'
 
 export type Refusal =
   | 'HEALTH'
@@ -141,7 +147,8 @@ export async function planSettlement(
 
   const total = parsed.legs.reduce((s, l) => s + l.amount, 0n)
   const wallet = parseUnits(position.walletUsdc, USDC_DECIMALS)
-  const draw = total > wallet ? total - wallet : 0n
+  const reserve = parseUnits(GAS_RESERVE_USDC, USDC_DECIMALS)
+  const draw = total > wallet ? total + reserve - wallet : 0n
   const filled = {
     legs: parsed.legs.map((l) => ({ to: l.to, amountUsdc: usdc(l.amount) })),
     mergedDuplicates: parsed.mergedDuplicates,

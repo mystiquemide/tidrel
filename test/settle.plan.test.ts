@@ -31,19 +31,33 @@ const legs = [
 ]
 
 describe('planSettlement', () => {
-  it('draws only the shortfall', async () => {
+  it('draws the shortfall plus a small gas reserve that stays in the wallet', async () => {
     const d = deps()
     const plan = await planSettlement({ reference: 'BLK-1', legs }, position(), d)
     expect(plan.refusal).toBeNull()
     expect(plan.totalUsdc).toBe('6')
-    expect(plan.drawUsdc).toBe('5.6')
+    // The wallet holds 0.4, the payout is 6, so the shortfall is 5.6 and the reserve adds 0.05.
+    expect(plan.drawUsdc).toBe('5.65')
     expect(plan.resultingHealth).toBe(1.31)
     expect(plan.idempotencyKey).toBe('key-1')
     expect(d.quoteDraw).toHaveBeenCalledWith({
       wallet: WALLET,
       loanId: 'loan-1',
-      drawUsdc: '5.6',
+      drawUsdc: '5.65',
     })
+  })
+
+  it('leaves the gas reserve in the wallet after paying everyone', async () => {
+    const plan = await planSettlement({ reference: 'BLK-1', legs }, position(), deps())
+    const wallet = 0.4
+    expect(wallet + Number(plan.drawUsdc) - Number(plan.totalUsdc)).toBeCloseTo(0.05, 6)
+  })
+
+  it('draws nothing when the wallet already covers the payout', async () => {
+    const d = deps()
+    const plan = await planSettlement({ reference: 'BLK-1', legs }, position({ walletUsdc: '10' }), d)
+    expect(plan.drawUsdc).toBe('0')
+    expect(d.quoteDraw).not.toHaveBeenCalled()
   })
 
   it('self-funds with no draw or quote when the wallet covers the total', async () => {

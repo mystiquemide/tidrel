@@ -89,7 +89,7 @@ function GetStarted({ walletCirBtc, canSettle }: { walletCirBtc: string | null; 
           ? `This wallet holds ${formatFixed(walletCirBtc, 8)} cirBTC. Tidrel posts what a draw needs.`
           : "cirBTC is the collateral. Tidrel posts only what each draw needs, from this wallet.",
     },
-    { title: "Settle a trade", body: "Add a reference and who to pay. Tidrel draws only the USDC you are short, then pays everyone in one transaction." },
+    { title: "Settle a trade", body: "Add a reference and who to pay. Tidrel draws only the USDC you are short, plus a few cents to cover gas, then pays everyone in one transaction." },
     { title: "Repay when USDC lands", body: "Repay in one tap. Your collateral stays posted for the next trade." },
   ];
   return (
