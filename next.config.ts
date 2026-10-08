@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Keeps the dev server from writing extra rule files into the repo root.
   agentRules: false,
+  // The home and proof pages read live Arc mainnet data during static generation,
+  // which can exceed the default 60s budget in CI. Give them more time to finish.
+  staticPageGenerationTimeout: 120,
   async headers() {
     return [
       {
