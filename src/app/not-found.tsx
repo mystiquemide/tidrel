@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { Footer } from "@/components/Footer";
 import { NavBar } from "@/components/NavBar";
 import { PillLink } from "@/components/PillLink";
 import { SkipLink } from "@/components/SkipLink";
@@ -30,7 +29,6 @@ export default function NotFound() {
           </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

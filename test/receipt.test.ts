@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { encodeAbiParameters, encodeEventTopics, padHex, stringToHex, type Address, type Log } from 'viem'
+import { TransactionReceiptNotFoundError, encodeAbiParameters, encodeEventTopics, padHex, stringToHex, type Address, type Log } from 'viem'
 import { settlerAbi } from '../src/lib/abis'
 import { ADDRESSES } from '../src/lib/chain'
-import { decodePayout } from '../src/lib/receipt'
+import { decodePayout, lookupReceipt } from '../src/lib/receipt'
 
 const payer = '0x100E8AF5Ba507641Bb87c7D3229B8d458b78ca04' as Address
 const a = '0x1111111111111111111111111111111111111111' as Address
@@ -46,5 +46,27 @@ describe('decodePayout', () => {
 
   it('returns null when the transaction holds no payout', () => {
     expect(decodePayout([])).toBeNull()
+  })
+})
+
+describe('lookupReceipt', () => {
+  const hash = ('0x' + 'ab'.repeat(32)) as `0x${string}`
+  const missing = () => Promise.reject(new TransactionReceiptNotFoundError({ hash }))
+  const down = () => Promise.reject(new Error('429 rate limited'))
+  const has = (n: number) => () => Promise.resolve({ blockNumber: BigInt(n) } as never)
+  const src = (get: () => Promise<never>) => ({ getTransactionReceipt: get, getBlock: () => Promise.resolve({} as never) })
+
+  it('keeps going past a node that answers null and past one that is down', async () => {
+    const r = await lookupReceipt(hash, [src(down), src(missing), src(has(7))])
+    expect(r).toMatchObject({ found: true })
+    expect(r.found && r.receipt.blockNumber).toBe(7n)
+  })
+
+  it('reports the transaction absent only when every node answers with nothing', async () => {
+    expect(await lookupReceipt(hash, [src(missing), src(missing)])).toEqual({ found: false, failed: false })
+  })
+
+  it('reports a chain problem, not a missing receipt, when a node failed and none had it', async () => {
+    expect(await lookupReceipt(hash, [src(down), src(missing)])).toEqual({ found: false, failed: true })
   })
 })

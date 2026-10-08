@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Footer } from "@/components/Footer";
 import { NavBar } from "@/components/NavBar";
 import { PillLink } from "@/components/PillLink";
 import { SkipLink } from "@/components/SkipLink";
@@ -165,7 +164,6 @@ export default async function ReceiptPage({ params }: Props) {
           )}
         </div>
       </main>
-      <Footer />
     </>
   );
 }

@@ -1,7 +1,18 @@
 import { cache } from 'react'
-import { formatUnits, getAddress, isHash, parseEventLogs, type Address, type Hash, type Log } from 'viem'
+import {
+  TransactionReceiptNotFoundError,
+  createPublicClient,
+  formatUnits,
+  getAddress,
+  http,
+  isHash,
+  parseEventLogs,
+  type Address,
+  type Hash,
+  type Log,
+} from 'viem'
 import { erc20Abi, memoAbi, settlerAbi } from './abis'
-import { ADDRESSES, USDC_DECIMALS } from './chain'
+import { ADDRESSES, ARC_RPC_FALLBACK_URLS, USDC_DECIMALS, arcChain } from './chain'
 import { publicClient } from './client'
 import { isDemoDesk } from './deskAddress'
 import { readHistory, type Settlement } from './history'
@@ -79,17 +90,41 @@ export type Receipt =
     }
   | { ok: false; reason: 'invalid' | 'not-found' | 'not-a-payout' | 'chain' }
 
+type ReceiptSource = Pick<typeof publicClient, 'getTransactionReceipt' | 'getBlock'>
+
+const receiptSources: ReceiptSource[] = ARC_RPC_FALLBACK_URLS.map((url) =>
+  createPublicClient({ chain: arcChain, transport: http(url, { retryCount: 1, retryDelay: 300 }) }),
+)
+
+/**
+ * Asks each RPC in turn for the receipt. A node that has pruned old blocks answers null,
+ * which is a reply and not an error, so the shared failover stops there and calls a real
+ * receipt missing. Only when every node answers with nothing is the transaction absent.
+ */
+export async function lookupReceipt(hash: Hash, sources: ReceiptSource[] = receiptSources) {
+  let failed = false
+  for (const source of sources) {
+    try {
+      return { found: true as const, receipt: await source.getTransactionReceipt({ hash }), source }
+    } catch (e) {
+      if (!(e instanceof TransactionReceiptNotFoundError)) failed = true
+    }
+  }
+  return { found: false as const, failed }
+}
+
 export const getReceipt = cache(async (raw: string): Promise<Receipt> => {
   if (!isHash(raw)) return { ok: false, reason: 'invalid' }
   try {
-    const receipt = await publicClient.getTransactionReceipt({ hash: raw }).catch(() => null)
-    if (!receipt) return { ok: false, reason: 'not-found' }
+    const hit = await lookupReceipt(raw)
+    if (!hit.found) return { ok: false, reason: hit.failed ? 'chain' : 'not-found' }
+    const { receipt, source } = hit
     const payout =
       receipt.status === 'success'
         ? (decodePayout(receipt.logs) ?? decodeMemoPayout(receipt.logs, receipt.from))
         : null
     if (!payout) return { ok: false, reason: 'not-a-payout' }
-    const block = await publicClient.getBlock({ blockNumber: receipt.blockNumber })
+    const block = await source.getBlock({ blockNumber: receipt.blockNumber })
     // The demo desk's cycles are already read and kept for the home and proof pages.
     const cycle = isDemoDesk(payout.payer)
       ? await getDemoCycles()
