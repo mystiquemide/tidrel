@@ -316,7 +316,7 @@ export function CollateralSheet({ open, address, provider, onClose, onChanged }:
             )}
             {failure && (
               <p role="alert" className="mt-4 text-small text-warn">
-                {failure} Nothing was moved.
+                {failure}{/nothing was (sent|moved)/i.test(failure) ? "" : " Nothing was moved."}
               </p>
             )}
 

@@ -348,16 +348,25 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
             </p>
 
             <fieldset className="mt-6" disabled={busy}>
-              <legend className="text-small font-medium text-graphite">Pay to</legend>
-              <ul className="mt-2 flex flex-col gap-3">
+              <legend className="text-small font-medium text-graphite">Who are you paying?</legend>
+              <p className="mt-1 text-caption text-slate">
+                Enter the wallet address of each person or company that receives USDC for this trade. This is not your own
+                address: the wallet you connected is the one that pays. To try it out, use another wallet you control.
+              </p>
+              <div className="mt-3 grid grid-cols-[minmax(0,1fr)_112px_auto] gap-2 text-caption text-slate sm:grid-cols-[minmax(0,1fr)_132px_auto]" aria-hidden="true">
+                <span>Their wallet address</span>
+                <span>Amount (USDC)</span>
+                <span className="w-10" />
+              </div>
+              <ul className="mt-1 flex flex-col gap-3">
                 {rows.map((r, i) => (
                   <li key={r.id} className="grid grid-cols-[minmax(0,1fr)_112px_auto] items-center gap-2 sm:grid-cols-[minmax(0,1fr)_132px_auto]">
                     <input
-                      aria-label={`Recipient ${i + 1} address`}
+                      aria-label={`Recipient ${i + 1}, their wallet address`}
                       value={r.to}
                       onChange={(e) => setRows((rs) => rs.map((x) => (x.id === r.id ? { ...x, to: e.target.value } : x)))}
                       list="saved-counterparties"
-                      placeholder="0x address"
+                      placeholder="0x…"
                       autoComplete="off"
                       spellCheck={false}
                       className={`${field} num min-w-0 text-small`}
@@ -366,7 +375,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
                       aria-label={`Recipient ${i + 1} amount in USDC`}
                       value={r.amount}
                       onChange={(e) => setRows((rs) => rs.map((x) => (x.id === r.id ? { ...x, amount: e.target.value } : x)))}
-                      placeholder="USDC"
+                      placeholder="0.00"
                       inputMode="decimal"
                       autoComplete="off"
                       className={`${field} num text-small`}
@@ -388,12 +397,17 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
                   </li>
                 ))}
               </ul>
+              {rows.some((r) => r.to.trim().toLowerCase() === address.toLowerCase()) && (
+                <p role="status" className="mt-2 text-caption text-warn">
+                  One of these is your own wallet, so you would be paying yourself. Enter the wallet of the person or company you are paying.
+                </p>
+              )}
               <button
                 type="button"
                 onClick={() => setRows((rs) => [...rs, { id: nextId.current++, to: "", amount: "" }])}
                 className="mt-3 inline-flex h-10 items-center gap-1.5 rounded-pill bg-cloud px-4 text-small font-medium text-ink transition-colors hover:bg-mist"
               >
-                + Add counterparty
+                + Add another recipient
               </button>
               <button
                 type="button"
@@ -405,7 +419,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
               {pasteOpen && (
                 <div className="mt-3">
                   <label htmlFor="paste-list" className="text-caption text-slate">
-                    One counterparty per line: an address, then an amount in USDC. This replaces the list above.
+                    One recipient per line: their wallet address, a comma, then the amount in USDC. This replaces the list above.
                   </label>
                   <textarea
                     id="paste-list"
@@ -444,7 +458,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
                   <p className="py-3 text-small text-graphite">
                     Your wallet pays{" "}
                     <span className="num text-ink">{formatUsdcTight(plan.totalUsdc)} USDC</span> to{" "}
-                    {plan.legs.length} {plan.legs.length === 1 ? "counterparty" : "counterparties"}
+                    {plan.legs.length} {plan.legs.length === 1 ? "recipient" : "recipients"}
                     {plan.drawUsdc !== "0" ? (
                       <>
                         , after Tidrel draws <span className="num text-ink">{formatUsdcTight(plan.drawUsdc)} USDC</span> against your cirBTC
@@ -496,7 +510,7 @@ export function SettleSheet({ open, address, provider, settlements, onClose, onR
             )}
             {outcome?.kind === "failed" && (
               <p role="alert" className="mt-4 text-small text-warn">
-                {outcome.error} Nothing was sent.
+                {outcome.error}{/nothing was (sent|moved)/i.test(outcome.error) ? "" : " Nothing was sent."}
               </p>
             )}
             {step && <Progress step={step} skipDraw={false} />}

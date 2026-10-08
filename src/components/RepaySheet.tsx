@@ -270,7 +270,7 @@ export function RepaySheet({ open, address, provider, settlements, suggestedUsdc
             )}
             {failure && (
               <p role="alert" className="mt-4 text-small text-warn">
-                {failure} Nothing was repaid.
+                {failure}{/nothing was (sent|moved|repaid)/i.test(failure) ? "" : " Nothing was repaid."}
               </p>
             )}
 

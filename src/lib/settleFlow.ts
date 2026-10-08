@@ -28,7 +28,16 @@ export function describeError(e: unknown): string {
   // Anything else stays out of the interface: raw node errors are not readable and can
   // leak internals. The full error goes to the console for whoever is debugging.
   console.error('Tidrel: transaction failed', e)
-  return 'The transaction did not go through. Check your wallet, then try again.'
+  return `The transaction did not go through. Check your wallet, then try again.${reasonOf(e)}`
+}
+
+/** The wallet's or node's own first line, kept short, so a failure can be reported and fixed. */
+function reasonOf(e: unknown): string {
+  const anyE = e as { shortMessage?: unknown; message?: unknown; code?: unknown } | null
+  const raw = typeof anyE?.shortMessage === 'string' ? anyE.shortMessage : typeof anyE?.message === 'string' ? anyE.message : ''
+  const line = raw.split('\n')[0].trim().slice(0, 140)
+  const code = typeof anyE?.code === 'number' || typeof anyE?.code === 'string' ? ` [${String(anyE.code).slice(0, 20)}]` : ''
+  return line ? ` Reason: ${line}${code}` : ''
 }
 
 /** Errors Tidrel throws itself start with one of these, so they are shown as written. */

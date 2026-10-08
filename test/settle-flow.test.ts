@@ -42,7 +42,7 @@ describe('runSettlement', () => {
     const d = base()
     d.payout.mockRejectedValue(new Error('reverted'))
     const out = await runSettlement({ plan: plan('1.2'), ...d })
-    expect(out).toEqual({ kind: 'drawn-not-settled', drawTx: '0xdraw', error: 'The transaction did not go through. Check your wallet, then try again.' })
+    expect(out).toEqual({ kind: 'drawn-not-settled', drawTx: '0xdraw', error: 'The transaction did not go through. Check your wallet, then try again. Reason: reverted' })
   })
   it('retries only the payout and never draws twice', async () => {
     const d = base()
@@ -54,7 +54,7 @@ describe('runSettlement', () => {
   it('says a payout failure with no draw is plainly failed', async () => {
     const d = base()
     d.payout.mockRejectedValue(new Error('nope'))
-    expect(await runSettlement({ plan: plan('0'), ...d })).toEqual({ kind: 'failed', error: 'The transaction did not go through. Check your wallet, then try again.' })
+    expect(await runSettlement({ plan: plan('0'), ...d })).toEqual({ kind: 'failed', error: 'The transaction did not go through. Check your wallet, then try again. Reason: nope' })
   })
 })
 
@@ -63,12 +63,15 @@ describe('describeError', () => {
     expect(describeError({ code: 4001 })).toBe('You cancelled in your wallet. Nothing was sent.')
     expect(describeError(new Error('User rejected the request.'))).toBe('You cancelled in your wallet. Nothing was sent.')
   })
-  it('shows Tidrel messages as written and hides raw node errors', () => {
+  it('shows Tidrel messages as written and keeps an unknown error to one short reason line', () => {
     expect(describeError(new Error('Your wallet disconnected. Reconnect it and try again.'))).toBe(
       'Your wallet disconnected. Reconnect it and try again.',
     )
     expect(describeError(new Error('insufficient funds for gas'))).toContain('does not have enough')
-    expect(describeError(new Error('boom\nstack'))).toBe('The transaction did not go through. Check your wallet, then try again.')
+    // Only the first line of an unknown error is shown, never a stack, and it is capped in length.
+    expect(describeError(new Error('boom\nstack'))).toBe('The transaction did not go through. Check your wallet, then try again. Reason: boom')
+    expect(describeError(new Error('x'.repeat(500)))).toHaveLength('The transaction did not go through. Check your wallet, then try again. Reason: '.length + 140)
+    expect(describeError(Object.assign(new Error('Internal JSON-RPC error.'), { code: -32603 }))).toContain('Reason: Internal JSON-RPC error. [-32603]')
     expect(describeError(undefined)).toBe('The transaction did not go through. Check your wallet, then try again.')
   })
 })
