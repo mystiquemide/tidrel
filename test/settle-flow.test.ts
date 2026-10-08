@@ -74,6 +74,16 @@ describe('describeError', () => {
     expect(text).not.toContain('BORROW_LOAN_ALREADY_EXISTS')
     expect(describeError(new Error('BORROW_LOAN_ALREADY_EXISTS: wait'))).toContain('Try again in a few minutes.')
   })
+  it('does not tell a normal wallet it cannot batch when the real problem was reaching Arc', () => {
+    const e = Object.assign(
+      new Error('Borrowing requires a wallet that can settle an atomic batch, and 0x9f75 cannot on Arc. Use a batch-capable wallet.'),
+      { code: 1008 },
+    )
+    const text = describeError(e)
+    expect(text).toContain('could not check your wallet against the Arc network')
+    expect(text).toContain('Nothing was sent.')
+    expect(text).not.toContain('atomic batch')
+  })
   it('shows Tidrel messages as written and keeps an unknown error to one short reason line', () => {
     expect(describeError(new Error('Your wallet disconnected. Reconnect it and try again.'))).toBe(
       'Your wallet disconnected. Reconnect it and try again.',

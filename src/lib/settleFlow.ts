@@ -30,6 +30,10 @@ export function describeError(e: unknown): string {
         : ' Try again in a few minutes.'
     return `Circle's Borrow service is still holding your earlier attempt to open this loan. That happens after a cancelled or failed try, and it clears by itself. Nothing was sent.${time}`
   }
+  // The adapter says "cannot batch" when it could not read the chain to check, so a normal wallet gets this too.
+  if (/requires a wallet that can settle an atomic batch/i.test(msg)) {
+    return 'Tidrel could not check your wallet against the Arc network, usually because a blocker or the connection stopped the page reaching Arc. Nothing was sent. Reload the page, turn off ad or tracker blockers for this site, and try again.'
+  }
   if (/insufficient funds|exceeds balance/i.test(msg)) {
     return 'The wallet does not have enough to cover this and its network fee. Add funds and try again.'
   }

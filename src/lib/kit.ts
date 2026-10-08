@@ -20,6 +20,7 @@ export { publicClient }
 export function browserAdapter(provider: EIP1193Provider) {
   return createViemAdapterFromProvider({
     provider,
+    getPublicClient: () => publicClient,
     capabilities: { addressContext: 'user-controlled' },
   })
 }
