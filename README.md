@@ -40,7 +40,7 @@ In one mainnet cycle, a draw stayed open for **44 seconds** and cost **0.000001 
 
 [Draw](https://explorer.arc.io/tx/0xb861dc5e9c2f9fe6a6ae0c1063adcea340b6ae4130d6fc0fafaa92106b1a5a86) · [Payout, 3 counterparties](https://explorer.arc.io/tx/0xf839e087bd40643d9583c050a8bfda686c1488300c2a6454909dbee284f9521c) · [Repay](https://explorer.arc.io/tx/0xd7bdab379078589562720e46b36082265b5e7388a62ff177e3b7723b65ef93be)
 
-Four repaid cycles so far, 44 to 199 seconds each, all at 0.000001 USDC of interest. The live [proof page](https://tidrel.midelabs.xyz/proof) lists every one with its three transactions.
+Five repaid cycles so far, 44 to 199 seconds each, all at 0.000001 USDC of interest. The live [proof page](https://tidrel.midelabs.xyz/proof) lists every one with its three transactions.
 
 ![The Tidrel desk for the demo wallet, read from Arc mainnet](public/captures/desk.png)
 
@@ -98,7 +98,7 @@ The value that moves is USDC and the thing that moves it is settlement, so Arc i
 
 ## How it is tested
 
-256 Vitest tests and 8 Foundry tests, covering the parts that can lose money:
+340 Vitest tests and 8 Foundry tests, covering the parts that can lose money:
 
 - The planner: draws only the shortfall plus a 0.05 USDC gas reserve that stays in the wallet, refuses health below 1.20 and any draw above market liquidity, and refuses a reused reference.
 - The contract: all-or-nothing payout, one-time references, a token that returns false, and no USDC left behind.
@@ -114,7 +114,7 @@ git clone https://github.com/mystiquemide/tidrel.git
 cd tidrel
 npm ci
 cp .env.example .env.local   # public settings, no secrets
-npm test                     # 256 tests
+npm test                     # 340 tests
 npm run dev                  # http://localhost:3000
 ```
 
@@ -140,7 +140,7 @@ Arc mainnet, chain ID 5042. The market is cirBTC/USDC on Morpho Blue. TidrelSett
 - The counterparties in the run are wallets controlled by the builder, and they returned the USDC after each payout. The cycles prove the mechanism, not demand.
 - Quotes, draws and repays go through Circle's Borrow service. When it is unreachable, Tidrel shows chain data only and disables draws.
 - A settlement takes two transactions: the draw, then one batch that pays everyone. A failure between them is handled and shown, but it can happen.
-- TidrelSettler is unaudited. Its source is verified on Sourcify, but the explorer's own contract tab sits behind a bot challenge I could not check from a script. The browser flow was tested with a scripted wallet in place of a wallet extension.
+- TidrelSettler is unaudited. Its source is verified on Sourcify, but the explorer's own contract tab sits behind a bot challenge I could not check from a script. The settle and repay flow has run end to end from the browser with a regular wallet (Rabby) on mainnet.
 
 ## Next
 
