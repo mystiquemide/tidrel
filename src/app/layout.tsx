@@ -18,7 +18,7 @@ const DESCRIPTION =
   "Draw USDC against your cirBTC the moment a trade settles, and repay it the second USDC comes back. On Arc mainnet.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://tidrel.vercel.app"),
+  metadataBase: new URL("https://tidrel.midelabs.xyz"),
   title: { default: "Tidrel: settle in USDC, keep your bitcoin", template: "%s | Tidrel" },
   description: DESCRIPTION,
   openGraph: {

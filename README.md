@@ -6,7 +6,7 @@
 
 Draw USDC against your cirBTC the moment a trade settles, and repay it the second USDC comes back.
 
-**Live on Arc mainnet:** [tidrel.vercel.app](https://tidrel.vercel.app)
+**Live on Arc mainnet:** [tidrel.midelabs.xyz](https://tidrel.midelabs.xyz)
 
 [Repo](https://github.com/mystiquemide/tidrel) · [Contracts](#contracts-and-addresses) · Built by [MystiqueMide](https://github.com/mystiquemide)
 
@@ -38,7 +38,7 @@ In one mainnet cycle, a draw stayed open for **44 seconds** and cost **0.000001 
 
 [Draw](https://explorer.arc.io/tx/0xb861dc5e9c2f9fe6a6ae0c1063adcea340b6ae4130d6fc0fafaa92106b1a5a86) · [Payout, 3 counterparties](https://explorer.arc.io/tx/0xf839e087bd40643d9583c050a8bfda686c1488300c2a6454909dbee284f9521c) · [Repay](https://explorer.arc.io/tx/0xd7bdab379078589562720e46b36082265b5e7388a62ff177e3b7723b65ef93be)
 
-Four repaid cycles so far, 44 to 199 seconds each, all at 0.000001 USDC of interest. The live [proof page](https://tidrel.vercel.app/proof) lists every one with its three transactions.
+Four repaid cycles so far, 44 to 199 seconds each, all at 0.000001 USDC of interest. The live [proof page](https://tidrel.midelabs.xyz/proof) lists every one with its three transactions.
 
 ![The Tidrel desk for the demo wallet, read from Arc mainnet](public/captures/desk.png)
 
