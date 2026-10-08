@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ADDRESSES, EXPLORER_URL, explorerAddress } from "@/lib/chain";
-import { TidrelLockup } from "./TidrelMark";
+import { TidrelLockup, TidrelMark } from "./TidrelMark";
 
 const GROUPS = [
   {
@@ -10,6 +10,7 @@ const GROUPS = [
       { label: "Mainnet proof", href: "/proof" },
       { label: "Safety rules", href: "/safety" },
       { label: "Contracts", href: "/contracts" },
+      { label: "Documentation", href: "/docs" },
     ],
   },
   {
@@ -61,7 +62,7 @@ export function Footer() {
             </nav>
           ))}
         </div>
-        <div className="mt-14 border-t border-mist pt-6 text-small text-slate">
+        <div className="mt-14 flex flex-col gap-6 border-t border-mist pt-6 text-small text-slate">
           <p>
             Tidrel moves real USDC on Arc mainnet. Read the{" "}
             <Link href="/safety" className="rounded-input text-ink underline underline-offset-4">
@@ -69,6 +70,23 @@ export function Footer() {
             </Link>{" "}
             before you use it.
           </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="flex items-center gap-2">
+              <TidrelMark size={16} strokeWidth={3} className="text-violet" />
+              <span>
+                <span aria-hidden="true">&copy;</span>
+                <span className="sr-only">Copyright</span> {new Date().getFullYear()} Tidrel. All rights reserved.
+              </span>
+            </p>
+            <nav aria-label="Legal" className="flex gap-5">
+              <Link href="/terms" className="rounded-input underline-offset-4 hover:text-ink hover:underline">
+                Terms
+              </Link>
+              <Link href="/privacy" className="rounded-input underline-offset-4 hover:text-ink hover:underline">
+                Privacy
+              </Link>
+            </nav>
+          </div>
         </div>
       </div>
     </footer>

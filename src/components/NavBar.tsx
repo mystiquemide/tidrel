@@ -17,6 +17,7 @@ const LINKS: NavLink[] = [
   { label: "Proof", href: "/proof" },
   { label: "Safety", href: "/safety" },
   { label: "Contracts", href: "/contracts" },
+  { label: "Docs", href: "/docs" },
 ];
 
 /**

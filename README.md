@@ -8,7 +8,7 @@ Draw USDC against your cirBTC the moment a trade settles, and repay it the secon
 
 **Live on Arc mainnet:** [tidrel.midelabs.xyz](https://tidrel.midelabs.xyz)
 
-[Repo](https://github.com/mystiquemide/tidrel) · [Contracts](#contracts-and-addresses) · Built by [MystiqueMide](https://github.com/mystiquemide)
+[Docs](https://tidrel.midelabs.xyz/docs) · [Repo](https://github.com/mystiquemide/tidrel) · [Contracts](#contracts-and-addresses) · Built by [MystiqueMide](https://github.com/mystiquemide)
 
 [![Watch the Tidrel demo (2:22)](public/media/demo-thumbnail.jpg)](https://youtu.be/JPz2wk_3Eyc)
 
