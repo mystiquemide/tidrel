@@ -149,6 +149,17 @@ vi.mock('../src/lib/client', () => ({
   },
 }))
 
+// The history reader asks every RPC for a receipt through this module. Here it answers from the same mock.
+vi.mock('../src/lib/rpcReceipt', () => ({
+  lookupReceipt: async (hash: string) => {
+    try {
+      return { found: true as const, receipt: await mocks.receipt({ hash }), source: {} }
+    } catch {
+      return { found: false as const, failed: true }
+    }
+  },
+}))
+
 describe('readHistory', () => {
   const store = [
     memoLog(WALLET, 'BLK-1', keccak256(toHex('BLK-1')), 50),

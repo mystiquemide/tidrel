@@ -1,10 +1,7 @@
 import { cache } from 'react'
 import {
-  TransactionReceiptNotFoundError,
-  createPublicClient,
   formatUnits,
   getAddress,
-  http,
   isHash,
   parseEventLogs,
   type Address,
@@ -12,13 +9,16 @@ import {
   type Log,
 } from 'viem'
 import { erc20Abi, memoAbi, settlerAbi } from './abis'
-import { ADDRESSES, ARC_RPC_FALLBACK_URLS, USDC_DECIMALS, arcChain } from './chain'
-import { publicClient } from './client'
+import { ADDRESSES, USDC_DECIMALS } from './chain'
 import { isDemoDesk } from './deskAddress'
 import { readHistory, type Settlement } from './history'
 import { getDemoCycles } from './landing'
+import snapshot from './demoSnapshot.json'
 import { decodeMemoData } from './memo'
+import { lookupReceipt } from './rpcReceipt'
 import { bytes32ToReference } from './settler'
+
+export { lookupReceipt }
 
 export type ReceiptLeg = { to: Address; amountUsdc: string }
 
@@ -90,31 +90,36 @@ export type Receipt =
     }
   | { ok: false; reason: 'invalid' | 'not-found' | 'not-a-payout' | 'chain' }
 
-type ReceiptSource = Pick<typeof publicClient, 'getTransactionReceipt' | 'getBlock'>
-
-const receiptSources: ReceiptSource[] = ARC_RPC_FALLBACK_URLS.map((url) =>
-  createPublicClient({ chain: arcChain, transport: http(url, { retryCount: 1, retryDelay: 300 }) }),
-)
+type FrozenReceipt = {
+  blockNumber: string
+  timestamp: number
+  payout: DecodedPayout
+}
 
 /**
- * Asks each RPC in turn for the receipt. A node that has pruned old blocks answers null,
- * which is a reply and not an error, so the shared failover stops there and calls a real
- * receipt missing. Only when every node answers with nothing is the transaction absent.
+ * The demo desk's payouts are finished chain facts, kept in demoSnapshot.json so their
+ * receipts open without a live RPC call. Used only when the snapshot was made for the
+ * desk this build is configured with.
  */
-export async function lookupReceipt(hash: Hash, sources: ReceiptSource[] = receiptSources) {
-  let failed = false
-  for (const source of sources) {
-    try {
-      return { found: true as const, receipt: await source.getTransactionReceipt({ hash }), source }
-    } catch (e) {
-      if (!(e instanceof TransactionReceiptNotFoundError)) failed = true
-    }
+function frozenReceipt(hash: Hash): Receipt | null {
+  const snap = snapshot as { desk: string; receipts?: Record<string, FrozenReceipt>; settlements: Settlement[] }
+  if (!isDemoDesk(snap.desk as Address)) return null
+  const hit = snap.receipts?.[hash.toLowerCase()]
+  if (!hit) return null
+  return {
+    ok: true,
+    txHash: hash,
+    blockNumber: BigInt(hit.blockNumber),
+    timestamp: hit.timestamp,
+    payout: hit.payout,
+    cycle: snap.settlements.find((c) => c.txHash?.toLowerCase() === hash.toLowerCase()) ?? null,
   }
-  return { found: false as const, failed }
 }
 
 export const getReceipt = cache(async (raw: string): Promise<Receipt> => {
   if (!isHash(raw)) return { ok: false, reason: 'invalid' }
+  const frozen = frozenReceipt(raw)
+  if (frozen) return frozen
   try {
     const hit = await lookupReceipt(raw)
     if (!hit.found) return { ok: false, reason: hit.failed ? 'chain' : 'not-found' }
@@ -144,7 +149,8 @@ export const getReceipt = cache(async (raw: string): Promise<Receipt> => {
       payout,
       cycle,
     }
-  } catch {
+  } catch (e) {
+    console.error('receipt read failed', raw, e instanceof Error ? e.message : e)
     return { ok: false, reason: 'chain' }
   }
 })

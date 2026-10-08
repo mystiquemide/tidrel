@@ -70,3 +70,28 @@ describe('lookupReceipt', () => {
     expect(await lookupReceipt(hash, [src(down), src(missing)])).toEqual({ found: false, failed: true })
   })
 })
+
+describe('frozen demo receipts', () => {
+  it('opens every demo payout from the snapshot without any RPC call', async () => {
+    const { vi } = await import('vitest')
+    const snapshot = (await import('../src/lib/demoSnapshot.json')).default as {
+      settlements: { txHash: string | null; reference: string | null }[]
+      receipts: Record<string, { payout: { reference: string; legs: unknown[] } }>
+    }
+    const { getReceipt } = await import('../src/lib/receipt')
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    const paid = snapshot.settlements.filter((s) => s.txHash)
+    expect(paid.length).toBeGreaterThan(0)
+    for (const s of paid) {
+      const r = await getReceipt(s.txHash!)
+      expect(r.ok).toBe(true)
+      if (r.ok) {
+        expect(r.payout.reference).toBe(snapshot.receipts[s.txHash!.toLowerCase()].payout.reference)
+        expect(r.payout.legs.length).toBeGreaterThan(0)
+        expect(r.cycle?.txHash).toBe(s.txHash)
+      }
+    }
+    expect(fetchSpy).not.toHaveBeenCalled()
+    fetchSpy.mockRestore()
+  })
+})

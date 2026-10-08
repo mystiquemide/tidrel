@@ -11,6 +11,7 @@ import { erc20Abi, memoAbi, morphoAbi, settlerAbi } from './abis'
 import { ADDRESSES, CIRBTC_USDC_MARKET_ID, USDC_DECIMALS } from './chain'
 import { publicClient } from './client'
 import { decodeMemoData } from './memo'
+import { lookupReceipt } from './rpcReceipt'
 import { bytes32ToReference } from './settler'
 
 const memoEvent = getAbiItem({ abi: memoAbi, name: 'Memo' })
@@ -336,7 +337,9 @@ export async function readHistory(
   })
 
   const totals = await mapLimit(candidates, 2, async (c) => {
-    const receipt = await publicClient.getTransactionReceipt({ hash: c.tx })
+    const hit = await lookupReceipt(c.tx)
+    if (!hit.found) throw new Error(`Could not read the receipt for ${c.tx} from any RPC`)
+    const receipt = hit.receipt
     const transfers = parseEventLogs({
       abi: erc20Abi,
       eventName: 'Transfer',

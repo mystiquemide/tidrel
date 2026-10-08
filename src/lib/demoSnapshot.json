@@ -99,5 +99,122 @@
       "sharedCycle": false,
       "state": "repaid"
     }
-  ]
+  ],
+  "receipts": {
+    "0x9357f0a5f0b160ddc2d4bf34e3bd7fc5ff13e69e2f60a945983fe7fcf4243302": {
+      "blockNumber": "24576365",
+      "timestamp": 1791297947,
+      "payout": {
+        "payer": "0x100E8AF5Ba507641Bb87c7D3229B8d458b78ca04",
+        "reference": "BLK-0413",
+        "totalUsdc": "1.2",
+        "legs": [
+          {
+            "to": "0x74e03e79b2589Ef35Eb5b1506221FbE43E813976",
+            "amountUsdc": "0.5"
+          },
+          {
+            "to": "0xc562a15D420294403aC7310e94834325E6551F55",
+            "amountUsdc": "0.4"
+          },
+          {
+            "to": "0x2B5248e5cd2ED86AE2a2cAAB869990206B502070",
+            "amountUsdc": "0.3"
+          }
+        ]
+      }
+    },
+    "0x0625969d6e32ecf25714f4e2aaad59a3219c02bf55af9f43b8c54fc0047b49d5": {
+      "blockNumber": "24598906",
+      "timestamp": 1791309384,
+      "payout": {
+        "payer": "0x100E8AF5Ba507641Bb87c7D3229B8d458b78ca04",
+        "reference": "BLK-0414",
+        "totalUsdc": "1.2",
+        "legs": [
+          {
+            "to": "0x74e03e79b2589Ef35Eb5b1506221FbE43E813976",
+            "amountUsdc": "0.5"
+          },
+          {
+            "to": "0xc562a15D420294403aC7310e94834325E6551F55",
+            "amountUsdc": "0.4"
+          },
+          {
+            "to": "0x2B5248e5cd2ED86AE2a2cAAB869990206B502070",
+            "amountUsdc": "0.3"
+          }
+        ]
+      }
+    },
+    "0x9d539c2172ab31e2b6f925b22e4b76e2ef0799e03e7b247c2fdd578c761fb5d1": {
+      "blockNumber": "24599122",
+      "timestamp": 1791309494,
+      "payout": {
+        "payer": "0x100E8AF5Ba507641Bb87c7D3229B8d458b78ca04",
+        "reference": "BLK-0415",
+        "totalUsdc": "1.2",
+        "legs": [
+          {
+            "to": "0x74e03e79b2589Ef35Eb5b1506221FbE43E813976",
+            "amountUsdc": "0.5"
+          },
+          {
+            "to": "0xc562a15D420294403aC7310e94834325E6551F55",
+            "amountUsdc": "0.4"
+          },
+          {
+            "to": "0x2B5248e5cd2ED86AE2a2cAAB869990206B502070",
+            "amountUsdc": "0.3"
+          }
+        ]
+      }
+    },
+    "0xf839e087bd40643d9583c050a8bfda686c1488300c2a6454909dbee284f9521c": {
+      "blockNumber": "24599745",
+      "timestamp": 1791309810,
+      "payout": {
+        "payer": "0x100E8AF5Ba507641Bb87c7D3229B8d458b78ca04",
+        "reference": "BLK-0416",
+        "totalUsdc": "1.2",
+        "legs": [
+          {
+            "to": "0x74e03e79b2589Ef35Eb5b1506221FbE43E813976",
+            "amountUsdc": "0.5"
+          },
+          {
+            "to": "0xc562a15D420294403aC7310e94834325E6551F55",
+            "amountUsdc": "0.4"
+          },
+          {
+            "to": "0x2B5248e5cd2ED86AE2a2cAAB869990206B502070",
+            "amountUsdc": "0.3"
+          }
+        ]
+      }
+    },
+    "0x276f53ef104cab451397e997cd1b24ef30692e14eec07c899b3ad57adeb37224": {
+      "blockNumber": "24602866",
+      "timestamp": 1791311393,
+      "payout": {
+        "payer": "0x100E8AF5Ba507641Bb87c7D3229B8d458b78ca04",
+        "reference": "BLK-0417",
+        "totalUsdc": "1.2",
+        "legs": [
+          {
+            "to": "0x74e03e79b2589Ef35Eb5b1506221FbE43E813976",
+            "amountUsdc": "0.5"
+          },
+          {
+            "to": "0xc562a15D420294403aC7310e94834325E6551F55",
+            "amountUsdc": "0.4"
+          },
+          {
+            "to": "0x2B5248e5cd2ED86AE2a2cAAB869990206B502070",
+            "amountUsdc": "0.3"
+          }
+        ]
+      }
+    }
+  }
 }
