@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Contracts } from "@/components/Contracts";
-import { Footer } from "@/components/Footer";
 import { NavBar } from "@/components/NavBar";
 import { SkipLink } from "@/components/SkipLink";
 
@@ -19,7 +18,6 @@ export default function ContractsPage() {
       <main id="main" className="flex-1">
         <Contracts />
       </main>
-      <Footer />
     </>
   );
 }

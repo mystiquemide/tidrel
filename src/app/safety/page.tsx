@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Footer } from "@/components/Footer";
 import { NavBar } from "@/components/NavBar";
 import { SafetyRules } from "@/components/SafetyRules";
 import { SkipLink } from "@/components/SkipLink";
@@ -21,7 +20,6 @@ export default function SafetyPage() {
       <main id="main" className="flex-1">
         <SafetyRules />
       </main>
-      <Footer />
     </>
   );
 }
