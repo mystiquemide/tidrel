@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Footer } from "@/components/Footer";
 import { NavBar } from "@/components/NavBar";
 import { ProofBand } from "@/components/ProofBand";
 import { SkipLink } from "@/components/SkipLink";
@@ -21,7 +20,6 @@ export default function ProofPage() {
       <main id="main" className="flex-1">
         <ProofBand />
       </main>
-      <Footer />
     </>
   );
 }
