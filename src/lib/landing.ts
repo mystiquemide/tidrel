@@ -3,6 +3,7 @@ import { DEMO_DESK_ADDRESS, DEMO_DESK_FROM_BLOCK } from './chain'
 import { publicClient } from './client'
 import { formatUsdc } from './format'
 import { readHistory, type Settlement } from './history'
+import snapshot from './demoSnapshot.json'
 
 export type DemoCycles =
   | { ok: true; settlements: Settlement[]; blockNumber: bigint }
@@ -17,12 +18,42 @@ type Good = Extract<DemoCycles, { ok: true }>
 let lastGood: { at: number; value: Good } | null = null
 const FRESH_MS = 120_000
 
+// Cycles before the checkpoint are frozen in demoSnapshot.json (the desk owed nothing at
+// that block), so only the blocks since are read. Reading from the first block every time
+// grows by about 30 pages a day and soon outlasts a page build. The snapshot is used only
+// when it was made for the desk and start block this build is configured with.
+const frozen =
+  snapshot.desk.toLowerCase() === DEMO_DESK_ADDRESS.toLowerCase() &&
+  BigInt(snapshot.fromBlock) === DEMO_DESK_FROM_BLOCK
+    ? { settlements: snapshot.settlements as Settlement[], checkpoint: BigInt(snapshot.checkpointBlock) }
+    : null
+
+// How long the read since the checkpoint may take before the frozen cycles are served alone.
+const LIVE_READ_MS = 25_000
+
 async function readCycles(): Promise<Good> {
-  const [history, blockNumber] = await Promise.all([
-    readHistory(DEMO_DESK_ADDRESS, { fromBlock: DEMO_DESK_FROM_BLOCK }),
-    publicClient.getBlockNumber(),
-  ])
-  return { ok: true, settlements: history.settlements, blockNumber }
+  if (!frozen) {
+    const [history, blockNumber] = await Promise.all([
+      readHistory(DEMO_DESK_ADDRESS, { fromBlock: DEMO_DESK_FROM_BLOCK }),
+      publicClient.getBlockNumber(),
+    ])
+    return { ok: true, settlements: history.settlements, blockNumber }
+  }
+  try {
+    const live = await Promise.race([
+      Promise.all([
+        // Legacy Memo payouts all predate the checkpoint, so skip that log read.
+        readHistory(DEMO_DESK_ADDRESS, { fromBlock: frozen.checkpoint + 1n, includeMemo: false }),
+        publicClient.getBlockNumber(),
+      ]),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('live read timed out')), LIVE_READ_MS)),
+    ])
+    return { ok: true, settlements: [...frozen.settlements, ...live[0].settlements], blockNumber: live[1] }
+  } catch (e) {
+    // A newer read is better than the frozen cycles, so let the caller serve that one.
+    if (lastGood) throw e
+    return { ok: true, settlements: frozen.settlements, blockNumber: frozen.checkpoint }
+  }
 }
 
 /**

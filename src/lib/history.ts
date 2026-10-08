@@ -231,13 +231,15 @@ export async function readHistory(
   wallet: Address,
   opts: {
     fromBlock?: bigint
+    /** Read up to this block instead of the chain head. Used to freeze finished history. */
+    toBlock?: bigint
     lookbackBlocks?: bigint
     concurrency?: number
     /** Legacy Memo payouts only exist for the demo desk. Skipping them saves a log read per page. */
     includeMemo?: boolean
   } = {},
 ) {
-  const head = await publicClient.getBlockNumber()
+  const head = opts.toBlock ?? (await publicClient.getBlockNumber())
   const lookback = opts.lookbackBlocks ?? DEFAULT_LOOKBACK_BLOCKS
   const from = opts.fromBlock ?? (head > lookback ? head - lookback : 0n)
 
